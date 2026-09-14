@@ -1878,6 +1878,33 @@ function syncForeignKeysForColumnChange(refTable, oldColName, newColName, newDat
   });
 }
 
+// Quando o NOME de uma tabela muda, as colunas de chave estrangeira em tabelas relacionadas que
+// ainda têm o nome padrão gerado a partir do nome antigo dela (ex.: "aluno_id" quando "Aluno" vira
+// "Estudante", virando "estudante_id") acompanham a mudança. Uma coluna que o usuário já renomeou
+// para outra coisa não bate mais com esse padrão e fica como está — só o que ainda segue o nome
+// automático (com ou sem sufixo numérico de desambiguação, tipo "aluno_id2") é atualizado, para
+// nunca sobrescrever um nome escolhido manualmente.
+function renameForeignKeyColumnsForTableRename(table, oldName, newName){
+  var oldSlug = slugColumnName(oldName);
+  var newSlug = slugColumnName(newName);
+  if (oldSlug === newSlug) return;
+  state.nodes.forEach(function(t){
+    if (t.type !== "table") return;
+    (t.columns || []).forEach(function(c){
+      if (!(c.fk && c.fkTable === table.id && c.fkColumn)) return;
+      var oldPrefix = oldSlug + "_" + c.fkColumn;
+      if (c.name.indexOf(oldPrefix) !== 0) return;
+      var suffix = c.name.slice(oldPrefix.length);
+      if (suffix !== "" && !/^\d+$/.test(suffix)) return; // nome customizado -- não mexe
+      var base = newSlug + "_" + c.fkColumn, newColName = base + suffix, n2 = 2;
+      while ((t.columns || []).some(function(o){ return o !== c && o.name === newColName; })){
+        newColName = base + n2; n2++;
+      }
+      c.name = newColName;
+    });
+  });
+}
+
 // Uma coluna FK não tem tipo/tamanho próprios — eles só são definidos por quem ela referencia.
 // Chamada sempre que a referência é criada ou trocada (marcar FK, trocar a tabela referenciada ou
 // trocar a coluna referenciada), para os campos (desabilitados no painel) já nascerem com o
@@ -2487,7 +2514,12 @@ function renderTablePanel(n){
     if (el){ el.focus(); if (cursorEnd !== undefined) el.setSelectionRange(cursorEnd, cursorEnd); }
   }
   document.getElementById("pf-table-name").addEventListener("input", function(e){
-    n.name = e.target.value; render();
+    var oldName = n.name;
+    n.name = e.target.value;
+    // Acompanha o nome da tabela nas colunas FK (em qualquer tabela relacionada) que ainda usam
+    // o nome automático baseado no nome antigo dela — ver renameForeignKeyColumnsForTableRename.
+    renameForeignKeyColumnsForTableRename(n, oldName, n.name);
+    render();
     var el = document.getElementById("pf-table-name");
     if (el){ el.focus(); el.setSelectionRange(e.target.value.length, e.target.value.length); }
   });
