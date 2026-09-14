@@ -84,6 +84,11 @@
   }
 
   *{box-sizing:border-box;}
+  /* Garante que o atributo "hidden" sempre esconda o elemento, mesmo quando alguma outra regra
+     (como o "display:flex" de #toolbarConceptual/#toolbarLogical logo abaixo) também mira nesse
+     mesmo elemento — sem isso, uma regra de autor com "display" definido vence o estilo padrão
+     do navegador para [hidden], e o elemento continua aparecendo mesmo marcado como oculto. */
+  [hidden]{ display:none !important; }
   body{
     margin:0; height:100vh; overflow:hidden;
     background:var(--bg); color:var(--ink);
@@ -408,20 +413,12 @@
         <svg viewBox="0 0 24 16"><rect class="ic-stroke" x="1" y="1" width="22" height="14" rx="2"/></svg>
         Entidade
       </button>
-      <button class="tbtn" data-add="entity" data-weak="1">
-        <svg viewBox="0 0 24 16"><rect class="ic-stroke" x="1" y="1" width="22" height="14" rx="2"/><rect class="ic-stroke" x="4" y="4" width="16" height="8" rx="1"/></svg>
-        Entidade fraca
-      </button>
     </div>
     <div class="tgroup">
       <div class="tgroup-label">Relacionamentos</div>
       <button class="tbtn" data-add="relationship" data-identifying="0">
         <svg viewBox="0 0 24 18"><polygon class="ic-stroke" points="12,1 23,9 12,17 1,9"/></svg>
         Relacionamento
-      </button>
-      <button class="tbtn" data-add="relationship" data-identifying="1">
-        <svg viewBox="0 0 24 18"><polygon class="ic-stroke" points="12,1 23,9 12,17 1,9"/><polygon class="ic-stroke" points="12,4.5 19,9 12,13.5 5,9"/></svg>
-        Relac. identificador
       </button>
     </div>
     <div class="tgroup">
@@ -433,14 +430,6 @@
       <button class="tbtn" data-add="attribute" data-kind="composite">
         <svg viewBox="0 0 24 20"><ellipse class="ic-stroke" cx="12" cy="6" rx="9" ry="5"/><line class="ic-stroke" x1="7" y1="10" x2="3" y2="17"/><line class="ic-stroke" x1="17" y1="10" x2="21" y2="17"/><ellipse class="ic-stroke" cx="3" cy="18" rx="2.4" ry="1.6"/><ellipse class="ic-stroke" cx="21" cy="18" rx="2.4" ry="1.6"/></svg>
         Composto
-      </button>
-      <button class="tbtn" data-add="attribute" data-kind="multivalued">
-        <svg viewBox="0 0 24 16"><ellipse class="ic-stroke" cx="12" cy="8" rx="11" ry="7"/><ellipse class="ic-stroke" cx="12" cy="8" rx="7.5" ry="4.3"/></svg>
-        Multivalorado
-      </button>
-      <button class="tbtn" data-add="attribute" data-kind="derived">
-        <svg viewBox="0 0 24 16"><ellipse class="ic-stroke" cx="12" cy="8" rx="11" ry="7" stroke-dasharray="3 2"/></svg>
-        Derivado
       </button>
     </div>
     <div class="tgroup">
@@ -458,14 +447,22 @@
           <svg viewBox="0 0 24 18"><rect class="ic-stroke" x="1" y="1" width="22" height="16" rx="2"/><line class="ic-stroke" x1="1" y1="7" x2="23" y2="7"/></svg>
           Tabela
         </button>
-      </div>
-      <div class="tgroup">
-        <div class="tgroup-label">Tipos de dados</div>
-        <button class="tbtn" id="btnManageTypes" title="Cadastrar ou excluir os tipos de dados disponíveis para as colunas">
-          <svg viewBox="0 0 20 20"><ellipse class="ic-stroke" cx="10" cy="4.5" rx="7" ry="2.5"/><path class="ic-stroke" d="M3 4.5v11c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-11"/><path class="ic-stroke" d="M3 10c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>
-          Gerenciar tipos
+        <button class="tbtn" id="btnAddPkColumn" title="Adiciona uma coluna de chave primária na tabela selecionada">
+          <svg viewBox="0 0 20 20"><circle class="ic-stroke" cx="6" cy="6" r="3.4"/><line class="ic-stroke" x1="8.4" y1="8.4" x2="17" y2="17"/><line class="ic-stroke" x1="12.2" y1="12.2" x2="15" y2="9.4"/></svg>
+          Chave primária
+        </button>
+        <button class="tbtn" id="btnAddFkColumn" title="Adiciona uma coluna de chave estrangeira na tabela selecionada, referenciando outra tabela">
+          <svg viewBox="0 0 24 18"><circle class="ic-stroke" cx="5" cy="5" r="3"/><line class="ic-stroke" x1="7.1" y1="7.1" x2="12" y2="12"/><line class="ic-stroke" x1="10.2" y1="10.2" x2="12.2" y2="8.2"/><rect class="ic-stroke" x="15" y="9" width="8" height="7" rx="1.4"/></svg>
+          Chave estrangeira
         </button>
       </div>
+    </div>
+    <div class="tgroup">
+      <div class="tgroup-label">Tipos de dados</div>
+      <button class="tbtn" id="btnManageTypes" title="Cadastrar ou excluir os tipos de dados disponíveis para as colunas">
+        <svg viewBox="0 0 20 20"><ellipse class="ic-stroke" cx="10" cy="4.5" rx="7" ry="2.5"/><path class="ic-stroke" d="M3 4.5v11c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-11"/><path class="ic-stroke" d="M3 10c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>
+        Gerenciar tipos
+      </button>
     </div>
     <div class="tgroup">
       <div class="tgroup-label">Anotações</div>
@@ -978,7 +975,35 @@ function deleteNode(id){
   selectedNodeIds.delete(id);
   removedEdgeIds.forEach(function(eid){ selectedEdgeIds.delete(eid); });
 }
+// No modelo lógico, uma "conexão" entre duas tabelas (edge.kind "fk") não é um dado próprio --
+// é só um reflexo, recalculado a cada redesenho, das colunas marcadas como FK na tabela de
+// origem apontando para a tabela de destino (ver rebuildLogicalEdges). Por isso, remover a
+// conexão de state.edges sozinho não tem efeito nenhum: no próximo render() ela reaparece,
+// recriada a partir das mesmas colunas. Excluir a conexão de verdade significa remover a(s)
+// coluna(s) FK que a representam.
+function fkColumnsForEdge(edge){
+  var child = getNode(edge.from);
+  if (!child) return [];
+  return (child.columns || []).filter(function(c){ return c.fk && c.fkTable === edge.to; });
+}
+function removeLogicalFkColumns(edge){
+  var child = getNode(edge.from);
+  if (!child) return;
+  child.columns = (child.columns || []).filter(function(c){ return !(c.fk && c.fkTable === edge.to); });
+}
+// Grava min/max de um dos lados (cardChild ou cardParent) em TODAS as colunas FK que formam essa
+// conexão (uma FK composta, com mais de uma coluna, deve manter a mesma cardinalidade em todas).
+function setFkCardinalityField(edge, side, field, value){
+  fkColumnsForEdge(edge).forEach(function(c){
+    c[side] = Object.assign({ min:"0", max:"N" }, c[side] || {});
+    c[side][field] = value;
+  });
+}
 function deleteEdge(id){
+  if (mode === "logical"){
+    var e = getEdge(id);
+    if (e && e.kind === "fk") removeLogicalFkColumns(e);
+  }
   state.edges = state.edges.filter(function(e){ return e.id !== id; });
   selectedEdgeIds.delete(id);
 }
@@ -1806,7 +1831,12 @@ function addForeignKeyColumn(childTable, parentTable){
     if (already) return;
     var colName = baseName + "_" + pk.name, n2 = 2;
     while ((childTable.columns || []).some(function(c){ return c.name === colName; })){ colName = baseName + "_" + pk.name + n2; n2++; }
-    childTable.columns.push({ name:colName, dataType:pk.dataType || "INT", dataSize:pk.dataSize || "", pk:false, fk:true, fkTable:parentTable.id, fkColumn:pk.name });
+    // Cardinalidade padrão de uma FK criada manualmente (sem relacionamento conceitual por trás):
+    // "muitos para um" -- cada linha da tabela referenciada (PK) pode estar associada a (0,N)
+    // linhas da tabela que a referencia (FK), e cada linha da tabela que referencia aponta para
+    // exatamente (1,1) linha da tabela referenciada. O usuário pode ajustar isso depois pelo
+    // painel da conexão, se o relacionamento real for diferente (por exemplo, opcional).
+    childTable.columns.push({ name:colName, dataType:pk.dataType || "INT", dataSize:pk.dataSize || "", pk:false, fk:true, fkTable:parentTable.id, fkColumn:pk.name, cardChild:{min:"0",max:"N"}, cardParent:{min:"1",max:"1"} });
   });
   return true;
 }
@@ -2074,6 +2104,49 @@ document.getElementById("btnConnect").addEventListener("click", function(){
 document.getElementById("btnDelete").addEventListener("click", function(){
   if (selectedNodeIds.size === 0 && selectedEdgeIds.size === 0){ showToast("Selecione um ou mais elementos para excluir (clique, Shift+clique ou arraste um laço ao redor deles)."); return; }
   deleteSelection();
+});
+
+// Retorna a única tabela selecionada no momento (modo lógico), ou null se não houver exatamente
+// uma tabela selecionada — usada pelos botões "Chave primária" e "Chave estrangeira" da barra,
+// que agem sobre a tabela selecionada em vez de exigir um clique no quadro (ao contrário dos
+// botões de "adicionar elemento", que usam pendingAdd).
+function getSingleSelectedTable(){
+  if (selectedNodeIds.size !== 1) return null;
+  var id = Array.from(selectedNodeIds)[0];
+  var n = getNode(id);
+  return (n && n.type === "table") ? n : null;
+}
+// Gera um nome de coluna que ainda não existe na tabela (ex.: "chave_primaria", "chave_primaria2", ...).
+function uniqueColumnName(table, base){
+  var name = base, i = 2;
+  while ((table.columns || []).some(function(c){ return c.name === name; })){ name = base + i; i++; }
+  return name;
+}
+
+document.getElementById("btnAddPkColumn").addEventListener("click", function(){
+  var t = getSingleSelectedTable();
+  if (!t){ showToast("Selecione uma tabela para adicionar uma coluna de chave primária.", "warn"); return; }
+  t.columns = t.columns || [];
+  t.columns.push({ name: uniqueColumnName(t, "chave_primaria"), dataType:"INT", dataSize:"", pk:true, fk:false, fkTable:null, fkColumn:null });
+  render();
+});
+
+document.getElementById("btnAddFkColumn").addEventListener("click", function(){
+  var t = getSingleSelectedTable();
+  if (!t){ showToast("Selecione uma tabela para adicionar uma coluna de chave estrangeira.", "warn"); return; }
+  var others = state.nodes.filter(function(o){ return o.type === "table" && o.id !== t.id; });
+  if (!others.length){ showToast("Crie outra tabela com uma coluna de chave primária para referenciar antes de adicionar uma chave estrangeira.", "warn"); return; }
+  var refTable = others[0];
+  var refPk = (refTable.columns || []).filter(function(c){ return c.pk; })[0];
+  var refCol = refPk || (refTable.columns && refTable.columns[0]);
+  t.columns = t.columns || [];
+  // Mesma cardinalidade padrão ("muitos para um") usada pelo "Conectar" -- ver addForeignKeyColumn.
+  var col = { name: uniqueColumnName(t, "chave_estrangeira"), dataType:"INT", dataSize:"", pk:false, fk:true, fkTable:refTable.id, fkColumn: refCol ? refCol.name : null, cardChild:{min:"0",max:"N"}, cardParent:{min:"1",max:"1"} };
+  t.columns.push(col);
+  syncColumnDataTypeFromReference(col);
+  selectedNodeIds = new Set([t.id]);
+  selectedEdgeIds = new Set();
+  render();
 });
 
 document.getElementById("btnSnap").addEventListener("click", function(){
@@ -2407,6 +2480,11 @@ function renderTablePanel(n){
           var firstPk = first && (first.columns || []).filter(function(rc){ return rc.pk; })[0];
           col.fkColumn = firstPk ? firstPk.name : (first && first.columns && first.columns[0] ? first.columns[0].name : null);
         }
+        // Mesma cardinalidade padrao ("muitos para um") usada pelas outras formas de criar uma FK
+        // (botao "Chave estrangeira" e modo "Conectar") -- sem isso a conexao ficava sem pilula de
+        // cardinalidade na tela ate o usuario abrir o painel da conexao e definir manualmente.
+        if (!col.cardChild) col.cardChild = { min:"0", max:"N" };
+        if (!col.cardParent) col.cardParent = { min:"1", max:"1" };
         syncColumnDataTypeFromReference(col);
       } else {
         col.fkTable = null; col.fkColumn = null;
@@ -2584,7 +2662,8 @@ function updatePanel(){
   } else {
     var ed = getEdge(Array.from(selectedEdgeIds)[0]);
     if (!ed){ selectedEdgeIds.clear(); return updatePanel(); }
-    var html2 = '<h3>Conexão</h3><div class="kind">' + (ed.kind === "participation" ? "Participação em relacionamento" : "Ligação simples") + '</div>';
+    var kindLabel2 = ed.kind === "participation" ? "Participação em relacionamento" : (ed.kind === "fk" ? "Chave estrangeira (tabelas)" : "Ligação simples");
+    var html2 = '<h3>Conexão</h3><div class="kind">' + kindLabel2 + '</div>';
     if (ed.kind === "participation"){
       html2 += '<div class="field row"><div><label for="pf-min">Mínimo</label><select id="pf-min">' +
         '<option value="0"' + (ed.min==="0"?" selected":"") + '>0</option>' +
@@ -2595,6 +2674,28 @@ function updatePanel(){
         '</select></div></div>';
       html2 += '<div class="field"><label for="pf-role">Papel (opcional)</label><input type="text" id="pf-role" value="' + escapeHtml(ed.role || "") + '" placeholder="ex.: cursa, supervisiona"></div>';
       html2 += '<p class="hint">Cardinalidade (mín,máx) exibida próxima à entidade, no padrão usado no BrModelo.</p>';
+    } else if (ed.kind === "fk"){
+      var fkChildTable = getNode(ed.from), fkParentTable = getNode(ed.to);
+      var cChild = ed.cardChild || { min:"0", max:"N" };
+      var cParent = ed.cardParent || { min:"1", max:"1" };
+      html2 += '<div class="field"><label>Coluna(s) de chave estrangeira</label><p class="hint" style="margin-top:0">' + escapeHtml(ed.role || "") + '</p></div>';
+      html2 += '<div class="field"><label>Cardinalidade em "' + escapeHtml((fkChildTable && fkChildTable.name) || "") + '"</label>' +
+        '<div class="field row"><div><label for="pf-fk-cchild-min">Mínimo</label><select id="pf-fk-cchild-min">' +
+        '<option value="0"' + (cChild.min==="0"?" selected":"") + '>0</option>' +
+        '<option value="1"' + (cChild.min==="1"?" selected":"") + '>1</option>' +
+        '</select></div><div><label for="pf-fk-cchild-max">Máximo</label><select id="pf-fk-cchild-max">' +
+        '<option value="1"' + (cChild.max==="1"?" selected":"") + '>1</option>' +
+        '<option value="N"' + (cChild.max==="N"?" selected":"") + '>N</option>' +
+        '</select></div></div></div>';
+      html2 += '<div class="field"><label>Cardinalidade em "' + escapeHtml((fkParentTable && fkParentTable.name) || "") + '"</label>' +
+        '<div class="field row"><div><label for="pf-fk-cparent-min">Mínimo</label><select id="pf-fk-cparent-min">' +
+        '<option value="0"' + (cParent.min==="0"?" selected":"") + '>0</option>' +
+        '<option value="1"' + (cParent.min==="1"?" selected":"") + '>1</option>' +
+        '</select></div><div><label for="pf-fk-cparent-max">Máximo</label><select id="pf-fk-cparent-max">' +
+        '<option value="1"' + (cParent.max==="1"?" selected":"") + '>1</option>' +
+        '<option value="N"' + (cParent.max==="N"?" selected":"") + '>N</option>' +
+        '</select></div></div></div>';
+      html2 += '<p class="hint">A cardinalidade indica quantas linhas de cada tabela participam da referência (exibida como pílula perto de cada ponta da linha).</p>';
     } else {
       html2 += '<p class="hint">Ligação entre atributo e sua entidade/relacionamento/atributo composto, ou entre entidade e generalização.</p>';
     }
@@ -2604,6 +2705,11 @@ function updatePanel(){
       document.getElementById("pf-min").addEventListener("change", function(e){ ed.min = e.target.value; render(); });
       document.getElementById("pf-max").addEventListener("change", function(e){ ed.max = e.target.value; render(); });
       document.getElementById("pf-role").addEventListener("input", function(e){ ed.role = e.target.value; render(); document.getElementById("pf-role").focus(); document.getElementById("pf-role").setSelectionRange(e.target.value.length, e.target.value.length); });
+    } else if (ed.kind === "fk"){
+      document.getElementById("pf-fk-cchild-min").addEventListener("change", function(e){ setFkCardinalityField(ed, "cardChild", "min", e.target.value); render(); });
+      document.getElementById("pf-fk-cchild-max").addEventListener("change", function(e){ setFkCardinalityField(ed, "cardChild", "max", e.target.value); render(); });
+      document.getElementById("pf-fk-cparent-min").addEventListener("change", function(e){ setFkCardinalityField(ed, "cardParent", "min", e.target.value); render(); });
+      document.getElementById("pf-fk-cparent-max").addEventListener("change", function(e){ setFkCardinalityField(ed, "cardParent", "max", e.target.value); render(); });
     }
     document.getElementById("pf-delete-edge").addEventListener("click", function(){ deleteEdge(ed.id); render(); });
   }
