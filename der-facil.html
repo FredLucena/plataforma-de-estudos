@@ -1670,13 +1670,28 @@ function attachNodeHandlers(g, node){
     if (pendingAdd){
       // Clicar exatamente EM CIMA de um nó existente nunca chega ao handler de clique do palco
       // (o stopPropagation logo acima impede isso) — por isso soltar o triângulo de Generalização
-      // sobre uma entidade precisa ser tratado aqui, não em handleGeneralizationDrop (que só é
-      // alcançado ao clicar em uma área vazia do canvas). Qualquer outra combinação de
-      // ferramenta+nó continua sem efeito, como sempre foi.
+      // sobre uma entidade, ou um Atributo sobre um alvo válido, precisa ser tratado aqui, não em
+      // handleGeneralizationDrop/pointerup do palco (que só são alcançados ao clicar em uma área
+      // vazia do canvas). Qualquer outra combinação de ferramenta+nó continua sem efeito.
       if (pendingAdd.type === "generalization" && node.type === "entity" && e.button === 0){
         pendingAdd = null;
         render();
         placeGeneralizationOnEntity(node);
+        return;
+      }
+      // Atributo (simples ou composto): clicar direto sobre uma entidade, um relacionamento ou
+      // outro atributo (composição) já cria o novo atributo posicionado ao redor do alvo E liga
+      // os dois automaticamente — evita ter que soltar num ponto vazio do quadro e depois entrar
+      // no modo "Conectar" só para ligar o que acabou de ser criado.
+      if (pendingAdd.type === "attribute" && e.button === 0 &&
+          (node.type === "entity" || node.type === "relationship" || node.type === "attribute")){
+        var kind = pendingAdd.kind || "simple";
+        // Ferramenta "fixada" (Ctrl+clique no botão): continua ativa depois deste atributo, para
+        // incluir vários em seguida sem reselecionar a ferramenta a cada um.
+        var stickyAdd = pendingAdd.sticky ? { type:"attribute", weak:false, identifying:false, kind:kind, sticky:true } : null;
+        pendingAdd = null;
+        placeAttributeOnNode(node, kind, stickyAdd);
+        return;
       }
       return;
     }
@@ -1984,6 +1999,40 @@ async function placeGeneralizationOnEntity(superEntity){
     : 'Generalização criada com ' + n + ' entidades especializadas de "' + (superEntity.name || "") + '".');
 }
 
+// Posiciona um novo atributo (simples ou composto) ao redor do nó-alvo (entidade, relacionamento
+// ou outro atributo, no caso de composição) e já cria a ligação entre os dois -- usado quando o
+// usuário clica com a ferramenta "Atributo" diretamente sobre um elemento existente, em vez de
+// soltar num ponto vazio do quadro. Os atributos já ligados ao alvo são contados e o novo entra
+// numa fileira acima dele, alternando de lado (centro, +1, -1, +2, -2 ...) para ficar centralizado
+// à medida que mais atributos vão sendo adicionados um de cada vez.
+// stickyAdd: quando não-nulo (ferramenta "fixada" por Ctrl+clique), é restaurado em pendingAdd
+// ao final para a ferramenta continuar ativa e permitir incluir vários atributos em seguida.
+function placeAttributeOnNode(target, kind, stickyAdd){
+  var existing = state.edges.filter(function(e){
+    if (e.kind !== "plain") return false;
+    var otherId = e.from === target.id ? e.to : (e.to === target.id ? e.from : null);
+    if (!otherId) return false;
+    var other = getNode(otherId);
+    return !!(other && other.type === "attribute");
+  });
+  var k = existing.length;
+  var side = k === 0 ? 0 : (k % 2 === 1 ? Math.ceil(k / 2) : -Math.ceil(k / 2));
+  var spacing = 118;
+  var targetDims = computeDims(target);
+  var targetCx = centerX(target, targetDims);
+  var gap = targetDims.h / 2 + 90;
+  var ax = targetCx + side * spacing;
+  var ay = target.y - gap;
+  if (snapToGrid){ ax = snapValue(ax); ay = snapValue(ay); }
+  var attr = addNodeAt("attribute", { attrKind: kind }, ax, ay);
+  state.edges.push({ id: uid("ed"), from: target.id, to: attr.id, kind:"plain" });
+  selectedNodeIds = new Set([attr.id]);
+  selectedEdgeIds = new Set();
+  if (stickyAdd) pendingAdd = stickyAdd;
+  render();
+  showToast('Atributo criado e conectado a "' + (target.name || "") + '".');
+}
+
 stageEl.addEventListener("pointerdown", function(e){
   if (e.button !== 0 && e.button !== 1) return;
   var isPanGesture = e.button === 1 || spaceHeld;
@@ -2048,7 +2097,9 @@ stageEl.addEventListener("pointerdown", function(e){
         if (pendingAdd.type === "note") opts.runs = [[{ text:"Escreva sua anotação aqui...", bold:false, italic:false, underline:false, fontSize:12 }]];
         if (pendingAdd.type === "table") opts.columns = [{ name:"id", dataType:"INT", pk:true, fk:false, fkTable:null, fkColumn:null }];
         var n = addNodeAt(pendingAdd.type, opts, pt.x, pt.y);
-        pendingAdd = null;
+        // Ferramenta "fixada" (Ctrl+clique no botão, ver mais abaixo): continua ativa depois de
+        // posicionar este elemento, em vez de desligar sozinha, para incluir vários em seguida.
+        pendingAdd = pendingAdd.sticky ? { type:pendingAdd.type, weak:pendingAdd.weak, identifying:pendingAdd.identifying, kind:pendingAdd.kind, sticky:true } : null;
         selectedNodeIds = new Set([n.id]);
         selectedEdgeIds = new Set();
         render();
@@ -2080,17 +2131,37 @@ document.getElementById("zoomFit").addEventListener("click", fitToContent);
 
 /* ---------- toolbar: adicionar / conectar / excluir ---------- */
 document.querySelectorAll(".tbtn[data-add]").forEach(function(btn){
-  btn.addEventListener("click", function(){
+  btn.addEventListener("click", function(e){
     var type = btn.getAttribute("data-add");
-    pendingAdd = {
-      type: type,
-      weak: btn.getAttribute("data-weak") === "1",
-      identifying: btn.getAttribute("data-identifying") === "1",
-      kind: btn.getAttribute("data-kind") || "simple"
-    };
+    var weak = btn.getAttribute("data-weak") === "1";
+    var identifying = btn.getAttribute("data-identifying") === "1";
+    var kind = btn.getAttribute("data-kind") || "simple";
+    // Clicar de novo no MESMO botão (já ativo) desliga a ferramenta -- serve tanto para cancelar
+    // um clique normal quanto para sair do modo "fixado" (Ctrl+clique, ver abaixo).
+    var isSameActive = pendingAdd && pendingAdd.type === type &&
+      (type !== "entity" || weak === !!pendingAdd.weak) &&
+      (type !== "relationship" || identifying === !!pendingAdd.identifying) &&
+      (type !== "attribute" || kind === pendingAdd.kind);
+    if (isSameActive){
+      pendingAdd = null;
+      render();
+      return;
+    }
+    // Ctrl+clique (ou Cmd+clique no Mac) deixa a ferramenta "fixada": em vez de desligar sozinha
+    // depois de posicionar um elemento, ela continua ativa até o usuário clicar de novo no botão
+    // -- facilita incluir vários atributos (ou outros objetos) em seguida sem reselecionar a
+    // ferramenta a cada um.
+    var sticky = !!(e && (e.ctrlKey || e.metaKey));
+    pendingAdd = { type: type, weak: weak, identifying: identifying, kind: kind, sticky: sticky };
     connectMode = false; connectFrom = null;
     render();
-    showToast("Clique em um ponto vazio do quadro para posicionar o novo elemento.");
+    // Atributo tem um segundo jeito de posicionar: clicar direto numa entidade, relacionamento ou
+    // outro atributo já cria e conecta de uma vez (ver placeAttributeOnNode) -- por isso o aviso
+    // menciona as duas opções só para essa ferramenta.
+    var baseMsg = type === "attribute"
+      ? "Clique em um ponto vazio do quadro para posicionar o atributo, ou direto numa entidade/relacionamento/atributo para já criar conectado a ele."
+      : "Clique em um ponto vazio do quadro para posicionar o novo elemento.";
+    showToast(sticky ? baseMsg + " A ferramenta vai continuar ativa para você incluir vários — clique no botão de novo para desligar." : baseMsg);
   });
 });
 
