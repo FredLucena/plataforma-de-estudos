@@ -485,6 +485,11 @@ document.querySelectorAll('.tab').forEach(function(t){
   };
 });
 
+// botão DER Fácil -> abre a página DER Fácil.html
+document.getElementById('derBtn').onclick = function(){
+  window.location.href = 'DER Fácil.html';
+};
+
 // theme toggle (dark <-> light) + persistência
 (function(){
   var KEY = 'plataforma-tema';
