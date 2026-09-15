@@ -3218,8 +3218,13 @@ function convertConceptualToLogical(conceptual){
       var subTable = tableByEntityId[subE.id];
       if (!subTable) return;
       var hasOwnKey = subTable.columns.some(function(c){ return c.pk; });
+      // Mesma convenção de nome usada em toda FK gerada pela conversão (entidade fraca, atributo
+      // multivalorado, relacionamento, tabela associativa): nome_da_tabela_referenciada + "_" +
+      // nome_da_coluna_referenciada — ex.: "pessoa_id". Antes, a FK herdada da generalização ficava
+      // só com o nome puro da PK da superclasse (ex.: "id"), sem o prefixo, inconsistente com as
+      // demais e sem indicar de onde vem a referência.
       var inheritedFk = superPks.map(function(pk){
-        return { name: pk.name, dataType: pk.dataType, dataSize: pk.dataSize, pk: !hasOwnKey, fk:true, fkTable: superTable.id, fkColumn: pk.name, cardChild:genCardChild, cardParent:genCardParent };
+        return { name: slugColumnName(superTable.name) + "_" + pk.name, dataType: pk.dataType, dataSize: pk.dataSize, pk: !hasOwnKey, fk:true, fkTable: superTable.id, fkColumn: pk.name, cardChild:genCardChild, cardParent:genCardParent };
       });
       subTable.columns = subTable.columns.concat(inheritedFk);
     });
@@ -3300,6 +3305,254 @@ function convertConceptualToLogical(conceptual){
 
   autoLayoutTables(logical.nodes);
   return logical;
+}
+
+// Converte o modelo lógico (tabelas) de volta num rascunho do modelo conceitual (DER em notação
+// Chen) — o caminho inverso de convertConceptualToLogical, seguindo heurísticas para reconhecer,
+// a partir da estrutura das colunas/chaves, os mesmos padrões que a conversão de ida produz:
+//  - tabela cuja chave primária é composta só por FKs apontando para EXATAMENTE DUAS outras
+//    tabelas -> relacionamento N:N entre essas duas entidades (as colunas que não fazem parte da
+//    PK viram atributos do relacionamento);
+//  - tabela cujo nome é exatamente "NomeDaTabelaDona_algumNome" e cuja PK é só uma coluna própria
+//    (o valor) mais a FK para essa tabela dona -> atributo multivalorado da entidade dona;
+//  - tabela cuja PK é (total ou parcialmente) FK para uma ÚNICA outra tabela -> por padrão vira
+//    entidade fraca com relacionamento identificador para a entidade dona (o mesmo padrão que
+//    convertConceptualToLogical gera no Passo 2). Quando DUAS OU MAIS tabelas desse tipo apontam
+//    para a MESMA tabela e nenhuma delas tem chave própria (a FK é a PK inteira), o sinal muda: em
+//    vez de entidades fracas independentes, é reconstruída uma generalização/especialização única,
+//    com essas tabelas como subclasses da tabela referenciada (o mesmo padrão do Passo 3). Esse
+//    critério de desempate (2+ tabelas "irmãs" apontando pra mesma superclasse, sem chave própria)
+//    é só uma heurística — o caminho inverso é sempre ambíguo nesse ponto, e o usuário pode
+//    precisar ajustar o resultado à mão;
+//  - FK "solta" (não faz parte da PK) -> relacionamento 1:N comum entre as duas entidades;
+//  - qualquer outra coluna (inclusive a que já é FK+PK acima) vira atributo simples da entidade,
+//    marcado como chave (isKey) quando for PK.
+// Como o modelo lógico nunca guarda o nome original do relacionamento/atributo que deu origem a
+// uma tabela ou FK, os relacionamentos e a entidade fraca reconstruídos recebem nomes genéricos
+// ("Relacionamento N") que o usuário pode renomear depois. Tabelas de anotação (notas) não são
+// trazidas para o conceitual, do mesmo jeito que notas do conceitual não são trazidas ao lógico.
+function convertLogicalToConceptual(logical){
+  var conceptual = freshState(logical.projectName);
+
+  function addNode(type, opts, x, y){
+    var labels = { entity:"Entidade", relationship:"Relacionamento", attribute:"Atributo", generalization:"Generalização" };
+    var n = Object.assign({
+      id: uid("nd"), type: type,
+      name: labels[type] + " " + (conceptual.nextIds[type]++),
+      x: x, y: y,
+      weak:false, identifying:false, attrKind:"simple", isKey:false,
+      coverage:"partial", overlap:"disjoint", noteW:null, noteH:null, align:"left", runs:[[]]
+    }, opts || {});
+    conceptual.nodes.push(n);
+    return n;
+  }
+  function addEdge(fromId, toId, opts){
+    conceptual.edges.push(Object.assign({ id: uid("ed"), from:fromId, to:toId, kind:"plain" }, opts || {}));
+  }
+  // Distribui uma lista de colunas como atributos simples de "owner" (entidade ou relacionamento),
+  // numa fileira abaixo dele, centralizada — mesmo espaçamento usado em placeAttributeOnNode.
+  function layoutColumnsAsAttributes(owner, cols){
+    if (!cols.length) return;
+    var dims = computeDims(owner);
+    var cx = centerX(owner, dims);
+    var spacing = 118;
+    var gap = dims.h/2 + 90;
+    var startX = cx - ((cols.length - 1) * spacing) / 2;
+    cols.forEach(function(c, i){
+      var ax = startX + i * spacing, ay = owner.y + gap;
+      var attr = addNode("attribute", { name:c.name, attrKind:"simple", isKey: !!c.pk }, ax, ay);
+      addEdge(owner.id, attr.id, { kind:"plain" });
+    });
+  }
+  // Lê a cardinalidade (min,max) gravada numa FK pela conversão de ida (ver convertConceptualToLogical);
+  // colunas criadas/editadas à mão no modelo lógico podem não ter esse campo, daí o valor padrão.
+  function cardOf(cols, field, dflt){
+    var v = cols && cols[0] && cols[0][field];
+    return (v && v.min != null && v.max != null) ? { min:v.min, max:v.max } : dflt;
+  }
+
+  var tables = logical.nodes.filter(function(t){ return t.type === "table"; });
+  var tableById = {}; tables.forEach(function(t){ tableById[t.id] = t; });
+
+  function pkCols(t){ return (t.columns || []).filter(function(c){ return c.pk; }); }
+  function fkPkCols(t){ return pkCols(t).filter(function(c){ return c.fk; }); }
+  function nonFkPkCols(t){ return pkCols(t).filter(function(c){ return !c.fk; }); }
+  function refTablesOf(cols){
+    var seen = {}, ids = [];
+    cols.forEach(function(c){ if (c.fkTable && !seen[c.fkTable]){ seen[c.fkTable] = true; ids.push(c.fkTable); } });
+    return ids;
+  }
+
+  // ---------- classificação de cada tabela ----------
+  var kindOf = {};           // tableId -> "junction" | "multivalued" | "subclass-candidate" | "weak" | "subclass" | "plain"
+  var multivaluedInfo = {};  // tableId -> { ownerId, valueCol }
+  var subclassInfo = {};     // tableId -> { superId, fkCols }
+  var weakInfo = {};         // tableId -> { ownerId, fkCols }
+  var junctionInfo = {};     // tableId -> { aId, bId, aCols, bCols }
+
+  tables.forEach(function(t){
+    var fpk = fkPkCols(t), nfpk = nonFkPkCols(t);
+    var refs = refTablesOf(fpk);
+    if (fpk.length && refs.length === 2 && nfpk.length === 0){
+      kindOf[t.id] = "junction";
+      junctionInfo[t.id] = {
+        aId: refs[0], bId: refs[1],
+        aCols: fpk.filter(function(c){ return c.fkTable === refs[0]; }),
+        bCols: fpk.filter(function(c){ return c.fkTable === refs[1]; })
+      };
+      return;
+    }
+    if (fpk.length && refs.length === 1){
+      var ownerId = refs[0], ownerTable = tableById[ownerId];
+      if (nfpk.length === 1 && ownerTable && t.name.indexOf(ownerTable.name + "_") === 0 && t.name.length > ownerTable.name.length + 1){
+        kindOf[t.id] = "multivalued";
+        multivaluedInfo[t.id] = { ownerId: ownerId, valueCol: nfpk[0] };
+        return;
+      }
+      if (nfpk.length === 0){
+        kindOf[t.id] = "subclass-candidate";
+        subclassInfo[t.id] = { superId: ownerId, fkCols: fpk };
+        return;
+      }
+      kindOf[t.id] = "weak";
+      weakInfo[t.id] = { ownerId: ownerId, fkCols: fpk };
+      return;
+    }
+    kindOf[t.id] = "plain";
+  });
+
+  // Desempate das "subclass-candidate": 2+ tabelas irmãs apontando pra mesma superclasse (sem
+  // chave própria) -> generalização de verdade; exatamente 1 -> entidade fraca sem chave parcial.
+  var bySuper = {};
+  Object.keys(subclassInfo).forEach(function(tid){
+    var info = subclassInfo[tid];
+    (bySuper[info.superId] = bySuper[info.superId] || []).push(tid);
+  });
+  Object.keys(bySuper).forEach(function(superId){
+    var group = bySuper[superId];
+    if (group.length >= 2){
+      group.forEach(function(tid){ kindOf[tid] = "subclass"; });
+    } else {
+      group.forEach(function(tid){
+        kindOf[tid] = "weak";
+        weakInfo[tid] = { ownerId: superId, fkCols: subclassInfo[tid].fkCols };
+      });
+    }
+  });
+
+  // ---------- Passo 1: uma entidade por tabela "de verdade" (tudo exceto tabela associativa e
+  // tabela de atributo multivalorado, que viram relacionamento/atributo nos passos seguintes) ----------
+  var entityByTableId = {};
+  tables.forEach(function(t){
+    var k = kindOf[t.id];
+    if (k === "junction" || k === "multivalued") return;
+    entityByTableId[t.id] = addNode("entity", { name: t.name, weak: (k === "weak") }, t.x, t.y);
+  });
+
+  // Colunas que NÃO viram atributo comum da entidade: a FK que forma (ou compõe) a chave herdada
+  // de entidade fraca/generalização (fica implícita no relacionamento/triângulo) e qualquer FK
+  // "solta" fora da PK (vira relacionamento 1:N no Passo 6).
+  function isInheritedKeyFk(t, c){
+    var k = kindOf[t.id];
+    return !!c.fk && !!c.pk && (k === "weak" || k === "subclass");
+  }
+  tables.forEach(function(t){
+    var k = kindOf[t.id];
+    if (k === "junction" || k === "multivalued") return;
+    var ent = entityByTableId[t.id];
+    var ownCols = (t.columns || []).filter(function(c){
+      if (isInheritedKeyFk(t, c)) return false;
+      if (c.fk && !c.pk) return false; // vira relacionamento 1:N (Passo 6), não atributo
+      return true;
+    });
+    layoutColumnsAsAttributes(ent, ownCols);
+  });
+
+  // ---------- Passo 2: entidades fracas -- relacionamento identificador com a entidade dona ----------
+  Object.keys(weakInfo).forEach(function(tid){
+    var info = weakInfo[tid], child = entityByTableId[tid], owner = entityByTableId[info.ownerId];
+    if (!child || !owner) return;
+    var childCard = cardOf(info.fkCols, "cardChild", { min:"1", max:"1" });
+    var ownerCard = cardOf(info.fkCols, "cardParent", { min:"0", max:"N" });
+    var mx = (owner.x + child.x) / 2, my = (owner.y + child.y) / 2;
+    if (Math.abs(owner.x - child.x) < 40 && Math.abs(owner.y - child.y) < 40) my += 90;
+    var rel = addNode("relationship", { identifying:true }, mx, my);
+    addEdge(owner.id, rel.id, { kind:"participation", min:ownerCard.min, max:ownerCard.max });
+    addEdge(child.id, rel.id, { kind:"participation", min:childCard.min, max:childCard.max });
+  });
+
+  // ---------- Passo 3: generalização/especialização -- um triângulo por superclasse ----------
+  Object.keys(bySuper).forEach(function(superId){
+    var group = bySuper[superId].filter(function(tid){ return kindOf[tid] === "subclass"; });
+    if (!group.length) return;
+    var superEnt = entityByTableId[superId];
+    if (!superEnt) return;
+    var subEnts = group.map(function(tid){ return entityByTableId[tid]; }).filter(Boolean);
+    if (!subEnts.length) return;
+    var superDims = computeDims(superEnt);
+    var superCx = centerX(superEnt, superDims);
+    var gapAbove = 110, gapBelow = 120, spacing = 170;
+    var genX = superCx, genY = superEnt.y + gapAbove;
+    var subY = genY + gapBelow;
+    var gen = addNode("generalization", {}, genX, genY);
+    addEdge(superEnt.id, gen.id, { kind:"plain" });
+    var startX = genX - ((subEnts.length - 1) * spacing) / 2;
+    subEnts.forEach(function(sub, i){
+      sub.x = startX + i * spacing; sub.y = subY;
+      addEdge(gen.id, sub.id, { kind:"plain" });
+    });
+  });
+
+  // ---------- Passo 4: tabelas de atributo multivalorado -> atributo multivalorado do dono ----------
+  Object.keys(multivaluedInfo).forEach(function(tid){
+    var t = tableById[tid], info = multivaluedInfo[tid], owner = entityByTableId[info.ownerId];
+    if (!owner) return;
+    var attr = addNode("attribute", { name: info.valueCol.name, attrKind:"multivalued" }, t.x, t.y);
+    addEdge(owner.id, attr.id, { kind:"plain" });
+  });
+
+  // ---------- Passo 5: tabelas associativas -> relacionamento N:N ----------
+  Object.keys(junctionInfo).forEach(function(tid){
+    var t = tableById[tid], info = junctionInfo[tid];
+    var a = entityByTableId[info.aId], b = entityByTableId[info.bId];
+    if (!a || !b) return;
+    // Convenção da conversão de ida: as colunas que referenciam A carregam, em cardChild, a
+    // cardinalidade original de B (e vice-versa) -- ver comentário no Passo 5 de
+    // convertConceptualToLogical.
+    var cardA = cardOf(info.bCols, "cardChild", { min:"0", max:"N" });
+    var cardB = cardOf(info.aCols, "cardChild", { min:"0", max:"N" });
+    var rel = addNode("relationship", {}, t.x, t.y);
+    addEdge(a.id, rel.id, { kind:"participation", min:cardA.min, max:cardA.max });
+    addEdge(b.id, rel.id, { kind:"participation", min:cardB.min, max:cardB.max });
+    var relCols = (t.columns || []).filter(function(c){ return !c.pk; });
+    layoutColumnsAsAttributes(rel, relCols);
+  });
+
+  // ---------- Passo 6: FK "solta" (fora da PK) -> relacionamento 1:N comum ----------
+  tables.forEach(function(t){
+    var k = kindOf[t.id];
+    if (k === "junction" || k === "multivalued") return;
+    var manyEnt = entityByTableId[t.id];
+    if (!manyEnt) return;
+    var groups = {};
+    (t.columns || []).forEach(function(c){
+      if (c.fk && !c.pk) (groups[c.fkTable] = groups[c.fkTable] || []).push(c);
+    });
+    Object.keys(groups).forEach(function(refId){
+      var oneEnt = entityByTableId[refId];
+      if (!oneEnt) return;
+      var cols = groups[refId];
+      var manyCard = cardOf(cols, "cardChild", { min:"0", max:"N" });
+      var oneCard = cardOf(cols, "cardParent", { min:"1", max:"1" });
+      var mx = (oneEnt.x + manyEnt.x) / 2, my = (oneEnt.y + manyEnt.y) / 2;
+      if (Math.abs(oneEnt.x - manyEnt.x) < 40 && Math.abs(oneEnt.y - manyEnt.y) < 40) my += 90;
+      var rel = addNode("relationship", {}, mx, my);
+      addEdge(oneEnt.id, rel.id, { kind:"participation", min:oneCard.min, max:oneCard.max });
+      addEdge(manyEnt.id, rel.id, { kind:"participation", min:manyCard.min, max:manyCard.max });
+    });
+  });
+
+  return conceptual;
 }
 
 /* ---------- projeto: novo / abrir / baixar ---------- */
@@ -3447,6 +3700,29 @@ async function switchMode(target){
         showToast("Modelo lógico limpo — monte as tabelas manualmente ou reconverta depois.");
       }
       // "no" (ou fechar clicando fora): mantém o modelo lógico exatamente como estava.
+    }
+  } else if (target === "conceptual"){
+    if (!conceptualModel.nodes.length){
+      conceptualModel = convertLogicalToConceptual(logicalModel);
+      showToast('Modelo conceitual gerado automaticamente a partir das tabelas do modelo lógico (engenharia reversa) — os dois ficam guardados separadamente a partir de agora, então alternar entre eles não apaga suas edições.');
+    } else {
+      var choice2 = await askChoice3(
+        "Gerar modelo conceitual",
+        'Gerar o modelo conceitual a partir das tabelas do modelo lógico atual (engenharia reversa)? "Sim" descarta o diagrama conceitual existente (inclusive edições manuais) e gera um novo a partir das tabelas — como a conversão é sempre ambígua em alguns casos (entidade fraca x generalização, por exemplo), confira o resultado. "Não" abre o diagrama conceitual como ele está. "Limpar" esvazia o diagrama conceitual para você montá-lo manualmente do zero.',
+        [
+          { key:"no", label:"Não", className:"primary", isCancel:true, isDefault:true },
+          { key:"clear", label:"Limpar" },
+          { key:"yes", label:"Sim", className:"dangerous" }
+        ]
+      );
+      if (choice2 === "yes"){
+        conceptualModel = convertLogicalToConceptual(logicalModel);
+        showToast("Modelo conceitual gerado a partir das tabelas do modelo lógico (engenharia reversa).");
+      } else if (choice2 === "clear"){
+        conceptualModel = freshState(conceptualModel.projectName);
+        showToast("Modelo conceitual limpo — monte o diagrama manualmente ou gere a partir das tabelas depois.");
+      }
+      // "no" (ou fechar clicando fora): mantém o diagrama conceitual exatamente como estava.
     }
   }
   mode = target;
