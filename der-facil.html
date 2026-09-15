@@ -568,6 +568,10 @@ var selectedNodeIds = new Set();
 var selectedEdgeIds = new Set();
 var connectMode = false;
 var connectFrom = null;
+// "Fixado" (Ctrl/Cmd+clique no botão Conectar, ver mais abaixo): quando true, o modo conectar
+// continua ativo depois de completar uma conexão, para fazer várias em seguida. Sem Ctrl, o botão
+// só fica pressionado durante UMA conexão -- assim que ela é concluída, desliga sozinho.
+var connectSticky = false;
 var pendingAdd = null;           // {type, weak, identifying, kind}
 var spaceHeld = false;
 var GRID_SIZE_MIN = 10, GRID_SIZE_MAX = 100;
@@ -1801,6 +1805,7 @@ function handleNodeClick(node, additive){
       // a chave primária de "b" — a linha em si é só um reflexo dessa coluna (ver rebuildLogicalEdges).
       addForeignKeyColumn(a, b);
       connectFrom = null;
+      if (!connectSticky) connectMode = false; // sem Ctrl na ativação, uma conexão já desliga o botão
       selectedNodeIds = new Set([a.id]);
       selectedEdgeIds = new Set();
       render();
@@ -1817,6 +1822,7 @@ function handleNodeClick(node, additive){
       state.edges.push({ id: uid("ed"), from:a.id, to:rel.id, kind:"participation", min:"1", max:"N", role:"" });
       state.edges.push({ id: uid("ed"), from:b.id, to:rel.id, kind:"participation", min:"1", max:"N", role:"" });
       connectFrom = null;
+      if (!connectSticky) connectMode = false;
       selectedNodeIds = new Set([rel.id]);
       selectedEdgeIds = new Set();
       render();
@@ -1826,6 +1832,7 @@ function handleNodeClick(node, additive){
     var edge = { id: uid("ed"), from:a.id, to:b.id, kind:info.kind, min:"1", max:"N", role:"" };
     state.edges.push(edge);
     connectFrom = null;
+    if (!connectSticky) connectMode = false;
     selectedEdgeIds = new Set([edge.id]);
     selectedNodeIds = new Set();
     render();
@@ -2188,7 +2195,7 @@ document.querySelectorAll(".tbtn[data-add]").forEach(function(btn){
     // ferramenta a cada um.
     var sticky = !!(e && (e.ctrlKey || e.metaKey));
     pendingAdd = { type: type, weak: weak, identifying: identifying, kind: kind, sticky: sticky };
-    connectMode = false; connectFrom = null;
+    connectMode = false; connectFrom = null; connectSticky = false;
     render();
     // Atributo tem um segundo jeito de posicionar: clicar direto numa entidade, relacionamento ou
     // outro atributo já cria e conecta de uma vez (ver placeAttributeOnNode) -- por isso o aviso
@@ -2200,10 +2207,17 @@ document.querySelectorAll(".tbtn[data-add]").forEach(function(btn){
   });
 });
 
-document.getElementById("btnConnect").addEventListener("click", function(){
-  connectMode = !connectMode;
-  connectFrom = null;
-  pendingAdd = null;
+document.getElementById("btnConnect").addEventListener("click", function(e){
+  if (connectMode){
+    connectMode = false; connectFrom = null; connectSticky = false;
+  } else {
+    connectMode = true; connectFrom = null; pendingAdd = null;
+    // Ctrl+clique (ou Cmd+clique no Mac) deixa o modo conectar "fixado": continua ativo depois de
+    // concluir uma conexão, em vez de desligar sozinho -- mesma convenção usada pelos botões de
+    // adicionar elemento (ver pendingAdd.sticky) para facilitar fazer várias conexões seguidas.
+    connectSticky = !!(e && (e.ctrlKey || e.metaKey));
+    if (connectSticky) showToast('Modo conectar fixado — clique nos elementos para ligar quantas conexões quiser; clique no botão de novo para desligar.');
+  }
   render();
 });
 
@@ -2275,7 +2289,7 @@ document.addEventListener("keydown", function(e){
   // (já que ela fica selecionada enquanto seu painel de edição está aberto).
   var inField = tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || (ae && ae.isContentEditable);
   if (e.key === "Escape"){
-    if (connectMode){ connectMode = false; connectFrom = null; }
+    if (connectMode){ connectMode = false; connectFrom = null; connectSticky = false; }
     else if (pendingAdd){ pendingAdd = null; }
     else { selectedNodeIds.clear(); selectedEdgeIds.clear(); }
     render();
@@ -3249,6 +3263,18 @@ function convertConceptualToLogical(conceptual){
   });
 
   // Passo 5: relacionamentos binários não-identificadores — FK (1:1 / 1:N) ou tabela associativa (N:N).
+  // Duas entidades podem ter MAIS DE UM relacionamento entre si (ex.: Professor "leciona" Turma e
+  // também "coordena" Turma) — sem cuidado, os nomes gerados (tabela associativa ou coluna FK)
+  // colidiriam entre um relacionamento e outro, e o segundo acabaria descartado silenciosamente
+  // (a tabela associativa "duplicada" some da coleção só por já existir um nome igual; a FK "some"
+  // porque o código recusa criar uma coluna com nome repetido). usedJunctionNames e
+  // usedRelFkColumns registram o que este próprio Passo 5 já criou, para desambiguar (usando o
+  // nome do relacionamento) só quando a colisão for entre dois relacionamentos de verdade — uma
+  // colisão contra uma FK já existente por outro motivo (entidade fraca, generalização) continua
+  // sendo ignorada de propósito, como antes, para não duplicar a mesma ligação.
+  var usedJunctionNames = {};
+  logical.nodes.forEach(function(t){ usedJunctionNames[t.name] = true; });
+  var usedRelFkColumns = {};
   relationships.filter(function(r){ return !r.identifying; }).forEach(function(r){
     var parts = participantsOf(r.id);
     if (parts.length !== 2) return; // só relacionamentos binários são mapeados automaticamente
@@ -3265,8 +3291,17 @@ function convertConceptualToLogical(conceptual){
       // O nome da tabela associativa é sempre composto pelos nomes das duas tabelas que ela
       // associa, separados por "_" (ex.: Pedido + Produto -> "Pedido_Produto") — mesmo quando o
       // relacionamento original tinha um nome próprio (ex.: "contém") — para deixar claro, só
-      // pelo nome, quais tabelas ela liga.
-      var junction = { id: uid("nd"), type:"table", name: tableA.name + "_" + tableB.name, x:r.x, y:r.y, columns: [] };
+      // pelo nome, quais tabelas ela liga. Quando já existe uma tabela com esse nome (outro
+      // relacionamento N:N entre o mesmo par de entidades), acrescenta o nome do relacionamento
+      // para diferenciar, em vez de gerar duas tabelas com o mesmo nome.
+      var junctionName = tableA.name + "_" + tableB.name;
+      if (usedJunctionNames[junctionName]){
+        var jBase = junctionName + "_" + (r.name || "Rel"), jTry = jBase, jN = 2;
+        while (usedJunctionNames[jTry]){ jTry = jBase + jN; jN++; }
+        junctionName = jTry;
+      }
+      usedJunctionNames[junctionName] = true;
+      var junction = { id: uid("nd"), type:"table", name: junctionName, x:r.x, y:r.y, columns: [] };
       // Cada linha da tabela associativa referencia exatamente uma linha de cada lado — perto da
       // ENTIDADE (a ponta mais afastada da associativa) a cardinalidade é sempre (1,1), porque uma
       // linha de A ou B sempre corresponde a exatamente uma linha da associativa daquele lado.
@@ -3297,8 +3332,22 @@ function convertConceptualToLogical(conceptual){
       var relCardParent = { min: oneSideEdge.min || "0", max: oneSideEdge.max || "N" };
       pkOne.forEach(function(pk){
         var colName = slugColumnName(oneSide.name) + "_" + pk.name;
-        if (manySide.columns.some(function(c){ return c.name === colName; })) return;
+        if (manySide.columns.some(function(c){ return c.name === colName; })){
+          if (!usedRelFkColumns[manySide.id + "|" + colName]){
+            // já existe uma coluna com esse nome, mas não foi este Passo 5 que a criou (veio de
+            // entidade fraca ou generalização) -- mantém o comportamento original: não duplica,
+            // pois a ligação com a tabela "one" já existe por outro motivo.
+            return;
+          }
+          // colisão de verdade: outro relacionamento 1:N para a MESMA tabela "one" já usou esse
+          // nome de coluna -- desambigua com o nome deste relacionamento em vez de descartar a
+          // segunda ligação silenciosamente.
+          var colBase = slugColumnName(oneSide.name) + "_" + slugColumnName(r.name || "rel") + "_" + pk.name, colTry = colBase, colN = 2;
+          while (manySide.columns.some(function(c){ return c.name === colTry; })){ colTry = colBase + colN; colN++; }
+          colName = colTry;
+        }
         manySide.columns.push({ name:colName, dataType:pk.dataType, dataSize:pk.dataSize, pk:false, fk:true, fkTable:oneSide.id, fkColumn:pk.name, cardChild:relCardChild, cardParent:relCardParent });
+        usedRelFkColumns[manySide.id + "|" + colName] = true;
       });
     }
   });
@@ -3564,7 +3613,7 @@ document.getElementById("btnNew").addEventListener("click", async function(){
   logicalModel = null;
   state = conceptualModel;
   projectNameInput.value = state.projectName;
-  selectedNodeIds.clear(); selectedEdgeIds.clear(); connectMode = false; connectFrom = null; pendingAdd = null;
+  selectedNodeIds.clear(); selectedEdgeIds.clear(); connectMode = false; connectFrom = null; connectSticky = false; pendingAdd = null;
   applyModeUI();
   render();
   fitToContent();
@@ -3600,7 +3649,7 @@ document.getElementById("fileInput").addEventListener("change", function(e){
       state = conceptualModel;
     }
     projectNameInput.value = state.projectName;
-    selectedNodeIds.clear(); selectedEdgeIds.clear(); connectMode = false; connectFrom = null; pendingAdd = null;
+    selectedNodeIds.clear(); selectedEdgeIds.clear(); connectMode = false; connectFrom = null; connectSticky = false; pendingAdd = null;
     applyModeUI();
     render();
     fitToContent();
@@ -3727,7 +3776,7 @@ async function switchMode(target){
   }
   mode = target;
   state = (mode === "logical") ? logicalModel : conceptualModel;
-  selectedNodeIds.clear(); selectedEdgeIds.clear(); connectMode = false; connectFrom = null; pendingAdd = null;
+  selectedNodeIds.clear(); selectedEdgeIds.clear(); connectMode = false; connectFrom = null; connectSticky = false; pendingAdd = null;
   projectNameInput.value = state.projectName;
   applyModeUI();
   render();
