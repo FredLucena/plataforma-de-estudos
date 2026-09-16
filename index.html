@@ -132,6 +132,25 @@
   .hbtn:hover{ background:var(--border-soft); }
   .hbtn svg{ width:15px; height:15px; flex-shrink:0; }
 
+  /* Menu de opções de formato do botão "Baixar projeto" (JSON / JPG / PDF) */
+  .dl-menu-wrap{ position:relative; }
+  .dl-menu-wrap #btnSave svg{ width:10px; height:6px; }
+  .dl-menu{
+    position:absolute; top:calc(100% + 6px); right:0; z-index:250;
+    background:var(--surface); border:1px solid var(--border); border-radius:9px;
+    box-shadow:var(--shadow); padding:6px; width:250px;
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .dl-menu-item{
+    display:flex; align-items:flex-start; gap:9px; text-align:left;
+    background:transparent; border:none; border-radius:7px; padding:8px 9px; width:100%;
+  }
+  .dl-menu-item:hover{ background:var(--surface-2); }
+  .dl-menu-item svg{ width:19px; height:19px; flex-shrink:0; margin-top:1px; }
+  .dl-menu-item span{ display:flex; flex-direction:column; gap:1px; }
+  .dl-menu-item strong{ font-size:13px; font-weight:600; }
+  .dl-menu-item small{ font-size:11.5px; color:var(--ink-soft); line-height:1.35; }
+
   main{ flex:1; display:flex; min-height:0; }
 
   aside.toolbar{
@@ -477,7 +496,26 @@
   </button>
   <button class="hbtn" id="btnNew">Novo projeto</button>
   <button class="hbtn" id="btnOpen">Abrir projeto</button>
-  <button class="hbtn" id="btnSave">Baixar projeto (.json)</button>
+  <div class="dl-menu-wrap" id="dlMenuWrap">
+    <button class="hbtn" id="btnSave" aria-haspopup="true" aria-expanded="false">
+      Baixar projeto
+      <svg viewBox="0 0 10 6" width="10" height="6"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="dl-menu" id="dlMenu" hidden>
+      <button class="dl-menu-item" data-fmt="json">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 2h7l4 4v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M12 2v4h4"/></svg>
+        <span><strong>JSON</strong><small>Arquivo do projeto, para reabrir e continuar editando depois</small></span>
+      </button>
+      <button class="dl-menu-item" data-fmt="jpg">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="16" height="14" rx="1.6"/><circle cx="6.6" cy="8" r="1.5" fill="currentColor" stroke="none"/><path d="M2 14l4.5-4.5L10 13l3-3 5 4.5"/></svg>
+        <span><strong>JPG</strong><small>Imagem do diagrama atual</small></span>
+      </button>
+      <button class="dl-menu-item" data-fmt="pdf">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 2h7l4 4v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M12 2v4h4"/><text x="10" y="15" text-anchor="middle" font-size="6.5" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">PDF</text></svg>
+        <span><strong>PDF</strong><small>Diagrama atual em um documento PDF</small></span>
+      </button>
+    </div>
+  </div>
   <input type="file" id="fileInput" accept="application/json,.json" hidden>
 </header>
 
@@ -3985,23 +4023,30 @@ var downloadsCap = null;
   } catch (err){ /* sem suporte a capabilities aqui */ }
 })();
 
-document.getElementById("btnSave").addEventListener("click", async function(){
-  var json = JSON.stringify(buildProjectSnapshot(), null, 2);
-  var base = (state.projectName || "modelo-conceitual").toLowerCase()
+// Nome de arquivo (sem extensão) a partir do nome do projeto, igual ao usado antes só para o
+// JSON -- agora compartilhado pelos três formatos do menu "Baixar projeto".
+function projectFileBase(){
+  return (state.projectName || "modelo-conceitual").toLowerCase()
     .normalize("NFD").replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "modelo-conceitual";
-  var filename = base + ".json";
+}
+
+// Rotina de download compartilhada pelos três formatos (JSON, JPG, PDF): usa a capacidade
+// "downloads" da plataforma quando disponível (ver initCapabilities acima) e cai para um link
+// de download comum (Blob + <a download>) quando não -- exatamente como o botão "Baixar
+// projeto (.json)" já fazia antes de virar um menu com várias opções.
+async function downloadFile(filename, data, msgs){
   if (!(window.claude && typeof window.claude.use === "function")){
     try {
-      var blob = new Blob([json], { type: "application/json" });
+      var blob = (data instanceof Blob) ? data : new Blob([data]);
       var blobUrl = URL.createObjectURL(blob);
       var a = document.createElement("a");
       a.href = blobUrl; a.download = filename;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function(){ URL.revokeObjectURL(blobUrl); }, 1000);
-      showToast("Projeto baixado como " + filename + ".");
+      showToast(msgs.saved);
     } catch (err){
-      showToast("Não foi possível baixar o projeto agora. Seu progresso continua salvo automaticamente neste navegador.", "warn");
+      showToast(msgs.failed, "warn");
     }
     return;
   }
@@ -4009,17 +4054,201 @@ document.getElementById("btnSave").addEventListener("click", async function(){
     var cap = downloadsCap || await window.claude.use("downloads");
     downloadsCap = cap;
     if (!cap){
-      showToast("Exportação de arquivo não está disponível aqui agora. Seu progresso continua salvo automaticamente neste navegador.", "warn");
+      showToast(msgs.failed, "warn");
       return;
     }
-    var res = await cap.save({ filename:filename, data:json });
-    showToast(res.status === "delivered" ? "Projeto enviado." : "Projeto baixado como " + filename + ".");
+    var res = await cap.save({ filename:filename, data:data });
+    showToast(res.status === "delivered" ? msgs.delivered : msgs.saved);
   } catch (err){
     var code = err && err.code;
     if (code === "declined"){ showToast("Exportação cancelada."); }
     else if (code === "rate_limited"){ showToast("Aguarde um instante e tente novamente.", "warn"); }
-    else { showToast("Não foi possível baixar o projeto agora. Seu progresso continua salvo automaticamente neste navegador.", "warn"); }
+    else { showToast(msgs.failed, "warn"); }
   }
+}
+
+async function exportProjectJson(){
+  var json = JSON.stringify(buildProjectSnapshot(), null, 2);
+  var filename = projectFileBase() + ".json";
+  await downloadFile(filename, json, {
+    saved: "Projeto baixado como " + filename + ".",
+    delivered: "Projeto enviado.",
+    failed: "Não foi possível baixar o projeto agora. Seu progresso continua salvo automaticamente neste navegador."
+  });
+}
+
+// ---------- exportar o diagrama atual como imagem (JPG) ou PDF ----------
+// Monta uma cópia independente do <svg id="stage"> (sem o fundo pontilhado gigante nem os
+// aneis de seleção), recortada só na área com conteúdo, com as variáveis de cor do tema
+// resolvidas num :root próprio (para var(--cor) continuar funcionando fora da página) e o
+// mesmo CSS de classes (.shape-entity, .node-label etc.) embutido -- assim ela pode ser
+// desenhada sozinha num <canvas> para virar JPG ou, a partir daí, um PDF de uma página só.
+function buildExportSvgMarkup(){
+  var srcSvg = document.getElementById("stage");
+  var clone = srcSvg.cloneNode(true);
+  var bg = clone.querySelector("#bgRect"); if (bg) bg.parentNode.removeChild(bg);
+  var marquee = clone.querySelector("#marqueeRect"); if (marquee) marquee.parentNode.removeChild(marquee);
+  Array.prototype.forEach.call(clone.querySelectorAll(".sel-ring, .connect-ring"), function(el){
+    el.parentNode.removeChild(el);
+  });
+
+  var nodesG = document.getElementById("nodesGroup");
+  var edgesG = document.getElementById("edgesGroup");
+  var pad = 40;
+  var bbox;
+  try {
+    var b1 = nodesG.getBBox(), b2 = edgesG.getBBox();
+    var hasNodes = b1.width > 0 || b1.height > 0;
+    var hasEdges = b2.width > 0 || b2.height > 0;
+    if (hasNodes && hasEdges){
+      var x1 = Math.min(b1.x, b2.x), y1 = Math.min(b1.y, b2.y);
+      var x2 = Math.max(b1.x + b1.width, b2.x + b2.width), y2 = Math.max(b1.y + b1.height, b2.y + b2.height);
+      bbox = { x:x1, y:y1, width:x2 - x1, height:y2 - y1 };
+    } else if (hasNodes){ bbox = b1; }
+    else if (hasEdges){ bbox = b2; }
+    else { bbox = { x:0, y:0, width:400, height:300 }; }
+  } catch (err){
+    bbox = { x:0, y:0, width:800, height:600 };
+  }
+  var vx = bbox.x - pad, vy = bbox.y - pad;
+  var vw = Math.max(10, bbox.width + pad * 2), vh = Math.max(10, bbox.height + pad * 2);
+
+  clone.setAttribute("viewBox", vx + " " + vy + " " + vw + " " + vh);
+  clone.setAttribute("width", String(vw));
+  clone.setAttribute("height", String(vh));
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  clone.removeAttribute("class");
+
+  var rootStyles = getComputedStyle(document.documentElement);
+  var varNames = ["--entity-ink","--entity-fill","--relationship-ink","--relationship-fill",
+    "--attribute-ink","--attribute-fill","--accent-ink","--accent-fill","--note-ink","--note-fill",
+    "--select","--danger","--danger-fill","--ink","--ink-soft","--border","--border-soft",
+    "--surface","--surface-2","--bg","--bg-dot","--font-display","--font-body","--font-mono"];
+  var rootCss = ":root{";
+  varNames.forEach(function(v){ rootCss += v + ":" + rootStyles.getPropertyValue(v).trim() + ";"; });
+  rootCss += "}";
+  var pageStyleEl = document.querySelector("style");
+  var styleEl = document.createElementNS("http://www.w3.org/2000/svg", "style");
+  styleEl.textContent = rootCss + "\n" + (pageStyleEl ? pageStyleEl.textContent : "");
+  clone.insertBefore(styleEl, clone.firstChild);
+
+  var bgColor = rootStyles.getPropertyValue("--bg").trim() || "#ffffff";
+  var bgFill = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  bgFill.setAttribute("x", vx); bgFill.setAttribute("y", vy);
+  bgFill.setAttribute("width", vw); bgFill.setAttribute("height", vh);
+  bgFill.setAttribute("fill", bgColor);
+  clone.insertBefore(bgFill, styleEl.nextSibling);
+
+  var xml = new XMLSerializer().serializeToString(clone);
+  return { xml: xml, width: vw, height: vh, bgColor: bgColor };
+}
+
+// Desenha o diagrama atual (ver buildExportSvgMarkup) num <canvas> em resolução mais alta
+// (escala 2x) para a imagem exportada sair nítida.
+function renderDiagramToCanvas(scale){
+  return new Promise(function(resolve, reject){
+    var built;
+    try { built = buildExportSvgMarkup(); } catch (err){ reject(err); return; }
+    var blob = new Blob([built.xml], { type: "image/svg+xml;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var img = new Image();
+    img.onload = function(){
+      try {
+        var s = scale || 2;
+        var canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(built.width * s));
+        canvas.height = Math.max(1, Math.round(built.height * s));
+        var ctx = canvas.getContext("2d");
+        // preenche o fundo antes de desenhar -- essencial para o JPG, que não tem canal
+        // alfa (qualquer área "transparente" do SVG viraria preto sem isto).
+        ctx.fillStyle = built.bgColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas);
+      } catch (err){ URL.revokeObjectURL(url); reject(err); }
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); reject(new Error("svg->image falhou")); };
+    img.src = url;
+  });
+}
+
+// Carrega a biblioteca jsPDF (usada só para a opção "PDF" do menu) sob demanda, na primeira
+// vez que for necessária, em vez de sempre -- assim quem nunca exporta em PDF não paga o
+// custo de rede por essa biblioteca.
+var jsPDFReadyPromise = null;
+function ensureJsPDF(){
+  if (window.jspdf && window.jspdf.jsPDF) return Promise.resolve(window.jspdf.jsPDF);
+  if (jsPDFReadyPromise) return jsPDFReadyPromise;
+  jsPDFReadyPromise = new Promise(function(resolve, reject){
+    var s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    s.onload = function(){
+      if (window.jspdf && window.jspdf.jsPDF) resolve(window.jspdf.jsPDF);
+      else reject(new Error("jsPDF carregado mas indisponível"));
+    };
+    s.onerror = function(){ jsPDFReadyPromise = null; reject(new Error("Não foi possível carregar a biblioteca de PDF")); };
+    document.head.appendChild(s);
+  });
+  return jsPDFReadyPromise;
+}
+
+async function exportProjectImage(fmt){
+  var filename = projectFileBase() + "." + fmt;
+  var isPdf = fmt === "pdf";
+  var msgs = {
+    saved: (isPdf ? "PDF baixado" : "Imagem baixada") + " como " + filename + ".",
+    delivered: isPdf ? "PDF enviado." : "Imagem enviada.",
+    failed: "Não foi possível gerar o " + (isPdf ? "PDF" : "JPG") + " agora."
+  };
+  try {
+    var canvas = await renderDiagramToCanvas(2);
+    if (!isPdf){
+      var blob = await new Promise(function(resolve){ canvas.toBlob(resolve, "image/jpeg", 0.92); });
+      if (!blob) throw new Error("toBlob falhou");
+      await downloadFile(filename, blob, msgs);
+    } else {
+      var JsPDFCtor = await ensureJsPDF();
+      var imgData = canvas.toDataURL("image/jpeg", 0.92);
+      var orientation = canvas.width >= canvas.height ? "l" : "p";
+      var doc = new JsPDFCtor({ orientation: orientation, unit: "px", format: [canvas.width, canvas.height] });
+      doc.addImage(imgData, "JPEG", 0, 0, canvas.width, canvas.height);
+      await downloadFile(filename, doc.output("blob"), msgs);
+    }
+  } catch (err){
+    showToast(msgs.failed, "warn");
+  }
+}
+
+// ---------- menu do botão "Baixar projeto" (JSON / JPG / PDF) ----------
+var dlMenuWrap = document.getElementById("dlMenuWrap");
+var dlMenu = document.getElementById("dlMenu");
+var btnSaveEl = document.getElementById("btnSave");
+function closeDlMenu(){
+  dlMenu.hidden = true;
+  btnSaveEl.setAttribute("aria-expanded", "false");
+}
+function openDlMenu(){
+  dlMenu.hidden = false;
+  btnSaveEl.setAttribute("aria-expanded", "true");
+}
+btnSaveEl.addEventListener("click", function(e){
+  e.stopPropagation();
+  if (dlMenu.hidden) openDlMenu(); else closeDlMenu();
+});
+dlMenu.querySelectorAll(".dl-menu-item").forEach(function(item){
+  item.addEventListener("click", function(){
+    var fmt = item.getAttribute("data-fmt");
+    closeDlMenu();
+    if (fmt === "json") exportProjectJson();
+    else exportProjectImage(fmt);
+  });
+});
+document.addEventListener("click", function(e){
+  if (!dlMenu.hidden && !dlMenuWrap.contains(e.target)) closeDlMenu();
+});
+document.addEventListener("keydown", function(e){
+  if (e.key === "Escape" && !dlMenu.hidden) closeDlMenu();
 });
 
 projectNameInput.addEventListener("input", function(e){
