@@ -395,6 +395,10 @@
   <input id="projectName" type="text" value="" spellcheck="false">
   <span class="autosave-note" id="autosaveNote"></span>
   <div class="spacer"></div>
+  <button class="hbtn" id="btnTheme" title="Mudar para o modo escuro">
+    <svg viewBox="0 0 20 20"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9Z"/></svg>
+    Modo escuro
+  </button>
   <button class="hbtn" id="btnLegend" title="Guia de notação">
     <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="10" y="14" text-anchor="middle" font-size="11" font-family="Georgia,serif" fill="currentColor">?</text></svg>
     Notação
@@ -537,6 +541,7 @@ var STORAGE_KEY = "estudioDER.autosave.v1";     // formato antigo: só o modelo 
 var STORAGE_KEY_V2 = "estudioDER.autosave.v2";  // formato novo: os dois modelos (conceitual + lógico) e o modo ativo
 var PREFS_KEY = "estudioDER.prefs.v1";  // preferências de edição (grade), independentes do projeto salvo
 var TYPES_KEY = "estudioDER.types.v1";  // lista de tipos de dados disponíveis nas colunas do modelo lógico — cadastrada pelo usuário, independente do projeto salvo (vale em qualquer diagrama aberto neste navegador)
+var THEME_KEY = "estudioDER.theme.v1";  // preferência de tema (claro/escuro) escolhida no botão, independente do projeto salvo
 var SVG_NS = "http://www.w3.org/2000/svg";
 
 // Tipos de dados que já vêm cadastrados por padrão — o usuário pode adicionar outros ou excluir
@@ -650,6 +655,36 @@ function loadDataTypePrefs(){
     }
   } catch (err){ /* ignora lista corrompida e usa os padrões */ }
 }
+
+// Tema (claro/escuro): o CSS já segue sozinho a preferência do sistema operacional (media query
+// prefers-color-scheme). O atributo data-theme="light"/"dark" na raiz do documento tem prioridade
+// sobre essa media query (ver regras no <style>), então usá-lo é o suficiente para o botão fixar
+// uma escolha explícita, que fica salva neste navegador para as próximas visitas.
+var isDarkTheme = false;
+function computeInitialDarkTheme(){
+  try {
+    var saved = localStorage.getItem(THEME_KEY);
+    if (saved === "dark") return true;
+    if (saved === "light") return false;
+  } catch (err){ /* localStorage indisponível: cai no padrão do sistema operacional */ }
+  try {
+    return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  } catch (err){ return false; }
+}
+function applyTheme(){
+  document.documentElement.setAttribute("data-theme", isDarkTheme ? "dark" : "light");
+  var btn = document.getElementById("btnTheme");
+  if (!btn) return;
+  btn.innerHTML = isDarkTheme
+    ? '<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="4.3" fill="none" stroke="currentColor" stroke-width="1.5"/><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="10" y1="1.3" x2="10" y2="3.3"/><line x1="10" y1="16.7" x2="10" y2="18.7"/><line x1="1.3" y1="10" x2="3.3" y2="10"/><line x1="16.7" y1="10" x2="18.7" y2="10"/><line x1="4.1" y1="4.1" x2="5.5" y2="5.5"/><line x1="14.5" y1="14.5" x2="15.9" y2="15.9"/><line x1="4.1" y1="15.9" x2="5.5" y2="14.5"/><line x1="14.5" y1="5.5" x2="15.9" y2="4.1"/></g></svg>Modo claro'
+    : '<svg viewBox="0 0 20 20"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9Z"/></svg>Modo escuro';
+  btn.title = isDarkTheme ? "Mudar para o modo claro" : "Mudar para o modo escuro";
+}
+function saveThemePref(){
+  try { localStorage.setItem(THEME_KEY, isDarkTheme ? "dark" : "light"); }
+  catch (err){ /* localStorage indisponível: a escolha não persiste, mas o app segue funcionando */ }
+}
+
 // Adiciona um tipo novo (aparado, sem duplicar ignorando maiúsc./minúsc.). Retorna false sem
 // alterar nada quando o nome é vazio ou já existe.
 function addDataType(name){
@@ -3888,6 +3923,13 @@ modeSelect.addEventListener("change", function(){
   switchMode(modeSelect.value === "logical" ? "logical" : "conceptual");
 });
 
+/* ---------- tema claro/escuro ---------- */
+document.getElementById("btnTheme").addEventListener("click", function(){
+  isDarkTheme = !isDarkTheme;
+  applyTheme();
+  saveThemePref();
+});
+
 /* ---------- legenda de notação ---------- */
 document.getElementById("btnLegend").addEventListener("click", function(){
   if (mode === "logical"){ showLogicalLegend(); return; }
@@ -4044,6 +4086,8 @@ document.getElementById("btnManageTypes").addEventListener("click", function(){
 });
 
 /* ---------- inicialização ---------- */
+isDarkTheme = computeInitialDarkTheme();
+applyTheme();
 loadPrefs();
 loadDataTypePrefs();
 loadInitialState();
