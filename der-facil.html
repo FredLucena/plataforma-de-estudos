@@ -572,6 +572,19 @@ var connectFrom = null;
 // continua ativo depois de completar uma conexão, para fazer várias em seguida. Sem Ctrl, o botão
 // só fica pressionado durante UMA conexão -- assim que ela é concluída, desliga sozinho.
 var connectSticky = false;
+// Desfazer/Refazer (Ctrl+Z / Ctrl+Y): pilha de snapshots (string JSON) do estado completo
+// {mode, conceptual, logical}. Cada redrawStage() (o ponto único por onde passam praticamente
+// todas as mutações de dados do app) compara o snapshot atual com o último salvo; se mudou,
+// agenda um "checkpoint" com um pequeno debounce para que interações contínuas (digitar,
+// arrastar) virem UM único passo de desfazer, em vez de um por tecla/frame.
+var undoStack = [];
+var redoStack = [];
+var UNDO_LIMIT = 100;
+var UNDO_COALESCE_MS = 600;
+var undoDebounceTimer = null;
+var undoPendingBefore = null;    // snapshot de ANTES da mudança em andamento (para o passo pendente)
+var undoLastSnapshot = null;     // último snapshot conhecido (usado para detectar se algo mudou)
+var undoSuppressed = false;      // true durante applySnapshotString(), para não gerar checkpoint da própria restauração
 var pendingAdd = null;           // {type, weak, identifying, kind}
 var spaceHeld = false;
 var GRID_SIZE_MIN = 10, GRID_SIZE_MAX = 100;
@@ -1315,12 +1328,89 @@ function redrawStage(){
 
   stageEl.classList.toggle("mode-connect", connectMode);
   stageEl.classList.toggle("mode-place", !!pendingAdd);
+  noteUndoCheckpoint();
 }
 function render(){
   redrawStage();
   updatePanel();
   updateToolbarActive();
   scheduleAutosave();
+}
+
+// ---------- Desfazer/Refazer (Ctrl+Z / Ctrl+Y ou Ctrl+Shift+Z) ----------
+// Estratégia: como redrawStage() já é o ponto único por onde passa (quase) toda mutação de
+// dados do app, comparamos um snapshot JSON do estado completo a cada chamada. Se mudou desde
+// o último snapshot conhecido, um pequeno debounce agrupa mudanças contínuas (digitar, arrastar
+// -- que já só chama render() uma vez ao soltar o mouse) num único passo de desfazer.
+function modelSnapshotString(){
+  return JSON.stringify({ mode: mode, conceptual: conceptualModel, logical: logicalModel });
+}
+function noteUndoCheckpoint(){
+  if (undoSuppressed) return;
+  var snap = modelSnapshotString();
+  if (undoLastSnapshot === null){
+    // primeira vez (carregamento inicial) -- só estabelece a base, sem criar passo de desfazer
+    undoLastSnapshot = snap;
+    return;
+  }
+  if (snap === undoLastSnapshot) return; // nada mudou de fato (ex.: rebuildLogicalEdges determinístico)
+  if (undoPendingBefore === null) undoPendingBefore = undoLastSnapshot;
+  undoLastSnapshot = snap;
+  if (undoDebounceTimer) clearTimeout(undoDebounceTimer);
+  undoDebounceTimer = setTimeout(commitUndoCheckpoint, UNDO_COALESCE_MS);
+}
+function commitUndoCheckpoint(){
+  if (undoDebounceTimer){ clearTimeout(undoDebounceTimer); undoDebounceTimer = null; }
+  if (undoPendingBefore === null) return;
+  undoStack.push(undoPendingBefore);
+  if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+  redoStack = [];
+  undoPendingBefore = null;
+}
+// Zera todo o histórico de desfazer -- usado quando o projeto inteiro é substituído (carregar
+// página, "Novo projeto", "Abrir projeto"), para nunca desfazer para dentro de outro projeto.
+function resetUndoHistory(){
+  if (undoDebounceTimer){ clearTimeout(undoDebounceTimer); undoDebounceTimer = null; }
+  undoStack = [];
+  redoStack = [];
+  undoPendingBefore = null;
+  undoLastSnapshot = modelSnapshotString();
+}
+function applySnapshotString(snap){
+  var data = JSON.parse(snap);
+  undoSuppressed = true;
+  try {
+    mode = data.mode;
+    conceptualModel = data.conceptual;
+    logicalModel = data.logical;
+    state = (mode === "logical") ? logicalModel : conceptualModel;
+    selectedNodeIds.clear();
+    selectedEdgeIds.clear();
+    connectMode = false; connectFrom = null; connectSticky = false;
+    pendingAdd = null;
+    applyModeUI();
+    render();
+  } finally {
+    undoSuppressed = false;
+  }
+  undoLastSnapshot = modelSnapshotString();
+}
+function undo(){
+  commitUndoCheckpoint(); // fecha qualquer passo pendente (ex.: digitação ainda "quente") antes de desfazer
+  if (undoStack.length === 0){ showToast("Nada para desfazer."); return; }
+  redoStack.push(undoLastSnapshot);
+  if (redoStack.length > UNDO_LIMIT) redoStack.shift();
+  var prev = undoStack.pop();
+  applySnapshotString(prev);
+  showToast("Ação desfeita (Ctrl+Z).");
+}
+function redo(){
+  if (redoStack.length === 0){ showToast("Nada para refazer."); return; }
+  undoStack.push(undoLastSnapshot);
+  if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+  var next = redoStack.pop();
+  applySnapshotString(next);
+  showToast("Ação refeita (Ctrl+Y).");
 }
 
 // Reconstrói state.edges do modelo lógico a partir das colunas FK de cada tabela — uma ligação
@@ -2304,6 +2394,15 @@ document.addEventListener("keydown", function(e){
   } else if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === "v" || e.key === "V") && !inField){
     e.preventDefault();
     pasteClipboard();
+  } else if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.key === "z" || e.key === "Z") && !inField){
+    // Ctrl+Z (ou Cmd+Z) desfaz a última ação no diagrama. Dentro de um campo de texto o atalho
+    // não é interceptado, para que o desfazer nativo do navegador continue funcionando ao editar.
+    e.preventDefault();
+    undo();
+  } else if ((e.ctrlKey || e.metaKey) && !e.altKey && ((e.shiftKey && (e.key === "z" || e.key === "Z")) || (!e.shiftKey && (e.key === "y" || e.key === "Y"))) && !inField){
+    // Ctrl+Shift+Z (padrão em vários apps) ou Ctrl+Y refazem a última ação desfeita.
+    e.preventDefault();
+    redo();
   }
 });
 
@@ -2891,6 +2990,7 @@ function loadInitialState(){
       var parsedV2 = JSON.parse(rawV2);
       if (parsedV2 && parsedV2.conceptual && Array.isArray(parsedV2.conceptual.nodes)){
         applyLoadedProject(parsedV2);
+        resetUndoHistory();
         return;
       }
     }
@@ -2906,6 +3006,7 @@ function loadInitialState(){
         conceptualModel = normalizeLoadedState(parsedV1);
         logicalModel = null;
         state = conceptualModel;
+        resetUndoHistory();
         return;
       }
     }
@@ -2915,6 +3016,7 @@ function loadInitialState(){
   conceptualModel = buildExampleState();
   logicalModel = null;
   state = conceptualModel;
+  resetUndoHistory();
 }
 
 // Migra uma anotação salva para o formato de texto rico (node.runs). Projetos já salvos no
@@ -3611,6 +3713,7 @@ document.getElementById("btnNew").addEventListener("click", async function(){
   state = conceptualModel;
   projectNameInput.value = state.projectName;
   selectedNodeIds.clear(); selectedEdgeIds.clear(); connectMode = false; connectFrom = null; connectSticky = false; pendingAdd = null;
+  resetUndoHistory();
   applyModeUI();
   render();
   fitToContent();
@@ -3647,6 +3750,7 @@ document.getElementById("fileInput").addEventListener("change", function(e){
     }
     projectNameInput.value = state.projectName;
     selectedNodeIds.clear(); selectedEdgeIds.clear(); connectMode = false; connectFrom = null; connectSticky = false; pendingAdd = null;
+    resetUndoHistory();
     applyModeUI();
     render();
     fitToContent();
@@ -3706,6 +3810,7 @@ projectNameInput.addEventListener("input", function(e){
   if (conceptualModel) conceptualModel.projectName = e.target.value;
   if (logicalModel) logicalModel.projectName = e.target.value;
   scheduleAutosave();
+  noteUndoCheckpoint();
 });
 
 /* ---------- alternar entre Modelagem Conceitual e Modelagem Lógica ---------- */
