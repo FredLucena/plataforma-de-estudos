@@ -136,9 +136,27 @@
 
   aside.toolbar{
     width:190px; flex-shrink:0; background:var(--surface);
-    border-right:1px solid var(--border); overflow-y:auto;
+    border-right:1px solid var(--border);
+    display:flex; flex-direction:column; min-height:0;
+    transition:width .18s ease;
+    overflow:hidden;
+  }
+  /* Mesmo recurso da janela de orientações (direita): desmarcando "Fixar" (com nada
+     selecionado), a barra recolhe para uma tira fina — encostar o mouse nela (mesmo recolhida)
+     ou selecionar um elemento no quadro a traz de volta (o :hover cobre o mouse; o JS remove a
+     classe "collapsed" ao haver seleção). */
+  aside.toolbar.collapsed{ width:14px; }
+  aside.toolbar.collapsed:hover{ width:190px; }
+  .toolbar-inner{
+    flex:1; min-height:0; overflow-y:auto;
     padding:14px 12px 24px; display:flex; flex-direction:column; gap:16px;
   }
+  .toolbar-pin-row{
+    flex-shrink:0; display:flex; align-items:center; gap:7px;
+    padding:10px 12px; border-top:1px solid var(--border-soft);
+    font-size:12.5px; color:var(--ink-soft); white-space:nowrap; cursor:pointer;
+  }
+  .toolbar-pin-row input{ flex-shrink:0; cursor:pointer; }
   .tgroup-label{
     font-size:10.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
     color:var(--ink-soft); padding:0 2px;
@@ -464,7 +482,8 @@
 </header>
 
 <main>
-  <aside class="toolbar">
+  <aside class="toolbar" id="toolbarWrap">
+   <div class="toolbar-inner" id="toolbarInner">
     <div id="toolbarConceptual">
     <div class="tgroup">
       <div class="tgroup-label">Entidades</div>
@@ -569,6 +588,11 @@
         Sobre
       </button>
     </div>
+   </div>
+   <label class="toolbar-pin-row" title="Desmarcada, esta barra se recolhe sozinha e volta a aparecer ao encostar o mouse nela ou selecionar um elemento no quadro.">
+     <input type="checkbox" id="toolbarPinChk" checked>
+     Fixar
+   </label>
   </aside>
 
   <div class="canvas-wrap">
@@ -672,6 +696,9 @@ var panelEl = document.getElementById("panel");
 var panelWrapEl = document.getElementById("panelWrap");
 var panelPinChk = document.getElementById("panelPinChk");
 var panelPinned = true;
+var toolbarWrapEl = document.getElementById("toolbarWrap");
+var toolbarPinChk = document.getElementById("toolbarPinChk");
+var toolbarPinned = true;
 var toastWrap = document.getElementById("toastWrap");
 var projectNameInput = document.getElementById("projectName");
 var autosaveNote = document.getElementById("autosaveNote");
@@ -693,7 +720,7 @@ function setGridSize(v, skipSave){
 // para valerem em qualquer diagrama aberto depois, inclusive num navegador sem nada salvo ainda.
 function savePrefs(){
   try {
-    localStorage.setItem(PREFS_KEY, JSON.stringify({ gridSize: GRID_SIZE, snapToGrid: snapToGrid, panelPinned: panelPinned }));
+    localStorage.setItem(PREFS_KEY, JSON.stringify({ gridSize: GRID_SIZE, snapToGrid: snapToGrid, panelPinned: panelPinned, toolbarPinned: toolbarPinned }));
   } catch (err){ /* localStorage indisponível: preferências não persistem, mas o app segue funcionando */ }
 }
 function loadPrefs(){
@@ -704,6 +731,7 @@ function loadPrefs(){
     if (p && isFinite(Number(p.gridSize))) GRID_SIZE = clamp(Math.round(Number(p.gridSize)), GRID_SIZE_MIN, GRID_SIZE_MAX);
     if (p && typeof p.snapToGrid === "boolean") snapToGrid = p.snapToGrid;
     if (p && typeof p.panelPinned === "boolean") panelPinned = p.panelPinned;
+    if (p && typeof p.toolbarPinned === "boolean") toolbarPinned = p.toolbarPinned;
   } catch (err){ /* ignora preferências corrompidas e usa os padrões */ }
 }
 
@@ -720,6 +748,18 @@ panelPinChk.addEventListener("change", function(){
   panelPinned = panelPinChk.checked;
   savePrefs();
   updatePanelPin();
+});
+
+// Mesmo recurso na barra de ferramentas à esquerda (ver .toolbar.collapsed no CSS).
+function updateToolbarPin(){
+  toolbarPinChk.checked = toolbarPinned;
+  var hasSelection = (selectedNodeIds.size + selectedEdgeIds.size) > 0;
+  toolbarWrapEl.classList.toggle("collapsed", !toolbarPinned && !hasSelection);
+}
+toolbarPinChk.addEventListener("change", function(){
+  toolbarPinned = toolbarPinChk.checked;
+  savePrefs();
+  updateToolbarPin();
 });
 
 // Lista de tipos de dados disponíveis nos combo box das colunas do modelo lógico — salva à parte
@@ -2929,6 +2969,7 @@ function updatePanel(){
   currentNoteEditorEl = null;
   noteSelRange = null;
   updatePanelPin();
+  updateToolbarPin();
   var nCount = selectedNodeIds.size, eCount = selectedEdgeIds.size;
   if (nCount === 0 && eCount === 0){
     if (mode === "logical"){
