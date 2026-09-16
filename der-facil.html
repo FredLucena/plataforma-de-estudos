@@ -428,6 +428,10 @@
     </div>
     <div class="tgroup">
       <div class="tgroup-label">Atributos</div>
+      <button class="tbtn" data-add="attribute" data-kind="simple" data-key="1" title="Atributo simples que identifica a entidade de forma única (chave) — aparece sublinhado, como na notação de Chen">
+        <svg viewBox="0 0 24 16"><ellipse class="ic-stroke" cx="12" cy="7" rx="11" ry="6"/><line class="ic-stroke" x1="4" y1="14.5" x2="20" y2="14.5"/></svg>
+        Identificador
+      </button>
       <button class="tbtn" data-add="attribute" data-kind="simple">
         <svg viewBox="0 0 24 16"><ellipse class="ic-stroke" cx="12" cy="8" rx="11" ry="7"/></svg>
         Simples
@@ -1823,11 +1827,12 @@ function attachNodeHandlers(g, node){
       if (pendingAdd.type === "attribute" && e.button === 0 &&
           (node.type === "entity" || node.type === "relationship" || node.type === "attribute")){
         var kind = pendingAdd.kind || "simple";
+        var isKeyAttr = !!pendingAdd.key;
         // Ferramenta "fixada" (Ctrl+clique no botão): continua ativa depois deste atributo, para
         // incluir vários em seguida sem reselecionar a ferramenta a cada um.
-        var stickyAdd = pendingAdd.sticky ? { type:"attribute", weak:false, identifying:false, kind:kind, sticky:true } : null;
+        var stickyAdd = pendingAdd.sticky ? { type:"attribute", weak:false, identifying:false, kind:kind, key:isKeyAttr, sticky:true } : null;
         pendingAdd = null;
-        placeAttributeOnNode(node, kind, stickyAdd);
+        placeAttributeOnNode(node, kind, stickyAdd, false, isKeyAttr);
         return;
       }
       return;
@@ -2179,7 +2184,7 @@ async function placeGeneralizationOnEntity(superEntity){
 // já selecionado (ver o listener dos botões da barra logo abaixo), para permitir clicar várias
 // vezes seguidas no botão e ir adicionando vários atributos ao mesmo alvo sem precisar reselecioná-lo
 // a cada um, do mesmo jeito que "Chave primária"/"Chave estrangeira" já funcionam no modelo lógico.
-function placeAttributeOnNode(target, kind, stickyAdd, keepTargetSelected){
+function placeAttributeOnNode(target, kind, stickyAdd, keepTargetSelected, isKey){
   var existing = state.edges.filter(function(e){
     if (e.kind !== "plain") return false;
     var otherId = e.from === target.id ? e.to : (e.to === target.id ? e.from : null);
@@ -2196,7 +2201,7 @@ function placeAttributeOnNode(target, kind, stickyAdd, keepTargetSelected){
   var ax = targetCx + side * spacing;
   var ay = target.y - gap;
   if (snapToGrid){ ax = snapValue(ax); ay = snapValue(ay); }
-  var attr = addNodeAt("attribute", { attrKind: kind }, ax, ay);
+  var attr = addNodeAt("attribute", { attrKind: kind, isKey: !!isKey }, ax, ay);
   state.edges.push({ id: uid("ed"), from: target.id, to: attr.id, kind:"plain" });
   selectedNodeIds = new Set([ keepTargetSelected ? target.id : attr.id ]);
   selectedEdgeIds = new Set();
@@ -2265,13 +2270,13 @@ stageEl.addEventListener("pointerdown", function(e){
         var opts = {};
         if (pendingAdd.type === "entity") opts.weak = !!pendingAdd.weak;
         if (pendingAdd.type === "relationship") opts.identifying = !!pendingAdd.identifying;
-        if (pendingAdd.type === "attribute") opts.attrKind = pendingAdd.kind || "simple";
+        if (pendingAdd.type === "attribute"){ opts.attrKind = pendingAdd.kind || "simple"; opts.isKey = !!pendingAdd.key; }
         if (pendingAdd.type === "note") opts.runs = [[{ text:"Escreva sua anotação aqui...", bold:false, italic:false, underline:false, fontSize:12 }]];
         if (pendingAdd.type === "table") opts.columns = [{ name:"id", dataType:"INT", pk:true, fk:false, fkTable:null, fkColumn:null }];
         var n = addNodeAt(pendingAdd.type, opts, pt.x, pt.y);
         // Ferramenta "fixada" (Ctrl+clique no botão, ver mais abaixo): continua ativa depois de
         // posicionar este elemento, em vez de desligar sozinha, para incluir vários em seguida.
-        pendingAdd = pendingAdd.sticky ? { type:pendingAdd.type, weak:pendingAdd.weak, identifying:pendingAdd.identifying, kind:pendingAdd.kind, sticky:true } : null;
+        pendingAdd = pendingAdd.sticky ? { type:pendingAdd.type, weak:pendingAdd.weak, identifying:pendingAdd.identifying, kind:pendingAdd.kind, key:pendingAdd.key, sticky:true } : null;
         selectedNodeIds = new Set([n.id]);
         selectedEdgeIds = new Set();
         render();
@@ -2308,6 +2313,7 @@ document.querySelectorAll(".tbtn[data-add]").forEach(function(btn){
     var weak = btn.getAttribute("data-weak") === "1";
     var identifying = btn.getAttribute("data-identifying") === "1";
     var kind = btn.getAttribute("data-kind") || "simple";
+    var isKeyBtn = btn.getAttribute("data-key") === "1";
     // Atributo: se uma entidade ou relacionamento já estiver selecionado, o simples clique no
     // botão já cria e conecta o atributo a ele NA HORA -- sem precisar de um segundo clique no
     // quadro -- do mesmo jeito que "Chave primária"/"Chave estrangeira" já funcionam sobre a
@@ -2320,16 +2326,18 @@ document.querySelectorAll(".tbtn[data-add]").forEach(function(btn){
     if (type === "attribute" && selectedNodeIds.size === 1){
       var selNode = getNode(Array.from(selectedNodeIds)[0]);
       if (selNode && (selNode.type === "entity" || selNode.type === "relationship")){
-        placeAttributeOnNode(selNode, kind, null, true);
+        placeAttributeOnNode(selNode, kind, null, true, isKeyBtn);
         return;
       }
     }
     // Clicar de novo no MESMO botão (já ativo) desliga a ferramenta -- serve tanto para cancelar
-    // um clique normal quanto para sair do modo "fixado" (Ctrl+clique, ver abaixo).
+    // um clique normal quanto para sair do modo "fixado" (Ctrl+clique, ver abaixo). Para atributo,
+    // "Identificador" e "Simples" têm o mesmo data-kind ("simple") mas não são o mesmo botão --
+    // por isso também compara a flag de chave (data-key), senão clicar em um desligaria o outro.
     var isSameActive = pendingAdd && pendingAdd.type === type &&
       (type !== "entity" || weak === !!pendingAdd.weak) &&
       (type !== "relationship" || identifying === !!pendingAdd.identifying) &&
-      (type !== "attribute" || kind === pendingAdd.kind);
+      (type !== "attribute" || (kind === pendingAdd.kind && isKeyBtn === !!pendingAdd.key));
     if (isSameActive){
       pendingAdd = null;
       render();
@@ -2340,7 +2348,7 @@ document.querySelectorAll(".tbtn[data-add]").forEach(function(btn){
     // -- facilita incluir vários atributos (ou outros objetos) em seguida sem reselecionar a
     // ferramenta a cada um.
     var sticky = !!(e && (e.ctrlKey || e.metaKey));
-    pendingAdd = { type: type, weak: weak, identifying: identifying, kind: kind, sticky: sticky };
+    pendingAdd = { type: type, weak: weak, identifying: identifying, kind: kind, key: isKeyBtn, sticky: sticky };
     connectMode = false; connectFrom = null; connectSticky = false;
     render();
     // Atributo tem um segundo jeito de posicionar: clicar direto numa entidade, relacionamento ou
@@ -2461,12 +2469,15 @@ document.addEventListener("keydown", function(e){
     redo();
   } else if (!inField && !e.ctrlKey && !e.metaKey && !e.altKey && e.key.length === 1 &&
              selectedNodeIds.size === 1 && selectedEdgeIds.size === 0){
-    // Com uma única entidade ou tabela selecionada (e nenhum campo de texto em foco), começar a
-    // digitar já atribui o texto como nome/título dela -- sem precisar clicar antes no campo
-    // "Nome" do painel. O primeiro caractere digitado substitui o nome inteiro e o foco passa
-    // para o campo do painel, para que o restante da digitação continue normalmente ali.
+    // Com um único elemento selecionado (e nenhum campo de texto em foco), começar a digitar já
+    // atribui o texto como nome/título dele -- sem precisar clicar antes no campo "Nome" do
+    // painel. Vale para entidade, relacionamento, atributo, generalização e tabela -- todo
+    // elemento que tem um campo de nome no painel. Anotações ficam de fora: elas não têm um
+    // "nome", só o texto livre editado diretamente na caixa de rich text do painel.
+    // O primeiro caractere digitado substitui o nome inteiro e o foco passa para o campo do
+    // painel, para que o restante da digitação continue normalmente ali.
     var typedNode = getNode(Array.from(selectedNodeIds)[0]);
-    if (typedNode && (typedNode.type === "entity" || typedNode.type === "table")){
+    if (typedNode && typedNode.type !== "note"){
       e.preventDefault();
       typedNode.name = e.key;
       render();
@@ -2487,7 +2498,7 @@ function updateToolbarActive(){
     var match = pendingAdd && btn.getAttribute("data-add") === pendingAdd.type &&
       (pendingAdd.type !== "entity" || (btn.getAttribute("data-weak")==="1") === !!pendingAdd.weak) &&
       (pendingAdd.type !== "relationship" || (btn.getAttribute("data-identifying")==="1") === !!pendingAdd.identifying) &&
-      (pendingAdd.type !== "attribute" || btn.getAttribute("data-kind") === pendingAdd.kind);
+      (pendingAdd.type !== "attribute" || (btn.getAttribute("data-kind") === pendingAdd.kind && (btn.getAttribute("data-key")==="1") === !!pendingAdd.key));
     btn.classList.toggle("active", !!match);
   });
 }
