@@ -2174,7 +2174,12 @@ async function placeGeneralizationOnEntity(superEntity){
 // à medida que mais atributos vão sendo adicionados um de cada vez.
 // stickyAdd: quando não-nulo (ferramenta "fixada" por Ctrl+clique), é restaurado em pendingAdd
 // ao final para a ferramenta continuar ativa e permitir incluir vários atributos em seguida.
-function placeAttributeOnNode(target, kind, stickyAdd){
+// keepTargetSelected: quando true, a seleção continua no alvo (entidade/relacionamento) em vez de
+// passar para o atributo recém-criado -- usado pelo clique direto no botão "Atributo" com um alvo
+// já selecionado (ver o listener dos botões da barra logo abaixo), para permitir clicar várias
+// vezes seguidas no botão e ir adicionando vários atributos ao mesmo alvo sem precisar reselecioná-lo
+// a cada um, do mesmo jeito que "Chave primária"/"Chave estrangeira" já funcionam no modelo lógico.
+function placeAttributeOnNode(target, kind, stickyAdd, keepTargetSelected){
   var existing = state.edges.filter(function(e){
     if (e.kind !== "plain") return false;
     var otherId = e.from === target.id ? e.to : (e.to === target.id ? e.from : null);
@@ -2193,7 +2198,7 @@ function placeAttributeOnNode(target, kind, stickyAdd){
   if (snapToGrid){ ax = snapValue(ax); ay = snapValue(ay); }
   var attr = addNodeAt("attribute", { attrKind: kind }, ax, ay);
   state.edges.push({ id: uid("ed"), from: target.id, to: attr.id, kind:"plain" });
-  selectedNodeIds = new Set([attr.id]);
+  selectedNodeIds = new Set([ keepTargetSelected ? target.id : attr.id ]);
   selectedEdgeIds = new Set();
   if (stickyAdd) pendingAdd = stickyAdd;
   render();
@@ -2303,6 +2308,22 @@ document.querySelectorAll(".tbtn[data-add]").forEach(function(btn){
     var weak = btn.getAttribute("data-weak") === "1";
     var identifying = btn.getAttribute("data-identifying") === "1";
     var kind = btn.getAttribute("data-kind") || "simple";
+    // Atributo: se uma entidade ou relacionamento já estiver selecionado, o simples clique no
+    // botão já cria e conecta o atributo a ele NA HORA -- sem precisar de um segundo clique no
+    // quadro -- do mesmo jeito que "Chave primária"/"Chave estrangeira" já funcionam sobre a
+    // tabela selecionada no modelo lógico. A seleção continua no alvo (placeAttributeOnNode com
+    // keepTargetSelected), então clicar de novo no botão adiciona mais um em seguida, permitindo
+    // incluir vários atributos rapidamente sem reselecionar nada. Não considera um ATRIBUTO
+    // selecionado (só entidade ou relacionamento), senão cada atributo criado ficaria selecionado
+    // e o próximo clique o encadearia como sub-atributo dele, em vez de criar outro atributo do
+    // mesmo alvo original.
+    if (type === "attribute" && selectedNodeIds.size === 1){
+      var selNode = getNode(Array.from(selectedNodeIds)[0]);
+      if (selNode && (selNode.type === "entity" || selNode.type === "relationship")){
+        placeAttributeOnNode(selNode, kind, null, true);
+        return;
+      }
+    }
     // Clicar de novo no MESMO botão (já ativo) desliga a ferramenta -- serve tanto para cancelar
     // um clique normal quanto para sair do modo "fixado" (Ctrl+clique, ver abaixo).
     var isSameActive = pendingAdd && pendingAdd.type === type &&
@@ -2326,7 +2347,7 @@ document.querySelectorAll(".tbtn[data-add]").forEach(function(btn){
     // outro atributo já cria e conecta de uma vez (ver placeAttributeOnNode) -- por isso o aviso
     // menciona as duas opções só para essa ferramenta.
     var baseMsg = type === "attribute"
-      ? "Clique em um ponto vazio do quadro para posicionar o atributo, ou direto numa entidade/relacionamento/atributo para já criar conectado a ele."
+      ? "Clique direto numa entidade/relacionamento/atributo para criar já conectado a ele, ou em um ponto vazio do quadro para deixá-lo solto."
       : "Clique em um ponto vazio do quadro para posicionar o novo elemento.";
     showToast(sticky ? baseMsg + " A ferramenta vai continuar ativa para você incluir vários — clique no botão de novo para desligar." : baseMsg);
   });
