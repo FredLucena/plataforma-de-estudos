@@ -304,7 +304,7 @@
 
   .legend-btn-wrap{ position:absolute; left:16px; bottom:16px; }
 
-  .toast-wrap{ position:fixed; top:64px; right:16px; display:flex; flex-direction:column; align-items:flex-end; gap:8px; z-index:200; }
+  .toast-wrap{ position:fixed; bottom:130px; right:16px; display:flex; flex-direction:column; align-items:flex-end; gap:8px; z-index:200; }
   .toast{
     background:var(--ink); color:var(--bg); padding:10px 14px; border-radius:8px;
     font-size:13px; box-shadow:var(--shadow); max-width:320px; line-height:1.4;
@@ -2459,6 +2459,24 @@ document.addEventListener("keydown", function(e){
     // Ctrl+Shift+Z (padrão em vários apps) ou Ctrl+Y refazem a última ação desfeita.
     e.preventDefault();
     redo();
+  } else if (!inField && !e.ctrlKey && !e.metaKey && !e.altKey && e.key.length === 1 &&
+             selectedNodeIds.size === 1 && selectedEdgeIds.size === 0){
+    // Com uma única entidade ou tabela selecionada (e nenhum campo de texto em foco), começar a
+    // digitar já atribui o texto como nome/título dela -- sem precisar clicar antes no campo
+    // "Nome" do painel. O primeiro caractere digitado substitui o nome inteiro e o foco passa
+    // para o campo do painel, para que o restante da digitação continue normalmente ali.
+    var typedNode = getNode(Array.from(selectedNodeIds)[0]);
+    if (typedNode && (typedNode.type === "entity" || typedNode.type === "table")){
+      e.preventDefault();
+      typedNode.name = e.key;
+      render();
+      var nameFieldId = typedNode.type === "table" ? "pf-table-name" : "pf-name";
+      var nameField = document.getElementById(nameFieldId);
+      if (nameField){
+        nameField.focus();
+        nameField.setSelectionRange(nameField.value.length, nameField.value.length);
+      }
+    }
   }
 });
 
