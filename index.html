@@ -232,10 +232,27 @@
   .sel-ring{ fill:none; stroke:var(--select); stroke-width:2; stroke-dasharray:3 3; pointer-events:none; }
   .connect-ring{ fill:none; stroke:var(--accent-ink); stroke-width:2.4; stroke-dasharray:2 3; pointer-events:none; }
 
-  aside.panel{
+  aside.panel-wrap{
     width:290px; flex-shrink:0; background:var(--surface);
-    border-left:1px solid var(--border); overflow-y:auto; padding:18px;
+    border-left:1px solid var(--border);
+    display:flex; flex-direction:column; min-height:0;
+    transition:width .18s ease;
+    overflow:hidden;
   }
+  /* Desmarcando "Fixar" (com nada selecionado), a janela recolhe para uma tira fina —
+     encostar o mouse nela (mesmo recolhida) ou selecionar um elemento no quadro a traz de
+     volta (o :hover cobre o mouse; o JS remove a classe "collapsed" ao haver seleção). */
+  aside.panel-wrap.collapsed{ width:14px; }
+  aside.panel-wrap.collapsed:hover{ width:290px; }
+  .panel{
+    flex:1; min-height:0; overflow-y:auto; padding:18px;
+  }
+  .panel-pin-row{
+    flex-shrink:0; display:flex; align-items:center; gap:7px;
+    padding:10px 18px; border-top:1px solid var(--border-soft);
+    font-size:12.5px; color:var(--ink-soft); white-space:nowrap; cursor:pointer;
+  }
+  .panel-pin-row input{ flex-shrink:0; cursor:pointer; }
   .panel h3{
     margin:0 0 2px; font-family:var(--font-display); font-weight:600; font-size:16px;
   }
@@ -493,6 +510,10 @@
           <svg viewBox="0 0 24 18"><rect class="ic-stroke" x="1" y="1" width="22" height="16" rx="2"/><line class="ic-stroke" x1="1" y1="7" x2="23" y2="7"/></svg>
           Tabela
         </button>
+        <button class="tbtn" id="btnAddColumn" title="Adiciona uma coluna comum (campo) na tabela selecionada">
+          <svg viewBox="0 0 20 20"><rect class="ic-stroke" x="2" y="7" width="16" height="6" rx="1.4"/><line class="ic-stroke" x1="4.5" y1="10" x2="11" y2="10"/></svg>
+          Campo
+        </button>
         <button class="tbtn" id="btnAddPkColumn" title="Adiciona uma coluna de chave primária na tabela selecionada">
           <svg viewBox="0 0 20 20"><circle class="ic-stroke" cx="6" cy="6" r="3.4"/><line class="ic-stroke" x1="8.4" y1="8.4" x2="17" y2="17"/><line class="ic-stroke" x1="12.2" y1="12.2" x2="15" y2="9.4"/></svg>
           Chave primária
@@ -569,7 +590,12 @@
     </div>
   </div>
 
-  <aside class="panel" id="panel">
+  <aside class="panel-wrap" id="panelWrap">
+    <div class="panel" id="panel"></div>
+    <label class="panel-pin-row" title="Desmarcada, esta janela se recolhe sozinha e volta a aparecer ao encostar o mouse nela ou selecionar um elemento no quadro.">
+      <input type="checkbox" id="panelPinChk" checked>
+      Fixar
+    </label>
   </aside>
 </main>
 
@@ -643,6 +669,9 @@ var edgesGroup = document.getElementById("edgesGroup");
 var nodesGroup = document.getElementById("nodesGroup");
 var marqueeEl = document.getElementById("marqueeRect");
 var panelEl = document.getElementById("panel");
+var panelWrapEl = document.getElementById("panelWrap");
+var panelPinChk = document.getElementById("panelPinChk");
+var panelPinned = true;
 var toastWrap = document.getElementById("toastWrap");
 var projectNameInput = document.getElementById("projectName");
 var autosaveNote = document.getElementById("autosaveNote");
@@ -664,7 +693,7 @@ function setGridSize(v, skipSave){
 // para valerem em qualquer diagrama aberto depois, inclusive num navegador sem nada salvo ainda.
 function savePrefs(){
   try {
-    localStorage.setItem(PREFS_KEY, JSON.stringify({ gridSize: GRID_SIZE, snapToGrid: snapToGrid }));
+    localStorage.setItem(PREFS_KEY, JSON.stringify({ gridSize: GRID_SIZE, snapToGrid: snapToGrid, panelPinned: panelPinned }));
   } catch (err){ /* localStorage indisponível: preferências não persistem, mas o app segue funcionando */ }
 }
 function loadPrefs(){
@@ -674,8 +703,24 @@ function loadPrefs(){
     var p = JSON.parse(raw);
     if (p && isFinite(Number(p.gridSize))) GRID_SIZE = clamp(Math.round(Number(p.gridSize)), GRID_SIZE_MIN, GRID_SIZE_MAX);
     if (p && typeof p.snapToGrid === "boolean") snapToGrid = p.snapToGrid;
+    if (p && typeof p.panelPinned === "boolean") panelPinned = p.panelPinned;
   } catch (err){ /* ignora preferências corrompidas e usa os padrões */ }
 }
+
+// Janela de orientações/detalhes à direita: com "Fixar" desmarcado e nada selecionado, ela
+// recolhe sozinha para uma tira fina (ver .panel-wrap.collapsed no CSS); encostar o mouse nela
+// (efeito puramente em CSS, com :hover) ou selecionar algum elemento no quadro (aqui, via JS,
+// toda vez que a seleção muda) a exibe de novo.
+function updatePanelPin(){
+  panelPinChk.checked = panelPinned;
+  var hasSelection = (selectedNodeIds.size + selectedEdgeIds.size) > 0;
+  panelWrapEl.classList.toggle("collapsed", !panelPinned && !hasSelection);
+}
+panelPinChk.addEventListener("change", function(){
+  panelPinned = panelPinChk.checked;
+  savePrefs();
+  updatePanelPin();
+});
 
 // Lista de tipos de dados disponíveis nos combo box das colunas do modelo lógico — salva à parte
 // do projeto (como a grade), então cadastrar/excluir um tipo vale em qualquer diagrama aberto
@@ -2434,6 +2479,14 @@ function uniqueColumnName(table, base){
   return name;
 }
 
+document.getElementById("btnAddColumn").addEventListener("click", function(){
+  var t = getSingleSelectedTable();
+  if (!t){ showToast("Selecione uma tabela para adicionar um campo.", "warn"); return; }
+  t.columns = t.columns || [];
+  t.columns.push({ name: uniqueColumnName(t, "campo"), dataType:"VARCHAR", dataSize:"50", pk:false, fk:false, fkTable:null, fkColumn:null });
+  render();
+});
+
 document.getElementById("btnAddPkColumn").addEventListener("click", function(){
   var t = getSingleSelectedTable();
   if (!t){ showToast("Selecione uma tabela para adicionar uma coluna de chave primária.", "warn"); return; }
@@ -2875,6 +2928,7 @@ function renderTablePanel(n){
 function updatePanel(){
   currentNoteEditorEl = null;
   noteSelRange = null;
+  updatePanelPin();
   var nCount = selectedNodeIds.size, eCount = selectedEdgeIds.size;
   if (nCount === 0 && eCount === 0){
     if (mode === "logical"){
