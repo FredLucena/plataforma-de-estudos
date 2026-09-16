@@ -2747,8 +2747,6 @@ function updatePanel(){
 
     if (n.type === "entity"){
       html += '<label class="checkline"><input type="checkbox" id="pf-weak" ' + (n.weak ? "checked" : "") + '> Entidade fraca</label>';
-    } else if (n.type === "relationship"){
-      html += '<label class="checkline"><input type="checkbox" id="pf-identifying" ' + (n.identifying ? "checked" : "") + '> Relacionamento identificador</label>';
     } else if (n.type === "attribute"){
       html += '<div class="field"><label>Tipo</label><div class="radios">' +
         radioRow("pf-kind", "simple", n.attrKind, "Simples") +
@@ -2773,7 +2771,6 @@ function updatePanel(){
 
     document.getElementById("pf-name").addEventListener("input", function(e){ n.name = e.target.value; render(); document.getElementById("pf-name").focus(); document.getElementById("pf-name").setSelectionRange(e.target.value.length, e.target.value.length); });
     if (n.type === "entity") document.getElementById("pf-weak").addEventListener("change", function(e){ n.weak = e.target.checked; render(); });
-    if (n.type === "relationship") document.getElementById("pf-identifying").addEventListener("change", function(e){ n.identifying = e.target.checked; render(); });
     if (n.type === "attribute"){
       document.querySelectorAll('input[name="pf-kind"]').forEach(function(r){ r.addEventListener("change", function(e){ n.attrKind = e.target.value; render(); }); });
       document.getElementById("pf-key").addEventListener("change", function(e){ n.isKey = e.target.checked; render(); });
