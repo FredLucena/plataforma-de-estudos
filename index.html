@@ -403,9 +403,16 @@
     background:var(--surface-2); border:1px solid var(--border); border-radius:6px; padding:7px 7px 8px;
   }
   .col-row-line{ display:flex; align-items:center; gap:5px; }
+  /* Pedido do usuário: um rótulo curto (Nome / Tipo / Tam. / Dec.) à esquerda de cada campo,
+     com largura fixa e alinhado à esquerda, para "Nome", "Tipo" e "Tam." ficarem alinhados
+     entre si (mesma posição inicial do texto em cada linha). */
+  .col-row-label{
+    flex:0 0 28px; font-size:10px; color:var(--ink-soft); text-align:left; white-space:nowrap;
+  }
   .col-row-name-line .col-name{ flex:1; min-width:0; }
   .col-row-type-line .col-type-base{ flex:1; min-width:0; }
   .col-row-size-line{ gap:8px; }
+  .col-row-size-line .col-row-label{ flex-basis:24px; }
   .col-row-size-line .col-type-size,
   .col-row-size-line .col-type-decimals{ flex:1; min-width:0; }
   .col-row-flags-line{ gap:16px; padding-left:1px; }
@@ -691,6 +698,13 @@ var SVG_NS = "http://www.w3.org/2000/svg";
 // hora de exibir/gerar o tipo completo da coluna (ver fullDataType).
 var DEFAULT_DATA_TYPES = ["INT", "BIGINT", "SMALLINT", "TINYINT", "BIT", "DECIMAL", "FLOAT", "REAL", "CHAR", "VARCHAR", "NCHAR", "NVARCHAR", "DATE", "TIME"];
 var customDataTypes = DEFAULT_DATA_TYPES.slice();
+// Pedido do usuário: tipos inteiros (INT/INTEGER/TINYINT/SMALLINT/BIGINT) não têm campo de
+// "tamanho" (nem, por consequência, de "casas decimais") -- ao contrário de VARCHAR, CHAR etc.,
+// que continuam permitindo informar um tamanho entre parênteses.
+var TYPES_WITHOUT_SIZE = ["INT", "INTEGER", "TINYINT", "SMALLINT", "BIGINT"];
+function dataTypeHasSize(type){
+  return TYPES_WITHOUT_SIZE.indexOf(String(type || "").toUpperCase()) === -1;
+}
 // Os tipos cadastrados são sempre mostrados em ordem alfabética (sem diferenciar maiúsc./minúsc.),
 // tanto no painel "Gerenciar tipos" quanto nos combos de tipo das colunas — chamada sempre que a
 // lista muda (cadastro inicial, adicionar, remover, carregar do localStorage).
@@ -1424,12 +1438,15 @@ function computeDims(node){
 // ex.: dataType "VARCHAR" + dataSize "50" vira "VARCHAR(50)"; sem tamanho, fica só "VARCHAR".
 // Para o tipo DECIMAL há ainda um terceiro campo, só para ele, com as casas decimais (dataDecimals)
 // — com tamanho e casas decimais informados, vira "DECIMAL(10,2)"; sem as casas decimais, fica
-// só "DECIMAL(10)", igual a qualquer outro tipo.
+// só "DECIMAL(10)", igual a qualquer outro tipo. Tipos inteiros (ver TYPES_WITHOUT_SIZE) não têm
+// tamanho nem casas decimais, então o valor guardado (se houver, de antes de trocar o tipo) é
+// ignorado na exibição.
 function fullDataType(c){
   if (!c) return "VARCHAR";
   var base = c.dataType || "VARCHAR";
-  var size = String(c.dataSize || "").trim();
-  var decimals = base === "DECIMAL" ? String(c.dataDecimals || "").trim() : "";
+  var hasSize = dataTypeHasSize(base);
+  var size = hasSize ? String(c.dataSize || "").trim() : "";
+  var decimals = (hasSize && base === "DECIMAL") ? String(c.dataDecimals || "").trim() : "";
   if (size && decimals) return base + "(" + size + "," + decimals + ")";
   return size ? base + "(" + size + ")" : base;
 }
@@ -2864,6 +2881,7 @@ function renderTablePanel(n){
     // coluna fica junto do nome, no topo, por ser a acao mais rapida de achar).
     html += '<div class="col-row">';
     html += '<div class="col-row-line col-row-name-line">';
+    html += '<span class="col-row-label">Nome</span>';
     html += '<input type="text" class="col-name" data-i="' + i + '" value="' + escapeHtml(c.name) + '" placeholder="nome">';
     html += '<button type="button" class="col-del" data-i="' + i + '" title="Remover coluna">×</button>';
     html += '</div>';
@@ -2878,18 +2896,25 @@ function renderTablePanel(n){
     if (c.dataType && typeOptions.indexOf(c.dataType) === -1){ typeOptions.push(c.dataType); sortDataTypes(typeOptions); }
     var fkTypeAttrs = c.fk ? ' disabled title="O tipo de uma chave estrangeira acompanha automaticamente o tipo da chave primária referenciada — altere o tipo lá para mudar este."' : '';
     html += '<div class="col-row-line col-row-type-line">';
+    html += '<span class="col-row-label">Tipo</span>';
     html += '<select class="col-type-base" data-i="' + i + '"' + fkTypeAttrs + '>' + typeOptions.map(function(t){
       return '<option value="' + escapeHtml(t) + '"' + (c.dataType === t ? " selected" : "") + '>' + escapeHtml(t) + '</option>';
     }).join("") + '</select>';
     html += '</div>';
-    html += '<div class="col-row-line col-row-size-line">';
-    html += '<input type="text" class="col-type-size" data-i="' + i + '" value="' + escapeHtml(c.dataSize || "") + '" placeholder="tam."' + fkTypeAttrs + '>';
-    // Casas decimais: só faz sentido (e só aparece) para o tipo DECIMAL -- para os demais tipos
-    // esse campo nem é desenhado, como pedido.
-    if (c.dataType === "DECIMAL"){
-      html += '<input type="text" class="col-type-decimals" data-i="' + i + '" value="' + escapeHtml(c.dataDecimals || "") + '" placeholder="dec." title="Casas decimais"' + fkTypeAttrs + '>';
+    // Tipos inteiros (INT/INTEGER/TINYINT/SMALLINT/BIGINT) não têm tamanho nem casas decimais --
+    // a linha inteira de "Tam."/"Dec." nem é desenhada para eles, como pedido.
+    if (dataTypeHasSize(c.dataType)){
+      html += '<div class="col-row-line col-row-size-line">';
+      html += '<span class="col-row-label">Tam.</span>';
+      html += '<input type="text" class="col-type-size" data-i="' + i + '" value="' + escapeHtml(c.dataSize || "") + '" placeholder="tam."' + fkTypeAttrs + '>';
+      // Casas decimais: só faz sentido (e só aparece) para o tipo DECIMAL -- para os demais tipos
+      // esse campo nem é desenhado, como pedido.
+      if (c.dataType === "DECIMAL"){
+        html += '<span class="col-row-label">Dec.</span>';
+        html += '<input type="text" class="col-type-decimals" data-i="' + i + '" value="' + escapeHtml(c.dataDecimals || "") + '" placeholder="dec." title="Casas decimais"' + fkTypeAttrs + '>';
+      }
+      html += '</div>';
     }
-    html += '</div>';
     html += '<div class="col-row-line col-row-flags-line">';
     html += '<label class="col-flag" title="Chave primária"><input type="checkbox" class="col-pk" data-i="' + i + '" ' + (c.pk ? "checked" : "") + '> PK</label>';
     html += '<label class="col-flag" title="Chave estrangeira"><input type="checkbox" class="col-fk" data-i="' + i + '" ' + (c.fk ? "checked" : "") + '> FK</label>';
