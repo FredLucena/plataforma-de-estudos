@@ -125,6 +125,11 @@
   header input#projectName:focus{ outline:none; border-color:var(--select); background:var(--surface-2); }
   .spacer{ flex:1; min-width:8px; }
   .autosave-note{ font-size:11.5px; color:var(--ink-soft); font-family:var(--font-mono); white-space:nowrap; }
+  /* No desktop este agrupamento não existe visualmente -- os botões dentro dele continuam
+     participando do layout flex do <header> como se estivessem soltos ali, exatamente como
+     antes de agrupá-los numa <div> (só o fizemos para poder tratá-los como uma faixa única no
+     celular, veja a media query abaixo). */
+  .header-actions{ display:contents; }
   .hbtn{
     display:inline-flex; align-items:center; gap:6px;
     background:var(--surface-2); border:1px solid var(--border); border-radius:7px;
@@ -215,7 +220,7 @@
   .grid-size-row input[type=number]{ -moz-appearance:textfield; }
 
   .canvas-wrap{ position:relative; flex:1; overflow:hidden; background:var(--bg); }
-  svg#stage{ width:100%; height:100%; display:block; user-select:none; -webkit-user-select:none; cursor:grab; }
+  svg#stage{ width:100%; height:100%; display:block; user-select:none; -webkit-user-select:none; cursor:grab; touch-action:none; }
   svg#stage:active{ cursor:grabbing; }
   svg#stage.mode-connect{ cursor:crosshair; }
   svg#stage.mode-place{ cursor:copy; }
@@ -468,6 +473,81 @@
     width:min(90vw, 660px); height:auto; display:block;
     background:#000;
   }
+
+  /* ---------- botões de abrir as gavetas (só existem/aparecem no layout de celular) ---------- */
+  #btnOpenToolbar, #btnOpenPanel{ display:none; }
+
+  /* ---------- fundo escurecido atrás das gavetas no celular ---------- */
+  .drawer-backdrop{
+    display:none; position:fixed; inset:0; background:rgba(20,16,8,.4); z-index:390;
+  }
+  .drawer-backdrop.visible{ display:block; }
+
+  /* ---------- layout de celular: barra de ferramentas e painel de propriedades viram
+     gavetas que deslizam por cima do quadro, em vez de ficarem lado a lado com ele (não
+     cabem lado a lado numa tela de celular). Abrem pelos botões no cabeçalho (ou, no painel
+     de propriedades, sozinho ao selecionar algo no quadro) e fecham tocando fora ou no X. */
+  @media (max-width: 880px){
+    #btnOpenToolbar, #btnOpenPanel{ display:inline-flex; }
+
+    header{ padding:8px 10px; gap:6px; }
+    .autosave-note{ display:none; }
+    header input#projectName{ min-width:0; flex:1 1 80px; }
+
+    /* A faixa de botões (Novo projeto, Abrir projeto, Baixar projeto, Modo claro/escuro,
+       Tela cheia, Barra esquerda e Barra direita) vira uma única linha própria -- a segunda
+       linha do cabeçalho, logo abaixo da marca/nome do projeto -- em vez de ficar solta no
+       fluxo do <header> e quebrar em mais de uma linha. "flex-basis:100%" força a quebra de
+       linha bem no início dela (empurra a faixa inteira para a linha seguinte à da marca), e
+       "flex-wrap:nowrap" + "overflow-x:auto" garantem que todos os botões fiquem nessa mesma
+       linha, com rolagem horizontal em vez de quebrar para uma terceira linha caso não caibam
+       de uma vez na largura da tela. */
+    .header-actions{
+      display:flex; flex-wrap:nowrap; flex-basis:100%; order:1;
+      gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch;
+      padding-bottom:2px; scrollbar-width:thin;
+    }
+    .header-actions > .hbtn, .header-actions > .dl-menu-wrap{ flex-shrink:0; }
+
+    /* Ordem dos botões dentro da faixa, da esquerda para a direita: Novo projeto, Abrir
+       projeto, Baixar projeto, Modo claro/escuro, Tela cheia, Barra esquerda (ferramentas) e
+       Barra direita (propriedades). */
+    #btnNew{ order:1; }
+    #btnOpen{ order:2; }
+    .dl-menu-wrap{ order:3; }
+    #btnTheme{ order:4; }
+    #btnFullscreen{ order:5; }
+    #btnOpenToolbar{ order:6; }
+    #btnOpenPanel{ order:7; }
+
+    aside.toolbar, aside.panel-wrap{
+      position:fixed; top:0; bottom:0; z-index:400;
+      width:min(85vw, 320px); max-width:320px;
+      box-shadow:0 8px 30px -6px rgba(0,0,0,.35);
+      transition:transform .22s ease; border:none;
+    }
+    aside.toolbar{ left:0; transform:translateX(-105%); }
+    aside.panel-wrap{ right:0; transform:translateX(105%); }
+    /* Anula o recolhimento por hover do desktop -- no celular a visibilidade é controlada
+       só pela classe "drawer-open" abaixo, nunca por :hover (que não existe de verdade
+       no toque) nem pelo checkbox "Fixar" (escondido logo abaixo). */
+    aside.toolbar.collapsed, aside.toolbar.collapsed:hover,
+    aside.panel-wrap.collapsed, aside.panel-wrap.collapsed:hover{ width:min(85vw, 320px); }
+    aside.toolbar.drawer-open{ transform:translateX(0); }
+    aside.panel-wrap.drawer-open{ transform:translateX(0); }
+
+    .toolbar-pin-row, .panel-pin-row{ display:none; }
+
+    /* Alvos de toque maiores, para dedo em vez de cursor de mouse. */
+    .hbtn{ padding:9px 13px; min-height:40px; }
+    .tbtn{ padding:10px 8px; min-height:44px; }
+    .dl-menu-item{ padding:11px 9px; }
+    .dl-menu{ width:min(85vw, 260px); }
+    .zoom-ctl button{ width:42px; height:42px; font-size:18px; }
+    .fmt-btn{ width:36px; height:36px; }
+    .grid-size-row button{ width:30px; height:30px; }
+    .legend-btn-wrap .hbtn, #btnAbout{ min-height:40px; }
+  }
 </style>
 
 <div class="splash-overlay" id="splashOverlay">
@@ -514,42 +594,52 @@
   <input id="projectName" type="text" value="" spellcheck="false">
   <span class="autosave-note" id="autosaveNote"></span>
   <div class="spacer"></div>
-  <button class="hbtn" id="btnTheme" title="Mudar para o modo escuro">
-    <svg viewBox="0 0 20 20"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9Z"/></svg>
-    Modo escuro
-  </button>
-  <button class="hbtn" id="btnFullscreen" title="Entrar em tela cheia">
-    <svg viewBox="0 0 20 20" id="fullscreenIcon"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4"/></svg>
-    <span id="fullscreenLabel">Tela cheia</span>
-  </button>
-  <button class="hbtn" id="btnLegend" title="Guia de notação">
-    <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="10" y="14" text-anchor="middle" font-size="11" font-family="Georgia,serif" fill="currentColor">?</text></svg>
-    Notação
-  </button>
-  <button class="hbtn" id="btnNew">Novo projeto</button>
-  <button class="hbtn" id="btnOpen">Abrir projeto</button>
-  <div class="dl-menu-wrap" id="dlMenuWrap">
-    <button class="hbtn" id="btnSave" aria-haspopup="true" aria-expanded="false">
-      Baixar projeto
-      <svg viewBox="0 0 10 6" width="10" height="6"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <!-- No desktop este agrupamento é invisível (display:contents -- ver regra ".header-actions"
+       mais acima no <style>), então os botões continuam soltos na mesma linha do cabeçalho,
+       exatamente como antes. No celular ele vira uma faixa própria, colocada sozinha numa
+       segunda linha (com rolagem horizontal caso não caibam todos de uma vez, em vez de
+       quebrar para uma terceira linha) -- ver a media query em @media (max-width: 880px). -->
+  <div class="header-actions" id="headerActions">
+    <button class="hbtn" id="btnTheme" title="Mudar para o modo escuro">
+      <svg viewBox="0 0 20 20"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9Z"/></svg>
+      Modo escuro
     </button>
-    <div class="dl-menu" id="dlMenu" hidden>
-      <button class="dl-menu-item" data-fmt="json">
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 2h7l4 4v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M12 2v4h4"/></svg>
-        <span><strong>JSON</strong><small>Arquivo do projeto, para reabrir e continuar editando depois</small></span>
+    <button class="hbtn" id="btnFullscreen" title="Entrar em tela cheia">
+      <svg viewBox="0 0 20 20" id="fullscreenIcon"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4"/></svg>
+      <span id="fullscreenLabel">Tela cheia</span>
+    </button>
+    <button class="hbtn" id="btnNew">Novo projeto</button>
+    <button class="hbtn" id="btnOpen">Abrir projeto</button>
+    <div class="dl-menu-wrap" id="dlMenuWrap">
+      <button class="hbtn" id="btnSave" aria-haspopup="true" aria-expanded="false">
+        Baixar projeto
+        <svg viewBox="0 0 10 6" width="10" height="6"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <button class="dl-menu-item" data-fmt="jpg">
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="16" height="14" rx="1.6"/><circle cx="6.6" cy="8" r="1.5" fill="currentColor" stroke="none"/><path d="M2 14l4.5-4.5L10 13l3-3 5 4.5"/></svg>
-        <span><strong>JPG</strong><small>Imagem do diagrama atual</small></span>
-      </button>
-      <button class="dl-menu-item" data-fmt="pdf">
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 2h7l4 4v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M12 2v4h4"/><text x="10" y="15" text-anchor="middle" font-size="6.5" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">PDF</text></svg>
-        <span><strong>PDF</strong><small>Diagrama atual em um documento PDF</small></span>
-      </button>
+      <div class="dl-menu" id="dlMenu" hidden>
+        <button class="dl-menu-item" data-fmt="json">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 2h7l4 4v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M12 2v4h4"/></svg>
+          <span><strong>JSON</strong><small>Arquivo do projeto, para reabrir e continuar editando depois</small></span>
+        </button>
+        <button class="dl-menu-item" data-fmt="jpg">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="16" height="14" rx="1.6"/><circle cx="6.6" cy="8" r="1.5" fill="currentColor" stroke="none"/><path d="M2 14l4.5-4.5L10 13l3-3 5 4.5"/></svg>
+          <span><strong>JPG</strong><small>Imagem do diagrama atual</small></span>
+        </button>
+        <button class="dl-menu-item" data-fmt="pdf">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 2h7l4 4v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M12 2v4h4"/><text x="10" y="15" text-anchor="middle" font-size="6.5" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">PDF</text></svg>
+          <span><strong>PDF</strong><small>Diagrama atual em um documento PDF</small></span>
+        </button>
+      </div>
     </div>
+    <button class="hbtn" id="btnOpenToolbar" title="Abrir ferramentas">
+      <svg viewBox="0 0 20 20"><line class="ic-stroke" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" x1="3" y1="5" x2="17" y2="5"/><line class="ic-stroke" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" x1="3" y1="10" x2="17" y2="10"/><line class="ic-stroke" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" x1="3" y1="15" x2="17" y2="15"/></svg>
+    </button>
+    <button class="hbtn" id="btnOpenPanel" title="Abrir propriedades">
+      <svg viewBox="0 0 20 20"><rect class="ic-stroke" fill="none" stroke="currentColor" stroke-width="1.6" x="2.5" y="2.5" width="15" height="15" rx="2.5"/><line class="ic-stroke" stroke="currentColor" stroke-width="1.6" x1="7" y1="2.5" x2="7" y2="17.5"/></svg>
+    </button>
   </div>
   <input type="file" id="fileInput" accept="application/json,.json" hidden>
 </header>
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
 
 <main>
   <aside class="toolbar" id="toolbarWrap">
@@ -851,6 +941,7 @@ function loadPrefs(){
 // (efeito puramente em CSS, com :hover) ou selecionar algum elemento no quadro (aqui, via JS,
 // toda vez que a seleção muda) a exibe de novo.
 function updatePanelPin(){
+  if (mobileLayoutMQ.matches) return; // no celular quem manda é a gaveta, não o "Fixar"
   panelPinChk.checked = panelPinned;
   var hasSelection = (selectedNodeIds.size + selectedEdgeIds.size) > 0;
   panelWrapEl.classList.toggle("collapsed", !panelPinned && !hasSelection);
@@ -863,6 +954,7 @@ panelPinChk.addEventListener("change", function(){
 
 // Mesmo recurso na barra de ferramentas à esquerda (ver .toolbar.collapsed no CSS).
 function updateToolbarPin(){
+  if (mobileLayoutMQ.matches) return;
   toolbarPinChk.checked = toolbarPinned;
   var hasSelection = (selectedNodeIds.size + selectedEdgeIds.size) > 0;
   toolbarWrapEl.classList.toggle("collapsed", !toolbarPinned && !hasSelection);
@@ -871,6 +963,57 @@ toolbarPinChk.addEventListener("change", function(){
   toolbarPinned = toolbarPinChk.checked;
   savePrefs();
   updateToolbarPin();
+});
+
+// ---------- gavetas no layout de celular ----------
+// Numa tela de celular, a barra de ferramentas e o painel de propriedades não cabem ao lado
+// do quadro (ver o "aside.toolbar"/"aside.panel-wrap" dentro do @media (max-width:880px) no
+// <style>) -- em vez disso, viram gavetas escondidas fora da tela por padrão, que deslizam por
+// cima do quadro quando abertas por um botão no cabeçalho, e fecham tocando fora delas (no
+// fundo escurecido) ou ao escolher uma ferramenta.
+var mobileLayoutMQ = window.matchMedia("(max-width: 880px)");
+var drawerBackdropEl = document.getElementById("drawerBackdrop");
+var toolbarInnerEl = document.getElementById("toolbarInner");
+
+function closeAllDrawers(){
+  toolbarWrapEl.classList.remove("drawer-open");
+  panelWrapEl.classList.remove("drawer-open");
+  drawerBackdropEl.classList.remove("visible");
+}
+function openToolbarDrawer(){
+  panelWrapEl.classList.remove("drawer-open");
+  toolbarWrapEl.classList.add("drawer-open");
+  drawerBackdropEl.classList.add("visible");
+}
+function openPanelDrawer(){
+  toolbarWrapEl.classList.remove("drawer-open");
+  panelWrapEl.classList.add("drawer-open");
+  drawerBackdropEl.classList.add("visible");
+}
+document.getElementById("btnOpenToolbar").addEventListener("click", function(){
+  if (toolbarWrapEl.classList.contains("drawer-open")) closeAllDrawers();
+  else openToolbarDrawer();
+});
+document.getElementById("btnOpenPanel").addEventListener("click", function(){
+  if (panelWrapEl.classList.contains("drawer-open")) closeAllDrawers();
+  else openPanelDrawer();
+});
+drawerBackdropEl.addEventListener("click", closeAllDrawers);
+// Tocar num botão de ferramenta fecha a gaveta sozinha -- depois de escolher o que adicionar
+// (ou uma ação como "Excluir selecionado"), o próximo toque já é no quadro, e a gaveta só
+// atrapalharia continuando aberta por cima dele. Os botões +/- do espaçamento da grade ficam
+// de fora -- ajustar a grade costuma precisar de vários toques seguidos.
+toolbarInnerEl.addEventListener("click", function(e){
+  if (!mobileLayoutMQ.matches) return;
+  if (e.target.closest(".grid-size-ctl")) return;
+  if (e.target.closest("button")) closeAllDrawers();
+});
+// Se o layout deixar de ser de celular (ex.: girar o aparelho ou redimensionar a janela),
+// garante que nenhuma gaveta fique "aberta" por engano quando o layout lado a lado voltar.
+if (mobileLayoutMQ.addEventListener) mobileLayoutMQ.addEventListener("change", closeAllDrawers);
+else if (mobileLayoutMQ.addListener) mobileLayoutMQ.addListener(closeAllDrawers);
+document.addEventListener("keydown", function(e){
+  if (e.key === "Escape") closeAllDrawers();
 });
 
 // Lista de tipos de dados disponíveis nos combo box das colunas do modelo lógico — salva à parte
@@ -2479,7 +2622,59 @@ function placeAttributeOnNode(target, kind, stickyAdd, keepTargetSelected, isKey
   showToast('Atributo criado e conectado a "' + (target.name || "") + '".');
 }
 
+// ---------- toque com dois dedos no quadro (pinça para dar zoom) ----------
+// O arraste com um dedo só já funciona sozinho: o gesto de clicar-e-arrastar abaixo usa
+// Pointer Events, que o navegador já unifica entre mouse e toque, então arrastar formas ou
+// fazer panorâmica com um dedo já funciona sem nenhum código extra. O que não existia é dar
+// zoom com dois dedos (pinça), já que hoje o zoom só reage à roda do mouse -- por isso
+// rastreamos aqui, à parte, os pontos de toque ativos no quadro; assim que o segundo dedo
+// encosta, cancelamos o gesto de um dedo que porventura já estivesse rolando (a variável
+// "activeStageGestureAbort" abaixo, preenchida pelo próprio gesto de um dedo) para que os
+// dois não fiquem brigando pelo mesmo "view", e passamos a interpretar o movimento dos dois
+// dedos como pinça, reaproveitando o mesmo "zoomBy" usado pela roda do mouse e pelos botões
+// de +/-.
+var touchPointers = new Map();
+var activeStageGestureAbort = null;
+var pinchLastDist = null;
+function touchPointsArray(){ return Array.from(touchPointers.values()); }
+function touchDistance(p1, p2){ return Math.hypot(p1.x - p2.x, p1.y - p2.y); }
+function touchMidpoint(p1, p2){ return { x:(p1.x + p2.x)/2, y:(p1.y + p2.y)/2 }; }
+function updatePinch(){
+  var pts = touchPointsArray();
+  if (pts.length < 2){ pinchLastDist = null; return; }
+  var p1 = pts[0], p2 = pts[1];
+  var dist = touchDistance(p1, p2);
+  if (pinchLastDist !== null && dist > 1){
+    var mid = touchMidpoint(p1, p2);
+    var midSvg = screenToSvg(mid.x, mid.y);
+    zoomBy(pinchLastDist / dist, midSvg.x, midSvg.y);
+  }
+  pinchLastDist = dist;
+}
+document.addEventListener("pointermove", function(ev){
+  if (ev.pointerType !== "touch" || !touchPointers.has(ev.pointerId)) return;
+  touchPointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+  if (touchPointers.size >= 2) updatePinch();
+});
+function endStageTouch(ev){
+  if (ev.pointerType !== "touch") return;
+  touchPointers.delete(ev.pointerId);
+  if (touchPointers.size < 2) pinchLastDist = null;
+}
+document.addEventListener("pointerup", endStageTouch);
+document.addEventListener("pointercancel", endStageTouch);
+
 stageEl.addEventListener("pointerdown", function(e){
+  if (e.pointerType === "touch"){
+    touchPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touchPointers.size >= 2){
+      // Chegou o 2º dedo: encerra o gesto de 1 dedo que estava em andamento (se algum) e
+      // deixa a partir daqui só a pinça (tratada pelos listeners acima) cuidar do zoom.
+      if (activeStageGestureAbort){ activeStageGestureAbort(); activeStageGestureAbort = null; }
+      pinchLastDist = touchDistance(touchPointsArray()[0], touchPointsArray()[1]);
+      return;
+    }
+  }
   if (e.button !== 0 && e.button !== 1) return;
   var isPanGesture = e.button === 1 || spaceHeld;
   // Clicar e arrastar numa área vazia do quadro move a tela (panorâmica), igual ao botão do
@@ -2491,6 +2686,7 @@ stageEl.addEventListener("pointerdown", function(e){
   var startSvg = screenToSvg(e.clientX, e.clientY);
   var moved = false;
   var pointerId = e.pointerId;
+  var aborted = false;
   // Assim como no arraste de nós, evitamos setPointerCapture aqui: capturar o ponteiro
   // no <svg> e depois liberá-lo faz o Chrome cancelar (pointercancel) o próximo gesto de
   // arraste que usar o mesmo pointerId — inclusive um clique-e-arraste num nó logo em
@@ -2501,8 +2697,16 @@ stageEl.addEventListener("pointerdown", function(e){
     marqueeEl.setAttribute("visibility", "visible");
   }
 
+  activeStageGestureAbort = function(){
+    aborted = true;
+    document.removeEventListener("pointermove", onMove);
+    document.removeEventListener("pointerup", onUp);
+    document.removeEventListener("pointercancel", onUp);
+    if (doMarquee) marqueeEl.setAttribute("visibility", "hidden");
+  };
+
   function onMove(ev){
-    if (ev.pointerId !== pointerId) return;
+    if (aborted || ev.pointerId !== pointerId) return;
     var dx = ev.clientX - startClient.x, dy = ev.clientY - startClient.y;
     if (!moved && Math.hypot(dx,dy) > 4) moved = true;
     if (!moved) return;
@@ -2517,10 +2721,12 @@ stageEl.addEventListener("pointerdown", function(e){
     }
   }
   function onUp(ev){
+    if (aborted) return;
     if (ev && ev.pointerId !== pointerId) return;
     document.removeEventListener("pointermove", onMove);
     document.removeEventListener("pointerup", onUp);
     document.removeEventListener("pointercancel", onUp);
+    activeStageGestureAbort = null;
     if (doMarquee) marqueeEl.setAttribute("visibility", "hidden");
     if (!moved){
       if (pendingAdd){
@@ -3156,6 +3362,10 @@ function updatePanel(){
   updatePanelPin();
   updateToolbarPin();
   var nCount = selectedNodeIds.size, eCount = selectedEdgeIds.size;
+  // No celular, selecionar algo no quadro já abre a gaveta de propriedades sozinha -- editar
+  // é o motivo mais comum de ter selecionado algo, então poupa o toque extra no botão do
+  // cabeçalho. Ela continua fechando só quando o professor tocar fora ou escolher outra coisa.
+  if (mobileLayoutMQ.matches && (nCount > 0 || eCount > 0)) openPanelDrawer();
   if (nCount === 0 && eCount === 0){
     if (mode === "logical"){
       panelEl.innerHTML =
@@ -4537,36 +4747,6 @@ document.getElementById("btnTheme").addEventListener("click", function(){
   });
   updateBtn();
 })();
-
-/* ---------- legenda de notação ---------- */
-document.getElementById("btnLegend").addEventListener("click", function(){
-  if (mode === "logical"){ showLogicalLegend(); return; }
-  var backdrop = document.createElement("div");
-  backdrop.className = "modal-backdrop";
-  backdrop.innerHTML =
-    '<div class="modal-box">' +
-    '<h2>Notação (estilo Chen / BrModelo)</h2>' +
-    '<p>Guia rápido dos símbolos usados no diagrama entidade-relacionamento.</p>' +
-    '<div class="legend-grid">' +
-      legendRow('<rect x="4" y="4" width="60" height="30" rx="4" fill="var(--entity-fill)" stroke="var(--entity-ink)" stroke-width="1.6"/>', "Entidade", "Um conjunto de objetos com existência própria.") +
-      legendRow('<rect x="4" y="4" width="60" height="30" rx="4" fill="var(--entity-fill)" stroke="var(--entity-ink)" stroke-width="1.6"/><rect x="9" y="9" width="50" height="20" rx="2" fill="none" stroke="var(--entity-ink)" stroke-width="1.3"/>', "Entidade fraca", "Depende de outra entidade para existir; ligada por um relacionamento identificador.") +
-      legendRow('<polygon points="34,3 66,18 34,33 2,18" fill="var(--relationship-fill)" stroke="var(--relationship-ink)" stroke-width="1.6"/>', "Relacionamento", "Associação entre duas ou mais entidades.") +
-      legendRow('<polygon points="34,3 66,18 34,33 2,18" fill="var(--relationship-fill)" stroke="var(--relationship-ink)" stroke-width="1.6"/><polygon points="34,9 58,18 34,27 10,18" fill="none" stroke="var(--relationship-ink)" stroke-width="1.3"/>', "Relac. identificador", "Liga uma entidade fraca à entidade da qual ela depende.") +
-      legendRow('<text x="34" y="19" text-anchor="middle" font-size="12.5" font-weight="500" font-family="Public Sans, sans-serif" fill="var(--attribute-ink)">simples</text>', "Atributo simples", "Propriedade atômica de uma entidade ou relacionamento — só o nome, sem elipse ao redor.") +
-      legendRow('<text x="34" y="19" text-anchor="middle" font-size="12.5" font-weight="500" text-decoration="underline" font-family="Public Sans, sans-serif" fill="var(--attribute-ink)">chave</text>', "Atributo-chave", "Identifica cada ocorrência de forma única (nome sublinhado).") +
-      legendRow('<ellipse cx="34" cy="18" rx="30" ry="15" fill="var(--attribute-fill)" stroke="var(--attribute-ink)" stroke-width="1.5"/><ellipse cx="34" cy="18" rx="23" ry="10" fill="none" stroke="var(--attribute-ink)" stroke-width="1.3"/>', "Atributo multivalorado", "Pode ter mais de um valor para a mesma ocorrência.") +
-      legendRow('<ellipse cx="34" cy="18" rx="30" ry="15" fill="var(--attribute-fill)" stroke="var(--attribute-ink)" stroke-width="1.5" stroke-dasharray="4 3"/>', "Atributo derivado", "Calculado a partir de outros dados (borda tracejada).") +
-      legendRow('<ellipse cx="34" cy="10" rx="22" ry="9" fill="var(--attribute-fill)" stroke="var(--attribute-ink)" stroke-width="1.4"/><line x1="20" y1="17" x2="10" y2="29" stroke="var(--attribute-ink)" stroke-width="1.2"/><line x1="48" y1="17" x2="58" y2="29" stroke="var(--attribute-ink)" stroke-width="1.2"/><text x="10" y="33" text-anchor="middle" font-size="9.5" font-family="Public Sans, sans-serif" fill="var(--attribute-ink)">sub1</text><text x="58" y="33" text-anchor="middle" font-size="9.5" font-family="Public Sans, sans-serif" fill="var(--attribute-ink)">sub2</text>', "Atributo composto", "Formado por sub-atributos conectados a ele (cada sub-atributo simples aparece como texto).") +
-      legendRow('<polygon points="34,3 62,32 6,32" fill="var(--accent-fill)" stroke="var(--accent-ink)" stroke-width="1.6"/><text x="34" y="26" text-anchor="middle" font-size="11" font-family="IBM Plex Mono, monospace" font-weight="600" fill="var(--accent-ink)">PD</text>', "Generalização/Especialização", "Superclasse acima, subclasses abaixo. T/P = cobertura total/parcial; D/S = disjunta/sobreposta.") +
-      legendRow('<line x1="6" y1="18" x2="62" y2="18" stroke="var(--ink-soft)" stroke-width="1.4"/><rect x="20" y="10" width="28" height="16" rx="4" fill="var(--surface)" stroke="var(--border)"/><text x="34" y="21" text-anchor="middle" font-size="10.5" font-family="IBM Plex Mono, monospace" fill="var(--ink)">(1,N)</text>', "Cardinalidade (mín,máx)", "Participação mínima e máxima da entidade no relacionamento.") +
-      legendRow('<rect x="4" y="4" width="60" height="28" rx="3" fill="var(--note-fill)" stroke="var(--note-ink)" stroke-width="1.4" stroke-dasharray="3 2"/><line x1="10" y1="14" x2="52" y2="14" stroke="var(--note-ink)" stroke-width="1.2"/><line x1="10" y1="21" x2="40" y2="21" stroke="var(--note-ink)" stroke-width="1.2"/>', "Anotação", "Nota livre para comentários — não é parte da notação Entidade-Relacionamento e não se conecta a outros elementos.") +
-    '</div>' +
-    '<div class="modal-actions"><button data-a="close" class="primary">Fechar</button></div>' +
-    '</div>';
-  document.body.appendChild(backdrop);
-  backdrop.addEventListener("click", function(e){ if (e.target === backdrop) backdrop.remove(); });
-  backdrop.querySelector('[data-a="close"]').addEventListener("click", function(){ backdrop.remove(); });
-});
 
 /* ---------- sobre / marca ---------- */
 var APP_VERSION = "1.0";
