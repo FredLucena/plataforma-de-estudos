@@ -507,10 +507,134 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
       }
     };
   }
+  /* ---------- repositório no GitHub (página publicada no GitHub Pages) ---------- */
+  // Lista as pastas pelo GitHub (uma única consulta por visita) e lê o conteúdo em raw.githubusercontent.com.
+  // A raiz é a pasta desta página no repositório; "?raiz=SQL" no endereço faz uma subpasta virar a raiz.
+  function cleanPath(p) {
+    var parts = String(p || '').split('/').filter(function (s) { return s && s !== '.' && s !== '..'; });
+    return parts.join('/');
+  }
+  function githubTargets() {
+    var host = location.hostname.toLowerCase(), parts = [];
+    location.pathname.split('/').forEach(function (s) { if (s) { try { parts.push(decodeURIComponent(s)); } catch (e) { parts.push(s); } } });
+    if (parts.length && /\.[a-z0-9]+$/i.test(parts[parts.length - 1])) parts.pop();   // tira "index.html"
+    var owner = '', userRepo = '';
+    if (/\.github\.io$/.test(host)) { owner = host.split('.')[0]; userRepo = host; }
+    else if (host === 'derfacil.com.br' || host === 'www.derfacil.com.br') { owner = 'derfacil'; userRepo = 'derfacil'; }
+    var q = new URLSearchParams(location.search).get('repo');   // "dono/repositorio", para outros endereços
+    var out = [];
+    if (q && /^[\w.-]+\/[\w.-]+$/.test(q)) out.push({ owner: q.split('/')[0], repo: q.split('/')[1], dir: parts.join('/') });
+    if (owner) {
+      if (parts.length) out.push({ owner: owner, repo: parts[0], dir: parts.slice(1).join('/') });
+      out.push({ owner: owner, repo: userRepo, dir: parts.join('/') });   // site principal da conta
+    }
+    return out;
+  }
+  function githubProvider(cfg, raiz) {
+    var rootPath = [cfg.dir, cleanPath(raiz)].filter(Boolean).join('/');
+    var prefix = rootPath ? rootPath + '/' : '';
+    var index = null, branch = '', pending = null;
+    var CACHE_KEY = 'explorador.tree.v1:' + cfg.owner + '/' + cfg.repo + ':' + rootPath;
+    function fatal(msg) { var e = new Error(msg); e.fatal = true; return e; }
+    function fetchTree(br) {
+      return fetch('https://api.github.com/repos/' + cfg.owner + '/' + cfg.repo + '/git/trees/' + encodeURIComponent(br) + '?recursive=1',
+        { headers: { Accept: 'application/vnd.github+json' } }).then(function (r) {
+        if (r.status === 403 || r.status === 429) throw fatal('O GitHub limitou as consultas deste endereço por agora. Tente de novo mais tarde.');
+        if (!r.ok) throw new Error('GitHub: HTTP ' + r.status);
+        return r.json();
+      });
+    }
+    function build(items) {
+      var dirs = new Map(), n = 0;
+      items.forEach(function (it) {
+        if (it.path.indexOf(prefix) !== 0 || (it.type !== 'blob' && it.type !== 'tree')) return;
+        var rel = it.path.slice(prefix.length);
+        if (!rel) return;
+        n++;
+        var i = rel.lastIndexOf('/'), parent = i < 0 ? '' : rel.slice(0, i), name = i < 0 ? rel : rel.slice(i + 1);
+        if (!dirs.has(parent)) dirs.set(parent, []);
+        dirs.get(parent).push({ name: name, type: it.type === 'tree' ? 'dir' : 'file', size: it.type === 'tree' ? null : (it.size || 0), mtime: 0 });
+      });
+      return n ? dirs : null;
+    }
+    function loadTree() {
+      if (index) return Promise.resolve(index);
+      if (pending) return pending;
+      try {
+        var c = JSON.parse(sessionStorage.getItem(CACHE_KEY) || 'null');
+        if (c && Date.now() - c.t < 10 * 60 * 1000) { branch = c.b; index = build(c.items); if (index) return Promise.resolve(index); }
+      } catch (e) { /* sem cache */ }
+      var branches = ['main', 'master'], i = 0;
+      pending = (function next() {
+        if (i >= branches.length) return Promise.reject(new Error('Repositório ou pasta não encontrado.'));
+        var br = branches[i++];
+        return fetchTree(br).then(function (d) {
+          var items = (d.tree || []).filter(function (it) { return it.path.indexOf(prefix) === 0; });
+          var idx = build(items);
+          if (!idx) throw new Error('Pasta não encontrada no repositório.');
+          branch = br; index = idx;
+          try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), b: br, items: items.map(function (it) { return { path: it.path, type: it.type, size: it.size }; }) })); } catch (e) { /* sem cache */ }
+          return idx;
+        }, function (e) { if (e && e.fatal) throw e; return next(); });
+      })();
+      pending.then(null, function () { pending = null; });
+      return pending;
+    }
+    var shortRoot = cleanPath(raiz) ? base(cleanPath(raiz)) : (cfg.dir ? base(cfg.dir) : cfg.repo);
+    return {
+      rootName: shortRoot, live: true,
+      fullName: cfg.owner + '/' + cfg.repo + (rootPath ? '/' + rootPath : ''),
+      ready: loadTree,
+      reset: function () { index = null; pending = null; try { sessionStorage.removeItem(CACHE_KEY); } catch (e) { /* ok */ } },
+      list: function (p) { return loadTree().then(function (idx) { return (idx.get(p) || []).slice(); }); },
+      getFile: function (p) {
+        return loadTree().then(function () {
+          var url = 'https://raw.githubusercontent.com/' + cfg.owner + '/' + cfg.repo + '/' + encodeURIComponent(branch) + '/' +
+            (prefix + p).split('/').map(encodeURIComponent).join('/');
+          return fetch(url).then(function (r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.blob().then(function (b) { return new File([b], base(p), { lastModified: 0 }); });
+          });
+        });
+      }
+    };
+  }
+  function detectGithub(raiz) {
+    var cands = githubTargets(), i = 0;
+    if (!cands.length) return Promise.reject(new Error('sem repositório'));
+    return (function next() {
+      if (i >= cands.length) return Promise.reject(new Error('Repositório ou pasta não encontrado.'));
+      var prov = githubProvider(cands[i++], raiz);
+      return prov.ready().then(function () { return prov; }, function (e) { if (e && e.fatal) throw e; return next(); });
+    })();
+  }
+  // Abre um arquivo (caminho a partir da raiz), expandindo as pastas que levam até ele.
+  function revealAndOpen(path) {
+    var parts = path.split('/'), acc = '', chain = Promise.resolve();
+    parts.slice(0, -1).forEach(function (seg) {
+      acc = join(acc, seg); var p = acc;
+      chain = chain.then(function () { state.open.add(p); return ensureLoaded(p); });
+    });
+    return chain.then(function () { renderTree(); openFile(path); });
+  }
+
   function detectServer() {
     if (!/^https?:$/.test(location.protocol)) { restoreSaved(); return; }
     welcome.hidden = true;
     var fallback = function () { welcome.hidden = false; restoreSaved(); };
+    var params = new URLSearchParams(location.search);
+    if (githubTargets().length) {
+      detectGithub(params.get('raiz')).then(function (prov) {
+        var abrir = cleanPath(params.get('abrir'));
+        useProvider(prov, abrir ? function () { revealAndOpen(abrir); } : null);
+      }, function (e) {
+        if (e && e.fatal) toast(e.message, true);
+        tryLocal();
+      });
+      return;
+    }
+    tryLocal();
+    function tryLocal() {
     fetch('/api/list?path=').then(function (r) { if (!r.ok) throw new Error('sem api'); return r.json(); }).then(function (d) {
       if (!d || !Array.isArray(d.entries)) throw new Error('sem api');
       useProvider(serverProvider(d));
@@ -519,17 +643,19 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
         if (/Directory listing|Index of|listing for|Files within/i.test(t.slice(0, 4000))) useProvider(httpProvider()); else fallback();
       }).catch(fallback);
     });
+    }
   }
 
-  function useProvider(prov) {
+  function useProvider(prov, after) {
     state.provider = prov; state.live = prov.live; state.sel.clear(); state.file = null; state.cur = null; state.anchor = null;
     state.cache = new Map(); state.pending = new Map(); state.open = new Set(); filterEl.value = '';
     $('#fname').textContent = 'Nenhum arquivo aberto'; $('#fmeta').textContent = '';
     $('#refresh').hidden = !prov.live;
-    $('#rootpath').textContent = prov.rootName; $('#rootpath').title = prov.rootName;
+    $('#rootpath').textContent = prov.fullName || prov.rootName; $('#rootpath').title = prov.fullName || prov.rootName;
     welcome.hidden = true; app.hidden = false; app.dataset.view = 'list';
     placeholder();
-    renderTree(); load('').then(function () { listEl.focus({ preventScroll: true }); });
+    renderTree();
+    load('').then(function () { listEl.focus({ preventScroll: true }); if (after) after(); });
   }
 
   /* lembrar a última pasta escolhida (Chrome/Edge) */
@@ -702,6 +828,7 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
   function load(dir) { return ensureLoaded(dir).then(renderTree); }
   function reload() {
     var dirs = [''].concat(Array.from(state.open));
+    if (state.provider && state.provider.reset) state.provider.reset();
     state.cache.clear(); state.pending.clear();
     return Promise.all(dirs.map(ensureLoaded)).then(renderTree);
   }
