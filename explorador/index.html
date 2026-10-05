@@ -512,6 +512,10 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
   // A raiz é a pasta desta página no repositório. Por padrão abre na subpasta RAIZ_PADRAO ("SQL");
   // "?raiz=OUTRA" escolhe outra subpasta e "?raiz=" (vazio) mostra a pasta inteira desta página.
   var RAIZ_PADRAO = 'SQL';
+  // Se a página estiver em um domínio próprio (ex.: www.meusite.com.br), informe aqui o repositório: 'dono/repositorio'.
+  // Também funciona sem editar: acrescente ?repo=dono/repositorio ao endereço.
+  var REPO_FIXO = '';
+  var GH_MOTIVO = '';
   function cleanPath(p) {
     var parts = String(p || '').split('/').filter(function (s) { return s && s !== '.' && s !== '..'; });
     return parts.join('/');
@@ -523,7 +527,7 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
     var owner = '', userRepo = '';
     if (/\.github\.io$/.test(host)) { owner = host.split('.')[0]; userRepo = host; }
     else if (host === 'derfacil.com.br' || host === 'www.derfacil.com.br') { owner = 'derfacil'; userRepo = 'derfacil'; }
-    var q = new URLSearchParams(location.search).get('repo');   // "dono/repositorio", para outros endereços
+    var q = new URLSearchParams(location.search).get('repo') || REPO_FIXO;   // "dono/repositorio", para outros endereços
     var out = [];
     if (q && /^[\w.-]+\/[\w.-]+$/.test(q)) out.push({ owner: q.split('/')[0], repo: q.split('/')[1], dir: parts.join('/') });
     if (owner) {
@@ -544,7 +548,7 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
         if (r.status === 403 || r.status === 429) throw fatal('O GitHub limitou as consultas deste endereço por agora. Tente de novo mais tarde.');
         if (!r.ok) throw new Error('GitHub: HTTP ' + r.status);
         return r.json();
-      });
+      }, function () { throw new Error('Sem acesso ao GitHub (rede ou bloqueio do navegador).'); }).then(function (d) { return d; }, function (e) { GH_MOTIVO = (e && e.message) || ''; throw e; });
     }
     function build(items) {
       var dirs = new Map(), n = 0;
@@ -573,7 +577,7 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
         return fetchTree(br).then(function (d) {
           var items = (d.tree || []).filter(function (it) { return it.path.indexOf(prefix) === 0; });
           var idx = build(items);
-          if (!idx) throw new Error('Pasta não encontrada no repositório.');
+          if (!idx) { GH_MOTIVO = 'Pasta "' + (prefix || '/') + '" não encontrada em ' + cfg.owner + '/' + cfg.repo + '.'; throw new Error(GH_MOTIVO); }
           branch = br; index = idx;
           try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), b: br, items: items.map(function (it) { return { path: it.path, type: it.type, size: it.size }; }) })); } catch (e) { /* sem cache */ }
           return idx;
@@ -623,7 +627,14 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
   function detectServer() {
     if (!/^https?:$/.test(location.protocol)) { restoreSaved(); return; }
     welcome.hidden = true;
-    var fallback = function () { welcome.hidden = false; restoreSaved(); };
+    var fallback = function () {
+      welcome.hidden = false; restoreSaved();
+      if (githubTargets().length) {
+        var c = githubTargets()[0];
+        toast('Não consegui abrir a pasta pelo GitHub (' + c.owner + '/' + c.repo + '). ' + (GH_MOTIVO || 'Repositório não encontrado ou privado.') +
+          ' Se o dono do repositório for outro, abra com ?repo=dono/repositorio no final do endereço.', true);
+      }
+    };
     var params = new URLSearchParams(location.search);
     if (githubTargets().length) {
       var raiz = params.has('raiz') ? params.get('raiz') : RAIZ_PADRAO;
