@@ -514,7 +514,8 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
   var RAIZ_PADRAO = 'SQL';
   // Se a página estiver em um domínio próprio (ex.: www.meusite.com.br), informe aqui o repositório: 'dono/repositorio'.
   // Também funciona sem editar: acrescente ?repo=dono/repositorio ao endereço.
-  var REPO_FIXO = '';
+  var REPO_FIXO = 'FredLucena/plataforma-de-estudos';
+  var DIR_FIXO = 'explorador';   // pasta deste arquivo dentro do repositório
   var GH_MOTIVO = '';
   function cleanPath(p) {
     var parts = String(p || '').split('/').filter(function (s) { return s && s !== '.' && s !== '..'; });
@@ -527,8 +528,9 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
     var owner = '', userRepo = '';
     if (/\.github\.io$/.test(host)) { owner = host.split('.')[0]; userRepo = host; }
     else if (host === 'derfacil.com.br' || host === 'www.derfacil.com.br') { owner = 'derfacil'; userRepo = 'derfacil'; }
-    var q = new URLSearchParams(location.search).get('repo') || REPO_FIXO;   // "dono/repositorio", para outros endereços
+    var q = new URLSearchParams(location.search).get('repo');   // "dono/repositorio", para outros endereços
     var out = [];
+    if (!q && REPO_FIXO) out.push({ owner: REPO_FIXO.split('/')[0], repo: REPO_FIXO.split('/')[1], dir: DIR_FIXO });
     if (q && /^[\w.-]+\/[\w.-]+$/.test(q)) out.push({ owner: q.split('/')[0], repo: q.split('/')[1], dir: parts.join('/') });
     if (owner) {
       if (parts.length) out.push({ owner: owner, repo: parts[0], dir: parts.slice(1).join('/') });
@@ -628,7 +630,8 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
     if (!/^https?:$/.test(location.protocol)) { restoreSaved(); return; }
     welcome.hidden = true;
     var fallback = function () {
-      welcome.hidden = false; restoreSaved();
+      welcome.hidden = false;
+      if (!githubTargets().length) restoreSaved();   // no GitHub nunca reabre pastas locais salvas
       if (githubTargets().length) {
         var c = githubTargets()[0];
         toast('Não consegui abrir a pasta pelo GitHub (' + c.owner + '/' + c.repo + '). ' + (GH_MOTIVO || 'Repositório não encontrado ou privado.') +
