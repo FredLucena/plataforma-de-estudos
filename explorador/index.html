@@ -509,7 +509,9 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
   }
   /* ---------- repositório no GitHub (página publicada no GitHub Pages) ---------- */
   // Lista as pastas pelo GitHub (uma única consulta por visita) e lê o conteúdo em raw.githubusercontent.com.
-  // A raiz é a pasta desta página no repositório; "?raiz=SQL" no endereço faz uma subpasta virar a raiz.
+  // A raiz é a pasta desta página no repositório. Por padrão abre na subpasta RAIZ_PADRAO ("SQL");
+  // "?raiz=OUTRA" escolhe outra subpasta e "?raiz=" (vazio) mostra a pasta inteira desta página.
+  var RAIZ_PADRAO = 'SQL';
   function cleanPath(p) {
     var parts = String(p || '').split('/').filter(function (s) { return s && s !== '.' && s !== '..'; });
     return parts.join('/');
@@ -624,11 +626,17 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
     var fallback = function () { welcome.hidden = false; restoreSaved(); };
     var params = new URLSearchParams(location.search);
     if (githubTargets().length) {
-      detectGithub(params.get('raiz')).then(function (prov) {
+      var raiz = params.has('raiz') ? params.get('raiz') : RAIZ_PADRAO;
+      var onProv = function (prov) {
         var abrir = cleanPath(params.get('abrir'));
         useProvider(prov, abrir ? function () { revealAndOpen(abrir); } : null);
-      }, function (e) {
-        if (e && e.fatal) toast(e.message, true);
+      };
+      detectGithub(raiz).then(onProv, function (e) {
+        if (e && e.fatal) { toast(e.message, true); tryLocal(); return; }
+        // a subpasta padrão não existe (ainda): mostra a pasta inteira desta página
+        if (raiz && !params.has('raiz')) {
+          return detectGithub('').then(onProv, function (e2) { if (e2 && e2.fatal) toast(e2.message, true); tryLocal(); });
+        }
         tryLocal();
       });
       return;
