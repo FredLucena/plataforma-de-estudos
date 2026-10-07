@@ -8,7 +8,7 @@ USE Pedido;
 ----------------------------------------------------------------------
 CREATE TABLE cliente 
             (Cd_Cliente INT IDENTITY(1001,1) PRIMARY KEY,
-             Nm_Cliente VARCHAR(50) NOT NULL);
+             Nome VARCHAR(50) NOT NULL);
 ----------------------------------------------------------------------
 CREATE TABLE pedido 
             (Nr_Pedido  INT  IDENTITY PRIMARY KEY,
