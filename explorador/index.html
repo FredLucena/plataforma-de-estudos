@@ -511,7 +511,8 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
   // Lista as pastas pelo GitHub (uma única consulta por visita) e lê o conteúdo em raw.githubusercontent.com.
   // A raiz é a pasta desta página no repositório. Por padrão abre na subpasta RAIZ_PADRAO ("SQL");
   // "?raiz=OUTRA" escolhe outra subpasta e "?raiz=" (vazio) mostra a pasta inteira desta página.
-  var RAIZ_PADRAO = 'SQL';
+  var RAIZ_PADRAO = '';          // '' = toda a pasta do programa; ou o nome de uma subpasta
+  var EXPANDIR_PADRAO = 'SQL';   // subpasta já aberta na árvore ao iniciar
   // Se a página estiver em um domínio próprio (ex.: www.meusite.com.br), informe aqui o repositório: 'dono/repositorio'.
   // Também funciona sem editar: acrescente ?repo=dono/repositorio ao endereço.
   var REPO_FIXO = 'FredLucena/plataforma-de-estudos';
@@ -643,7 +644,11 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
       var raiz = params.has('raiz') ? params.get('raiz') : RAIZ_PADRAO;
       var onProv = function (prov) {
         var abrir = cleanPath(params.get('abrir'));
-        useProvider(prov, abrir ? function () { revealAndOpen(abrir); } : null);
+        useProvider(prov, abrir ? function () { revealAndOpen(abrir); } : function () {
+          var d = cleanPath(params.has('expandir') ? params.get('expandir') : EXPANDIR_PADRAO);
+          if (!d) return;
+          state.provider.list(d).then(function (l) { if (!l.length) return; state.open.add(d); return ensureLoaded(d).then(renderTree); }).catch(function () {});
+        });
       };
       detectGithub(raiz).then(onProv, function (e) {
         if (e && e.fatal) { toast(e.message, true); tryLocal(); return; }
