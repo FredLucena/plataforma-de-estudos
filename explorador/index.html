@@ -205,8 +205,7 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
     <button type="button" class="btn primary" id="reopen" hidden>Reabrir pasta</button>
     <button type="button" class="btn primary" id="pick">Escolher pasta</button>
     <p class="note warn" id="hint" hidden></p>
-    <button type="button" class="btn" id="pick2">Escolher pasta (modo compatível)</button>
-    <p class="fine">Se o navegador recusar a pasta por ter "arquivos do sistema" (como Downloads, Documentos ou Área de Trabalho), use o modo compatível ou escolha uma subpasta.</p>
+    <p class="fine">Se o navegador recusar a pasta por ter "arquivos do sistema" (como Downloads, Documentos ou Área de Trabalho), escolha uma subpasta.</p>
     <p class="fine">Tudo acontece no seu navegador: nenhum arquivo é enviado para a internet.</p>
   </div>
 </section>
@@ -220,7 +219,6 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
       <button type="button" class="btn" id="change">Trocar pasta</button>
       <button type="button" class="hbtn themebtn" id="btnTheme"></button>
       <button type="button" class="hbtn fsbtn" id="btnFullscreen"></button>
-      <button type="button" class="btn" id="change2" title="Use se o navegador recusar a pasta por ter arquivos do sistema">Modo compatível</button>
     </div>
   </header>
 
@@ -751,13 +749,13 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
   function showFallback(e) {
     var msg = inFrame
       ? 'Esta página está dentro de uma pré-visualização, que bloqueia a leitura de pastas. Abra o arquivo explorador.html diretamente no Chrome ou no Edge.'
-      : 'O navegador não liberou a leitura direta da pasta' + (e && e.name ? ' (' + e.name + ')' : '') + '. Tente o modo compatível ou abra o arquivo no Chrome ou no Edge.';
+      : 'O navegador não liberou a leitura direta da pasta' + (e && e.name ? ' (' + e.name + ')' : '') + '. Escolha uma subpasta ou abra o arquivo no Chrome ou no Edge.';
     if (welcome.hidden) { toast(msg, true); return; }
-    $('#hint').textContent = msg; $('#hint').hidden = false; $('#pick2').hidden = false;
+    $('#hint').textContent = msg; $('#hint').hidden = false;
   }
   var hintedOnce = false;
   function hintCancelled() {
-    var msg = 'Se o navegador recusou a pasta por ter arquivos do sistema, use o modo compatível ou escolha uma subpasta.';
+    var msg = 'Se o navegador recusou a pasta por ter arquivos do sistema, escolha uma subpasta.';
     if (!welcome.hidden) { $('#hint').textContent = msg; $('#hint').hidden = false; }
     else if (!hintedOnce) { hintedOnce = true; toast(msg, true); }
   }
@@ -775,9 +773,7 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
     } else $('#dirinput').click();
   }
   $('#pick').addEventListener('click', pickFolder);
-  $('#pick2').addEventListener('click', function () { $('#dirinput').click(); });
   $('#change').addEventListener('click', pickFolder);
-  $('#change2').addEventListener('click', function () { $('#dirinput').click(); });
   if (inFrame) showFallback(null);
   $('#refresh').addEventListener('click', function () { reload().then(function () { toast('Pasta atualizada.'); }); });
   $('#dirinput').addEventListener('change', function (ev) {
