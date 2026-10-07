@@ -518,6 +518,7 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
   var REPO_FIXO = 'FredLucena/plataforma-de-estudos';
   var DIR_FIXO = 'explorador';   // pasta deste arquivo dentro do repositório
   var GH_MOTIVO = '';
+  var OCULTAR = ['index.html'];   // arquivos da raiz que não aparecem na árvore
   function cleanPath(p) {
     var parts = String(p || '').split('/').filter(function (s) { return s && s !== '.' && s !== '..'; });
     return parts.join('/');
@@ -559,6 +560,7 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
         if (it.path.indexOf(prefix) !== 0 || (it.type !== 'blob' && it.type !== 'tree')) return;
         var rel = it.path.slice(prefix.length);
         if (!rel) return;
+        if (OCULTAR.indexOf(rel.toLowerCase()) >= 0) return;   // só na raiz (rel sem pasta)
         n++;
         var i = rel.lastIndexOf('/'), parent = i < 0 ? '' : rel.slice(0, i), name = i < 0 ? rel : rel.slice(i + 1);
         if (!dirs.has(parent)) dirs.set(parent, []);
