@@ -28,7 +28,7 @@ CREATE TABLE pedido_produto
               PRIMARY KEY (Nr_Pedido,Cd_Produto) );
 ----------------------------------------------------------------------
 INSERT INTO cliente 
-            ( Nm_Cliente ) 
+            ( Nome ) 
 VALUES
             ( 'PEDRO'  ),
             ( 'CARLOS' ),
