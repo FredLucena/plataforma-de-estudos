@@ -2462,7 +2462,7 @@ function parseSqlToLogicalModel(sql, oldLogical, projectName){
         var old = oldByName[tname.toLowerCase()];
         var idx = tables.length;
         cur = { id: uid("nd"), type:"table", name: tname,
-          x: old ? old.x : 200 + (idx % 3) * 340, y: old ? old.y : 160 + Math.floor(idx / 3) * 280, columns: [] };
+          x: old ? old.x : 200 + (idx % 3) * 340, y: old ? old.y : 160 + Math.floor(idx / 3) * 280, columns: [], _hadPos: !!old };
         tables.push(cur);
       }
       continue;
@@ -2518,6 +2518,58 @@ function parseSqlToLogicalModel(sql, oldLogical, projectName){
       }
     });
   });
+  // Ordem de ligação (ex.: Pedido, Pedido_Produto, Produto): em cada grupo de tabelas ligadas por FK,
+  // começa por uma ponta (tabela com uma só ligação, a primeira na ordem do SQL) e segue as ligações,
+  // então a tabela do meio (associativa) fica entre as duas que ela liga. Só as tabelas NOVAS são
+  // reposicionadas (as que já existiam no lógico anterior mantêm o lugar); linhas de até 4 tabelas.
+  var adj = {};
+  tables.forEach(function(t){ adj[t.id] = []; });
+  tables.forEach(function(t){
+    t.columns.forEach(function(c){
+      if (c.fk && c.fkTable && c.fkTable !== t.id && adj[c.fkTable]){
+        if (adj[t.id].indexOf(c.fkTable) === -1) adj[t.id].push(c.fkTable);
+        if (adj[c.fkTable].indexOf(t.id) === -1) adj[c.fkTable].push(t.id);
+      }
+    });
+  });
+  var byIdT = {}; tables.forEach(function(t){ byIdT[t.id] = t; });
+  var seen = {}, order = [], baseY = 160;
+  // Camadas a partir da ponta: cada tabela fica na coluna = distância até a ponta, então uma tabela
+  // associativa (que nasce de um relacionamento) cai sempre ENTRE as duas tabelas que ela liga e a
+  // linha de conexão não passa por cima de outra tabela. Tabelas da mesma camada ficam empilhadas.
+  function layoutComponent(startId){
+    var depth = {}, layers = [], queue = [startId];
+    depth[startId] = 0;
+    while (queue.length){
+      var id = queue.shift();
+      (layers[depth[id]] = layers[depth[id]] || []).push(id);
+      adj[id].slice().sort(function(x, y){ return tables.indexOf(byIdT[x]) - tables.indexOf(byIdT[y]); })
+        .forEach(function(n){ if (!(n in depth)){ depth[n] = depth[id] + 1; queue.push(n); } });
+    }
+    var rowsMax = 0;
+    layers.forEach(function(ids, d){
+      ids.sort(function(x, y){ return tables.indexOf(byIdT[x]) - tables.indexOf(byIdT[y]); });
+      ids.forEach(function(id, r){
+        var t = byIdT[id]; seen[id] = true; order.push(t);
+        if (!t._hadPos){ t.x = 200 + d * 340; t.y = baseY + r * 280; }
+      });
+      rowsMax = Math.max(rowsMax, ids.length);
+    });
+    baseY += rowsMax * 280;
+  }
+  tables.forEach(function(t){
+    if (seen[t.id]) return;
+    // componente de t: escolhe a ponta (grau 1) mais cedo no SQL; sem ponta, a própria t
+    var comp = [], q = [t.id], mark = {};
+    while (q.length){ var x = q.pop(); if (mark[x]) continue; mark[x] = true; comp.push(x); adj[x].forEach(function(n){ q.push(n); }); }
+    var ends = tables.filter(function(u){ return mark[u.id] && adj[u.id].length === 1; });
+    // desempate entre pontas: a que aparece primeiro no nome da tabela vizinha (Pedido em Pedido_Produto), depois a ordem do SQL
+    var posIn = function(u){ var nb = byIdT[adj[u.id][0]]; var i = nb ? nb.name.toLowerCase().indexOf(u.name.toLowerCase()) : -1; return i < 0 ? 1e9 : i; };
+    ends.sort(function(a, b){ return (posIn(a) - posIn(b)) || (tables.indexOf(a) - tables.indexOf(b)); });
+    layoutComponent((ends[0] || t).id);
+  });
+  tables.sort(function(a, b){ return order.indexOf(a) - order.indexOf(b); });
+  tables.forEach(function(t){ delete t._hadPos; });
   var logical = freshLogicalState(projectName);
   logical.nodes = tables;
   logical.nextIds.table = tables.length + 1;
@@ -5584,7 +5636,7 @@ function renderTablePanel(n){
     renameForeignKeyColumnsForTableRename(n, oldName, n.name);
     render();
     var el = document.getElementById("pf-table-name");
-    if (el){ el.focus(); el.setSelectionRange(e.target.value.length, e.target.value.length); }
+    if (el){ el.focus(); el.setSelectionRange(e.target.selectionStart, e.target.selectionEnd); }
   });
   panelEl.querySelectorAll(".col-name").forEach(function(inp){
     inp.addEventListener("input", function(e){
@@ -5598,7 +5650,7 @@ function renderTablePanel(n){
       // que não existe mais.
       syncForeignKeysForColumnChange(n, oldName, newName, null, null);
       render();
-      refocus(".col-name", i, e.target.value.length);
+      refocus(".col-name", i, e.target.selectionStart);
     });
   });
   panelEl.querySelectorAll(".col-type-base").forEach(function(sel){
@@ -5631,7 +5683,7 @@ function renderTablePanel(n){
       col.dataSize = e.target.value;
       syncForeignKeysForColumnChange(n, col.name, col.name, col.dataType, col.dataSize || "", col.dataDecimals || "");
       render();
-      refocus(".col-type-size", i, e.target.value.length);
+      refocus(".col-type-size", i, e.target.selectionStart);
     });
   });
   // Casas decimais (só existe no DOM quando o tipo da coluna é DECIMAL -- ver renderização acima).
@@ -5643,7 +5695,7 @@ function renderTablePanel(n){
       col.dataDecimals = e.target.value;
       syncForeignKeysForColumnChange(n, col.name, col.name, col.dataType, col.dataSize || "", col.dataDecimals || "");
       render();
-      refocus(".col-type-decimals", i, e.target.value.length);
+      refocus(".col-type-decimals", i, e.target.selectionStart);
     });
   });
   panelEl.querySelectorAll(".col-pk").forEach(function(chk){
@@ -5720,7 +5772,7 @@ function renderTablePanel(n){
       n.columns[i].constraints[ci].p1 = e.target.value;
       render();
       var el = panelEl.querySelector('.col-constraint-p1[data-i="' + i + '"][data-ci="' + ci + '"]');
-      if (el){ el.focus(); el.setSelectionRange(e.target.value.length, e.target.value.length); }
+      if (el){ el.focus(); el.setSelectionRange(e.target.selectionStart, e.target.selectionEnd); }
     });
   });
   panelEl.querySelectorAll(".col-constraint-p2").forEach(function(inp){
@@ -5730,7 +5782,7 @@ function renderTablePanel(n){
       n.columns[i].constraints[ci].p2 = e.target.value;
       render();
       var el = panelEl.querySelector('.col-constraint-p2[data-i="' + i + '"][data-ci="' + ci + '"]');
-      if (el){ el.focus(); el.setSelectionRange(e.target.value.length, e.target.value.length); }
+      if (el){ el.focus(); el.setSelectionRange(e.target.selectionStart, e.target.selectionEnd); }
     });
   });
   panelEl.querySelectorAll(".col-constraint-del").forEach(function(btn){
@@ -5948,7 +6000,7 @@ function updatePanel(){
     html += '<button class="danger-btn" id="pf-delete">Excluir elemento</button>';
     panelEl.innerHTML = html;
 
-    document.getElementById("pf-name").addEventListener("input", function(e){ n.name = e.target.value; realignAttributesAfterRename(n); render(); document.getElementById("pf-name").focus(); document.getElementById("pf-name").setSelectionRange(e.target.value.length, e.target.value.length); });
+    document.getElementById("pf-name").addEventListener("input", function(e){ n.name = e.target.value; realignAttributesAfterRename(n); render(); document.getElementById("pf-name").focus(); document.getElementById("pf-name").setSelectionRange(e.target.selectionStart, e.target.selectionEnd); });
     if (n.type === "entity") document.getElementById("pf-weak").addEventListener("change", function(e){ n.weak = e.target.checked; render(); });
     if (n.type === "attribute"){
       document.getElementById("pf-key").addEventListener("change", function(e){ n.isKey = e.target.checked; render(); });
@@ -6008,7 +6060,7 @@ function updatePanel(){
       document.getElementById("pf-role").addEventListener("input", function(e){
         ed.role = e.target.value; render();
         var roleEl = document.getElementById("pf-role");
-        if (roleEl){ roleEl.focus(); roleEl.setSelectionRange(e.target.value.length, e.target.value.length); }
+        if (roleEl){ roleEl.focus(); roleEl.setSelectionRange(e.target.selectionStart, e.target.selectionEnd); }
       });
     } else if (ed.kind === "fk"){
       document.getElementById("pf-fk-cchild-min").addEventListener("change", function(e){ setFkCardinalityField(ed, "cardChild", "min", e.target.value); render(); });
@@ -7974,6 +8026,34 @@ document.getElementById("btnCopySql").addEventListener("click", function(){
 });
 // Pedido do usuário: "A janela do SQL pode ser editado e alterado pelo usuário" -- mantém
 // `physicalSql` em sincronia com o que o usuário digita/cola na caixa, sem tocar no modelo lógico.
+// Pedido do usuário: Tab no SQL do Modelo Físico serve para identar (2 espaços, o mesmo recuo do SQL
+// gerado) em vez de passar o foco; com várias linhas selecionadas, identa todas; Shift+Tab desfaz o recuo.
+document.getElementById("sqlOutput").addEventListener("keydown", function(e){
+  if (e.key !== "Tab" || e.ctrlKey || e.altKey || e.metaKey) return;
+  e.preventDefault();
+  var ta = e.target, v = ta.value, a = ta.selectionStart, b = ta.selectionEnd, IND = "  ";
+  var multi = v.slice(a, b).indexOf("\n") !== -1;
+  if (!e.shiftKey && !multi){
+    ta.setRangeText(IND, a, b, "end");
+  } else {
+    var ls = v.lastIndexOf("\n", a - 1) + 1;
+    var blockEnd = b > a && v.charAt(b - 1) === "\n" ? b - 1 : b;
+    var lines = v.slice(ls, blockEnd).split("\n");
+    var firstDelta = 0, total = 0;
+    var out = lines.map(function(l, i){
+      var r, d;
+      if (e.shiftKey){ var m = /^( {1,2}|\t)/.exec(l); d = m ? -m[0].length : 0; r = m ? l.slice(m[0].length) : l; }
+      else { d = IND.length; r = IND + l; }
+      if (i === 0) firstDelta = d;
+      total += d;
+      return r;
+    }).join("\n");
+    ta.setRangeText(out, ls, blockEnd, "preserve");
+    ta.selectionStart = Math.max(ls, a + firstDelta);
+    ta.selectionEnd = Math.max(ta.selectionStart, b + total);
+  }
+  ta.dispatchEvent(new Event("input", { bubbles: true }));
+});
 document.getElementById("sqlOutput").addEventListener("input", function(e){
   physicalSql = e.target.value;
   scheduleAutosave();
