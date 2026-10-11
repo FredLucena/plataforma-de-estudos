@@ -1,1 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relógio</title>
+<style>
+  :root {
+    --bg: #f4f6fa;
+    --card: #ffffff;
+    --text: #1c2333;
+    --muted: #6b7488;
+    --accent: #2f6fed;
+    --border: #dde2ec;
+    --shadow: 0 6px 24px rgba(20, 30, 60, .08);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1420;
+    --card: #1a2133;
+    --text: #eef1f8;
+    --muted: #94a0b8;
+    --accent: #6c9bff;
+    --border: #2a3350;
+    --shadow: 0 6px 24px rgba(0, 0, 0, .4);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 48px;
+    transition: background .25s, color .25s;
+  }
+  .topbar {
+    width: 100%;
+    max-width: 960px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  /* Tela inteira: conteúdo ocupa toda a tela */
+  :root.cheia body { padding: 16px 24px; }
+  :root.cheia main { max-width: none; flex: 1; justify-content: center; gap: 4vh; margin-top: 0; }
+  :root.cheia .topbar { max-width: none; }
+  :root.cheia #titulo { font-size: clamp(2rem, 6vw, 5rem); }
+  :root.cheia #relogio { font-size: clamp(4rem, 24vw, 22rem); }
+  :root.cheia .horas { max-width: 1400px; }
+  :root.cheia .card input[type="time"] { font-size: clamp(1.9rem, 4vw, 3.5rem); }
+  :root.cheia .dica { display: none; }
+  button {
+    font: inherit;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 8px 16px;
+    transition: background .2s, border-color .2s;
+  }
+  button:hover { border-color: var(--accent); }
+  main {
+    width: 100%;
+    max-width: 960px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    margin-top: 12px;
+  }
+  #titulo {
+    width: 100%;
+    text-align: center;
+    font-size: clamp(1.6rem, 4.5vw, 3rem);
+    font-weight: 700;
+    color: var(--text);
+    background: transparent;
+    border: 2px dashed transparent;
+    border-radius: 12px;
+    padding: 8px 12px;
+    outline: none;
+  }
+  #titulo:hover, #titulo:focus { border-color: var(--border); }
+  #titulo::placeholder { color: var(--muted); }
+  .dica { margin: -18px 0 0; font-size: .8rem; color: var(--muted); }
+  #relogio {
+    font-family: ui-monospace, "SF Mono", Consolas, "Courier New", monospace;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: clamp(3.5rem, 18vw, 11rem);
+    line-height: 1;
+    letter-spacing: .02em;
+    color: var(--accent);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: .25em .4em;
+    box-shadow: var(--shadow);
+  }
+  #data {
+    margin-top: -12px;
+    font-size: clamp(1.2rem, 4vw, 2.2rem);
+    font-weight: 600;
+    color: var(--muted);
+    text-align: center;
+  }
+  :root.cheia #data { font-size: clamp(1.6rem, 4.5vw, 4rem); margin-top: 0; }
+  .horas {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .card label { font-weight: 600; color: var(--muted); font-size: .95rem; }
+  .card input[type="time"] {
+    font: inherit;
+    font-size: 1.9rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    width: 100%;
+    color-scheme: light;
+  }
+  :root[data-theme="dark"] .card input[type="time"] { color-scheme: dark; }
+  .card input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
+  .campo { position: relative; display: flex; gap: 8px; align-items: center; }
+  .campo input { flex: 1; min-width: 0; }
+  .relogio-btn { padding: 8px 12px; border-radius: 12px; font-size: 1.4rem; line-height: 1; }
+  .janela {
+    position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 10;
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    box-shadow: var(--shadow); padding: 12px;
+  }
+  .janela[hidden] { display: none; }
+  .colunas { display: flex; gap: 8px; }
+  .col { flex: 1; height: 180px; overflow-y: auto; position: relative; display: flex; flex-direction: column; gap: 4px; }
+  .col button { border-radius: 8px; padding: 6px; border-color: transparent; }
+  .col button.sel { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .acoes { display: flex; gap: 8px; margin-top: 10px; }
+  .acoes button { flex: 1; padding: 8px 10px; border-radius: 10px; font-size: .9rem; }
+  .acoes .agora { background: var(--accent); border-color: var(--accent); color: #fff; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <button id="tela" type="button" aria-label="Alternar tela inteira">⛶ Tela Inteira</button>
+    <button id="tema" type="button" aria-label="Alternar modo claro/escuro">🌙 Modo Escuro</button>
+  </div>
 
+  <main>
+    <input id="titulo" type="text" placeholder="Digite o título aqui" aria-label="Título" value="Título da Atividade">
+    <p class="dica">Clique no título para editá-lo.</p>
+
+    <div id="relogio" role="timer" aria-live="off">00:00:00</div>
+    <div id="data" aria-live="off"></div>
+
+    <section class="horas">
+      <div class="card">
+        <label for="inicio">Hora de Início</label>
+        <div class="campo"><input id="inicio" type="time"></div>
+      </div>
+      <div class="card">
+        <label for="saida">Hora da Saída</label>
+        <div class="campo"><input id="saida" type="time"></div>
+      </div>
+      <div class="card">
+        <label for="termino">Hora de Término</label>
+        <div class="campo"><input id="termino" type="time"></div>
+      </div>
+    </section>
+  </main>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const pad = n => String(n).padStart(2, "0");
+  const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const ler = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+
+  // Relógio
+  function atualizar() {
+    const d = new Date();
+    $("relogio").textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    const dia = d.toLocaleDateString("pt-BR", { weekday: "long" });
+    $("data").textContent = `${dia} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+  }
+  atualizar();
+  setInterval(atualizar, 250);
+
+  // Título configurável
+  const tituloSalvo = ler("titulo");
+  if (tituloSalvo !== null) $("titulo").value = tituloSalvo;
+  const ajustarTitulo = () => { document.title = $("titulo").value.trim() || "Relógio"; };
+  $("titulo").addEventListener("input", () => { guardar("titulo", $("titulo").value); ajustarTitulo(); });
+  ajustarTitulo();
+
+  // Horas de início / saída / término
+  // Cada campo tem um reloginho que abre uma janela com hora, minutos, Agora e Limpar
+  const fecharJanelas = () => document.querySelectorAll(".janela").forEach(j => { j.hidden = true; });
+
+  ["inicio", "saida", "termino"].forEach(id => {
+    const input = $(id);
+    const campo = input.parentElement;
+    const salvo = ler("hora_" + id);
+    if (salvo) input.value = salvo.slice(0, 5);
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "relogio-btn";
+    btn.textContent = "🕒";
+    btn.setAttribute("aria-label", "Abrir seletor de hora");
+
+    const janela = document.createElement("div");
+    janela.className = "janela";
+    janela.hidden = true;
+    janela.innerHTML =
+      '<div class="colunas"><div class="col" data-col="h"></div><div class="col" data-col="m"></div></div>' +
+      '<div class="acoes"><button type="button" class="agora">Agora</button><button type="button" class="limpar">Limpar</button></div>';
+    campo.append(btn, janela);
+
+    const colH = janela.querySelector('[data-col="h"]');
+    const colM = janela.querySelector('[data-col="m"]');
+    const opcao = n => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = pad(n);
+      b.dataset.v = n;
+      return b;
+    };
+    for (let i = 0; i < 24; i++) colH.append(opcao(i));
+    for (let i = 0; i < 60; i++) colM.append(opcao(i));
+
+    const valorAtual = () => input.value ? input.value.split(":").map(Number) : null;
+    const marcar = () => {
+      const v = valorAtual() || [-1, -1];
+      colH.querySelectorAll("button").forEach(b => b.classList.toggle("sel", +b.dataset.v === v[0]));
+      colM.querySelectorAll("button").forEach(b => b.classList.toggle("sel", +b.dataset.v === v[1]));
+    };
+    const definir = (h, m) => {
+      input.value = `${pad(h)}:${pad(m)}`;
+      guardar("hora_" + id, input.value);
+      marcar();
+    };
+
+    input.addEventListener("input", () => { guardar("hora_" + id, input.value); marcar(); });
+    colH.addEventListener("click", e => {
+      const b = e.target.closest("button");
+      if (b) definir(+b.dataset.v, valorAtual() ? valorAtual()[1] : 0);
+    });
+    colM.addEventListener("click", e => {
+      const b = e.target.closest("button");
+      if (b) definir(valorAtual() ? valorAtual()[0] : new Date().getHours(), +b.dataset.v);
+    });
+    janela.querySelector(".agora").addEventListener("click", () => {
+      const d = new Date();
+      definir(d.getHours(), d.getMinutes());
+      janela.hidden = true;
+    });
+    janela.querySelector(".limpar").addEventListener("click", () => {
+      input.value = "";
+      guardar("hora_" + id, "");
+      marcar();
+      janela.hidden = true;
+    });
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const abrir = janela.hidden;
+      fecharJanelas();
+      if (!abrir) return;
+      janela.hidden = false;
+      marcar();
+      [colH, colM].forEach(col => {
+        const sel = col.querySelector(".sel");
+        col.scrollTop = sel ? sel.offsetTop - col.clientHeight / 2 + sel.offsetHeight / 2 : 0;
+      });
+    });
+  });
+  document.addEventListener("click", e => { if (!e.target.closest(".campo")) fecharJanelas(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") fecharJanelas(); });
+
+  // Tela inteira (botão ou tecla F)
+  function alternarTela() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  }
+  $("tela").addEventListener("click", alternarTela);
+  document.addEventListener("keydown", e => {
+    if ((e.key === "f" || e.key === "F") && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) alternarTela();
+  });
+  document.addEventListener("fullscreenchange", () => {
+    const cheia = !!document.fullscreenElement;
+    document.documentElement.classList.toggle("cheia", cheia);
+    $("tela").textContent = cheia ? "✕ Sair da Tela Inteira" : "⛶ Tela Inteira";
+  });
+
+  // Modo claro / escuro
+  function aplicarTema(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    $("tema").textContent = t === "dark" ? "☀️ Modo Claro" : "🌙 Modo Escuro";
+  }
+  const temaSalvo = ler("tema");
+  aplicarTema(temaSalvo || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+  $("tema").addEventListener("click", () => {
+    const novo = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    aplicarTema(novo);
+    guardar("tema", novo);
+  });
+</script>
+</body>
+</html>
