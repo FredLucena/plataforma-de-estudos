@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fred Lucena | DER Fácil, Master Quiz, Explorador e Horário de Prova</title>
+<meta name="description" content="Ferramentas para a sala de aula criadas por Fred Lucena: DER Fácil, Master Quiz, Explorador e Horário de Prova.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101418;
+  --soft:#4B5563;
+  --line:#E3E6EA;
+  --teal:#0B6B6A;
+  --violet:#3A1C71;
+  --graph:#22252B;
+  --crimson:#A3262F;
+  --folder:#F2B632;
+  --red:#E5484D;
+  --blue:#3E63DD;
+  --yellow:#FFB224;
+  --green:#30A46C;
+  --display:'Unbounded','Figtree',system-ui,sans-serif;
+  --body:'Figtree',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#fff;color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.6}
+a{color:inherit}
+:focus-visible{outline:3px solid currentColor;outline-offset:4px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.skip{position:absolute;left:-999px}
+.skip:focus{left:12px;top:12px;background:var(--ink);color:#fff;padding:8px 12px;z-index:10}
+
+header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px 0;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:800;font-size:1.05rem;text-decoration:none;letter-spacing:-.01em}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav a{text-decoration:none;font-weight:700;font-size:.95rem;padding:8px 14px;border-radius:99px;border:2px solid transparent}
+nav a:hover{border-color:var(--ink)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:end;padding:48px 0 72px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,5.2vw,3.7rem);line-height:1.08;letter-spacing:-.03em;margin:0 0 20px}
+.lead{font-size:1.2rem;color:var(--soft);max-width:36ch;margin:0}
+.menu{list-style:none;margin:0;padding:0;border-top:2px solid var(--ink)}
+.menu li{border-bottom:2px solid var(--ink)}
+.menu a{display:flex;align-items:center;gap:16px;padding:18px 4px;text-decoration:none;font-family:var(--display);font-weight:600;font-size:1.25rem;letter-spacing:-.02em}
+.menu a:hover{padding-left:14px;transition:padding .15s}
+.menu i{width:16px;height:16px;flex:none;display:block}
+.menu .m-der i{background:var(--teal);border-radius:50% 0 50% 0}
+.menu .m-quiz i{background:var(--violet);clip-path:polygon(50% 0,100% 100%,0 100%)}
+.menu .m-exp i{background:var(--folder);border-radius:3px 3px 3px 3px}
+.menu .m-clock i{border:4px solid var(--crimson);border-radius:50%}
+.menu small{margin-left:auto;font-family:var(--body);font-weight:500;font-size:.9rem;color:var(--soft);letter-spacing:0;text-align:right}
+
+/* bands */
+.band{color:#fff;padding:88px 0}
+.band.der{background:var(--teal)}
+.band.quiz{background:var(--violet)}
+.band.exp{background:var(--graph)}
+.band.clock{background:var(--crimson)}
+.inner{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.band.flip .copy{order:2}
+.band h2{font-family:var(--display);font-weight:800;font-size:clamp(2rem,4.4vw,3.1rem);line-height:1.05;letter-spacing:-.035em;margin:0 0 14px}
+.tag{font-size:1.25rem;font-weight:700;margin:0 0 14px;max-width:26ch;line-height:1.3}
+.copy p.d{margin:0 0 20px;max-width:46ch;opacity:.92}
+.copy ul{margin:0 0 30px;padding:0;list-style:none;display:grid;gap:10px;max-width:46ch}
+.copy li{padding-left:22px;position:relative;font-size:1rem}
+.copy li::before{content:"";position:absolute;left:0;top:.62em;width:8px;height:8px;background:currentColor;opacity:.75;border-radius:2px}
+.btn{display:inline-block;background:#fff;color:var(--ink);font-weight:700;text-decoration:none;padding:14px 26px;border-radius:12px}
+.btn:hover{background:var(--folder)}
+.art svg{width:100%;height:auto;display:block}
+.art text{font-family:var(--body)}
+
+footer{padding:36px 0 48px;color:var(--soft);font-size:.95rem}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:36px;padding-bottom:56px}
+  .inner{grid-template-columns:1fr;gap:36px}
+  .band{padding:64px 0}
+  .band.flip .copy{order:0}
+  .menu small{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .menu a:hover{transition:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#ferramentas">Ir para as ferramentas</a>
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#topo">Fred Lucena</a>
+    <nav aria-label="Ferramentas">
+      <a href="#der-facil">DER Fácil</a>
+      <a href="#master-quiz">Master Quiz</a>
+      <a href="#explorador">Explorador</a>
+      <a href="#relogio">Horário de Prova</a>
+    </nav>
+  </header>
+
+  <main id="topo">
+    <div class="hero">
+      <div>
+        <h1>Ferramentas para ensinar e aprender.</h1>
+        <p class="lead">Criadas por Fred Lucena para a sala de aula e abertas para quem quiser usar.</p>
+      </div>
+      <ul class="menu" id="ferramentas" aria-label="Escolha uma ferramenta">
+        <li><a class="m-der" href="#der-facil"><i aria-hidden="true"></i>DER Fácil<small>Modelagem de dados</small></a></li>
+        <li><a class="m-quiz" href="#master-quiz"><i aria-hidden="true"></i>Master Quiz<small>Quiz ao vivo</small></a></li>
+        <li><a class="m-exp" href="#explorador"><i aria-hidden="true"></i>Explorador<small>Arquivos compartilhados</small></a></li>
+        <li><a class="m-clock" href="#relogio"><i aria-hidden="true"></i>Horário de Prova<small>Hora em tela inteira</small></a></li>
+      </ul>
+    </div>
+  </main>
+</div>
+
+<section class="band der" id="der-facil" aria-labelledby="h-der">
+  <div class="wrap inner">
+    <div class="copy">
+      <h2 id="h-der">DER Fácil</h2>
+      <p class="tag">Diagramas entidade-relacionamento sem complicação.</p>
+      <p class="d">Para montar e estudar o modelo de um banco de dados, com entidades, atributos e relacionamentos.</p>
+      <a class="btn" href="https://www.derfacil.com.br">Abrir o DER Fácil</a>
+    </div>
+    <div class="art">
+      <svg viewBox="0 0 440 280" role="img" aria-label="Diagrama com as entidades Aluno e Curso ligadas pelo relacionamento cursa">
+        <g fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+          <rect x="16" y="112" width="120" height="60" rx="4"/>
+          <rect x="304" y="112" width="120" height="60" rx="4"/>
+          <path d="M220 92 L270 142 L220 192 L170 142 Z"/>
+          <path d="M136 142 H170 M270 142 H304"/>
+          <ellipse cx="62" cy="44" rx="54" ry="22"/>
+          <path d="M62 66 V112"/>
+          <ellipse cx="76" cy="240" rx="40" ry="20"/>
+          <path d="M76 220 V172"/>
+          <ellipse cx="364" cy="44" rx="46" ry="22"/>
+          <path d="M364 66 V112"/>
+          <ellipse cx="364" cy="240" rx="40" ry="20"/>
+          <path d="M364 220 V172"/>
+        </g>
+        <g fill="#fff" text-anchor="middle">
+          <text x="76" y="149" font-size="21" font-weight="700">Aluno</text>
+          <text x="364" y="149" font-size="21" font-weight="700">Curso</text>
+          <text x="220" y="148" font-size="17">cursa</text>
+          <text x="62" y="50" font-size="15">matrícula</text>
+          <text x="76" y="246" font-size="15">nome</text>
+          <text x="364" y="50" font-size="15">código</text>
+          <text x="364" y="246" font-size="15">título</text>
+          <text x="153" y="130" font-size="17" font-weight="700">N</text>
+          <text x="287" y="130" font-size="17" font-weight="700">1</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="band quiz flip" id="master-quiz" aria-labelledby="h-quiz">
+  <div class="wrap inner">
+    <div class="copy">
+      <h2 id="h-quiz">Master Quiz</h2>
+      <p class="tag">O desafio dos saberes.</p>
+      <p class="d">Um quiz interativo para a sala de aula. Você cria as perguntas e abre uma sala, e a turma entra pelo celular lendo um QR Code.</p>
+      <ul>
+        <li>Cada alternativa tem uma figura: quadrado, triângulo, círculo ou losango</li>
+        <li>Tempo por pergunta de 5 a 300 segundos</li>
+        <li>Até 1000 pontos por acerto, com mais pontos para quem responde mais rápido</li>
+        <li>Pódio com os três primeiros colocados no final</li>
+        <li>Os quizzes ficam no seu computador, sem armazenamento em servidor</li>
+      </ul>
+      <a class="btn" href="https://fredlucena.com.br/masterquiz/professor.html">Abrir o Master Quiz</a>
+    </div>
+    <div class="art">
+      <svg viewBox="0 0 440 280" role="img" aria-label="Tela de pergunta com quatro alternativas: quadrado, triângulo, círculo e losango">
+        <rect x="16" y="8" width="408" height="44" rx="10" fill="#fff" fill-opacity=".14"/>
+        <text x="32" y="36" font-size="17" fill="#fff" font-weight="700">Pergunta 3 de 10</text>
+        <text x="408" y="36" font-size="17" fill="#fff" text-anchor="end" font-weight="700">10 s</text>
+        <rect x="16" y="68" width="198" height="94" rx="12" fill="#E5484D"/>
+        <rect x="226" y="68" width="198" height="94" rx="12" fill="#3E63DD"/>
+        <rect x="16" y="174" width="198" height="94" rx="12" fill="#D9930A"/>
+        <rect x="226" y="174" width="198" height="94" rx="12" fill="#30A46C"/>
+        <g fill="#fff">
+          <rect x="93" y="93" width="44" height="44" rx="4"/>
+          <polygon points="325,92 349,138 301,138"/>
+          <circle cx="115" cy="221" r="24"/>
+          <polygon points="325,196 351,221 325,246 299,221"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="band exp" id="explorador" aria-labelledby="h-exp">
+  <div class="wrap inner">
+    <div class="copy">
+      <h2 id="h-exp">Explorador</h2>
+      <p class="tag">Os arquivos compartilhados, direto no navegador.</p>
+      <p class="d">Escolha a pasta, abra os arquivos e baixe os que quiser. Nenhum arquivo é enviado para a internet.</p>
+      <ul>
+        <li>Escolha a pasta pelo botão ou arrastando para a página</li>
+        <li>O navegador lembra a última pasta escolhida</li>
+        <li>Selecione vários arquivos e baixe de uma vez</li>
+      </ul>
+      <a class="btn" href="https://www.fredlucena.com.br/explorador">Abrir o Explorador</a>
+    </div>
+    <div class="art">
+      <svg viewBox="0 0 440 280" role="img" aria-label="Janela com uma lista de pastas e arquivos e uma área de visualização">
+        <rect x="8" y="8" width="424" height="264" rx="12" fill="#2E323A" stroke="#fff" stroke-opacity=".16" stroke-width="2"/>
+        <circle cx="30" cy="30" r="6" fill="#E5484D"/>
+        <circle cx="50" cy="30" r="6" fill="#FFB224"/>
+        <circle cx="70" cy="30" r="6" fill="#30A46C"/>
+        <path d="M8 52 H432" stroke="#fff" stroke-opacity=".16" stroke-width="2"/>
+        <rect x="16" y="94" width="222" height="32" rx="6" fill="#F2B632" fill-opacity=".2"/>
+        <g fill="#F2B632">
+          <path d="M26 72 h10 l4 5 h14 a2 2 0 0 1 2 2 v16 a2 2 0 0 1 -2 2 h-28 a2 2 0 0 1 -2 -2 v-21 a2 2 0 0 1 2 -2z" transform="translate(0,-4)"/>
+          <path d="M26 72 h10 l4 5 h14 a2 2 0 0 1 2 2 v16 a2 2 0 0 1 -2 2 h-28 a2 2 0 0 1 -2 -2 v-21 a2 2 0 0 1 2 -2z" transform="translate(0,28)"/>
+          <path d="M26 72 h10 l4 5 h14 a2 2 0 0 1 2 2 v16 a2 2 0 0 1 -2 2 h-28 a2 2 0 0 1 -2 -2 v-21 a2 2 0 0 1 2 -2z" transform="translate(0,60)"/>
+        </g>
+        <g fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2">
+          <rect x="29" y="153" width="20" height="26" rx="3"/>
+          <rect x="29" y="185" width="20" height="26" rx="3"/>
+        </g>
+        <g fill="#fff" font-size="16">
+          <text x="62" y="82">aulas</text>
+          <text x="62" y="114">provas</text>
+          <text x="62" y="146">materiais</text>
+          <text x="62" y="171">plano-de-ensino.pdf</text>
+          <text x="62" y="203">notas.xlsx</text>
+        </g>
+        <rect x="254" y="68" width="166" height="190" rx="8" fill="#fff" fill-opacity=".07"/>
+        <g stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round">
+          <path d="M270 92 H380"/>
+          <path d="M270 116 H404"/>
+          <path d="M270 136 H392"/>
+          <path d="M270 156 H370"/>
+          <path d="M270 188 H404"/>
+          <path d="M270 208 H386"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="band clock flip" id="relogio" aria-labelledby="h-clock">
+  <div class="wrap inner">
+    <div class="copy">
+      <h2 id="h-clock">Horário de Prova</h2>
+      <p class="tag">A hora certa em tela inteira.</p>
+      <p class="d">Um relógio em horas, minutos e segundos, com título que você edita e campos para marcar o horário da atividade.</p>
+      <ul>
+        <li>Modo de tela inteira</li>
+        <li>Modo claro e modo escuro</li>
+        <li>Clique no título para editá-lo</li>
+        <li>Campos para hora de início, hora da saída e hora de término</li>
+      </ul>
+      <a class="btn" href="https://www.fredlucena.com.br/Relogio">Abrir o Horário de Prova</a>
+    </div>
+    <div class="art">
+      <svg viewBox="0 0 440 280" role="img" aria-label="Relógio digital marcando 10:42:07, com título, botões de tela inteira e modo escuro e campos de início, saída e término">
+        <rect x="8" y="8" width="424" height="264" rx="14" fill="#fff"/>
+        <g fill="#F3F4F6">
+          <rect x="24" y="20" width="112" height="30" rx="15"/>
+          <rect x="146" y="20" width="114" height="30" rx="15"/>
+        </g>
+        <g font-size="13" font-weight="700" fill="#101418">
+          <text x="80" y="40" text-anchor="middle">Tela Inteira</text>
+          <text x="203" y="40" text-anchor="middle">Modo Escuro</text>
+        </g>
+        <text x="220" y="90" font-size="22" font-weight="700" fill="#101418" text-anchor="middle">Prova 1</text>
+        <path d="M178 100 H262" stroke="#A3262F" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>
+        <text x="220" y="170" font-size="76" font-weight="700" fill="#101418" text-anchor="middle" style="font-variant-numeric:tabular-nums;letter-spacing:-2px">10:42:07</text>
+        <g fill="#F3F4F6">
+          <rect x="24" y="196" width="126" height="60" rx="10"/>
+          <rect x="157" y="196" width="126" height="60" rx="10"/>
+          <rect x="290" y="196" width="126" height="60" rx="10"/>
+        </g>
+        <g font-size="12" fill="#4B5563" text-anchor="middle">
+          <text x="87" y="216">Hora de Início</text>
+          <text x="220" y="216">Hora da Saída</text>
+          <text x="353" y="216">Hora de Término</text>
+        </g>
+        <g font-size="22" font-weight="700" fill="#A3262F" text-anchor="middle">
+          <text x="87" y="244">08:00</text>
+          <text x="220" y="244">09:50</text>
+          <text x="353" y="244">10:00</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Fred Lucena</span>
+    <span>Novas ferramentas entram aqui conforme ficam prontas.</span>
+  </div>
+</footer>
+</body>
+</html>
