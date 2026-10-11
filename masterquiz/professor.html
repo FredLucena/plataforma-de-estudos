@@ -132,7 +132,6 @@ textarea{resize:vertical;min-height:54px}
 .modal{position:fixed;inset:0;background:rgba(5,12,25,.7);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
 .modal.on{display:flex}
 .pwbox{width:100%;max-width:360px}
-body.gated header,body.gated main{visibility:hidden}
 .hbtn.start{background:#26a65b;border-color:#26a65b}
 .about{width:100%;max-width:580px;max-height:90vh;overflow:auto;line-height:1.5}
 .about h2{margin:0}
@@ -165,7 +164,7 @@ body.gated header,body.gated main{visibility:hidden}
 @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
 </style>
 </head>
-<body class="gated">
+<body>
 
 <header>
   <div class="logo">🏆 Master<span>Quiz</span></div>
@@ -317,19 +316,6 @@ TEMPO: 20
   </div>
 </div>
 
-<div class="modal" id="pwModal">
-  <form class="card pwbox" id="pwForm" autocomplete="off">
-    <h2 style="margin-top:0">🔒 Área do Professor</h2>
-    <p>Digite a senha para continuar. Se você é aluno, use o QR Code do professor.</p>
-    <input type="password" id="pwInput" inputmode="numeric" placeholder="Senha" autocomplete="off">
-    <div class="errtxt" id="pwErr"></div>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button type="button" class="btn ghost" id="pwCancel">Sou aluno</button>
-      <button type="submit" class="btn gold">Entrar</button>
-    </div>
-  </form>
-</div>
-
 <canvas id="fx"></canvas>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -380,22 +366,7 @@ function show(id){
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === id));
   updateTeacherBtns();
 }
-const PASS = '2026';
 function initTeacher(){ show('vHome'); updateTeacherBtns(); }
-$('#pwForm').addEventListener('submit', e => {
-  e.preventDefault();
-  if($('#pwInput').value === PASS){
-    $('#pwModal').classList.remove('on');
-    document.body.classList.remove('gated');
-    initTeacher();
-  } else {
-    $('#pwErr').textContent = 'Senha incorreta.';
-    $('#pwInput').value = '';
-    const f = $('#pwForm'); f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake');
-    $('#pwInput').focus();
-  }
-});
-$('#pwCancel').onclick = () => { location.href = 'aluno.html'; };
 
 /* ---------- áudio ---------- */
 let AC = null, NB = null;
@@ -966,8 +937,7 @@ document.addEventListener('keydown', e => {
 
 /* ---------- início ---------- */
 addEventListener('beforeunload', () => { try{ H && H.peer && H.peer.destroy(); }catch(e){} });
-$('#pwModal').classList.add('on');
-setTimeout(() => $('#pwInput').focus(), 50);
+initTeacher();
 
 </script>
 </body>
