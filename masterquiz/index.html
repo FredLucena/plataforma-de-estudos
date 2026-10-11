@@ -18,7 +18,7 @@ html,body{height:100%;margin:0}
 body{display:flex;flex-direction:column;height:100dvh;overflow:hidden;background:var(--bg);color:var(--text);
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;transition:background .25s,color .25s}
 button,select,input,textarea{font:inherit;color:inherit}
-header{background:var(--bar);color:#fff;display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding:8px 14px;box-shadow:0 2px 10px rgba(0,0,0,.3);z-index:20}
+header{background:var(--bar);color:#fff;display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding:8px 14px;box-shadow:0 2px 10px rgba(0,0,0,.3);z-index:45}
 .logo{font-weight:900;letter-spacing:.5px;font-size:1.25rem;display:flex;align-items:center;gap:8px;margin-right:6px}
 .logo span{color:#ffd34d}
 .seg{display:inline-flex;background:rgba(255,255,255,.15);border-radius:999px;padding:3px}
@@ -61,6 +61,7 @@ textarea{resize:vertical;min-height:54px}
 .arow svg{flex:none;width:30px;height:30px}
 .arow label{display:flex;align-items:center;gap:4px;font-size:.8rem;color:var(--muted);white-space:nowrap;cursor:pointer}
 .errtxt{color:#e0443e;font-weight:700;margin:8px 0}
+.oktxt{color:#26a65b;font-weight:700;margin:8px 0}
 /* host lobby */
 .lobby{display:grid;grid-template-columns:minmax(260px,1fr) 1.4fr;gap:20px;padding:20px;flex:1;min-height:0}
 @media(max-width:760px){.lobby{grid-template-columns:1fr}}
@@ -133,6 +134,30 @@ textarea{resize:vertical;min-height:54px}
 .modal{position:fixed;inset:0;background:rgba(5,12,25,.7);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
 .modal.on{display:flex}
 .pwbox{width:100%;max-width:360px}
+.hbtn.start{background:#26a65b;border-color:#26a65b}
+.about{width:100%;max-width:580px;max-height:90vh;overflow:auto;line-height:1.5}
+.about h2{margin:0}
+.about h3{margin:16px 0 6px;color:var(--accent)}
+.about p{margin:8px 0}
+.about ul{margin:6px 0;padding-left:22px}
+.about li{margin:5px 0}
+.about a{color:var(--accent);font-weight:600}
+.abhead{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.abtrophy{font-size:3rem;line-height:1}
+.abtag{margin:2px 0 0;color:var(--gold);font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:.8rem}
+.abmeta{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:16px 0;padding-top:12px;border-top:1px solid var(--border)}
+.abmeta dt{color:var(--muted);font-weight:700}
+.abmeta dd{margin:0}
+.trow{margin-top:8px;color:var(--muted);font-size:.9rem}
+.deft{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--muted)}
+.trow input,.deft input{width:84px;background:var(--field);border:2px solid var(--border);border-radius:8px;padding:6px 8px;color:var(--text);outline:none}
+.trow input:focus,.deft input:focus{border-color:var(--accent)}
+.deft .btn{padding:7px 14px;font-size:.9rem}
+.menuwrap{position:relative}
+.menu{position:absolute;top:calc(100% + 6px);left:0;min-width:190px;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:6px;z-index:50;display:flex;flex-direction:column;gap:2px}
+.mitem{border:0;background:transparent;color:var(--text);text-align:left;padding:10px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+.mitem:hover:not(:disabled){background:var(--field)}
+.mitem:disabled{opacity:.4;cursor:not-allowed}
 .fmt{margin:10px 0}.fmt summary{cursor:pointer;color:var(--accent);font-weight:700}
 .fmt pre{background:var(--field);border:1px solid var(--border);border-radius:10px;padding:12px;overflow:auto;font-size:.85rem;margin:8px 0}
 #pwInput{width:100%;background:var(--field);border:2px solid var(--border);border-radius:10px;padding:10px 12px;outline:none;font-size:1.3rem;letter-spacing:.35em;text-align:center}
@@ -150,16 +175,20 @@ textarea{resize:vertical;min-height:54px}
     <button data-m="professor">Professor</button>
   </div>
   <div class="tctl hidden" id="teacherCtl">
-    <button class="hbtn" id="btnNew">➕ Novo Quiz</button>
-    <select id="selQuiz"><option value="">— Selecionar Quiz —</option></select>
-    <button class="hbtn go" id="btnLoad" disabled>Carregar</button>
-    <button class="hbtn" id="btnEdit" title="Editar quiz" disabled>✏️</button>
-    <button class="hbtn" id="btnDel" title="Excluir quiz" disabled>🗑️</button>
-    <button class="hbtn" id="btnImport" title="Importar quiz de um arquivo de texto">📥 Importar</button>
-    <button class="hbtn" id="btnExport" title="Exportar o quiz selecionado para arquivo de texto" disabled>📤 Exportar</button>
+    <div class="menuwrap" id="quizMenu">
+      <button class="hbtn go" id="btnQuiz" aria-haspopup="true" aria-expanded="false">📋 Quiz ▾</button>
+      <div class="menu hidden" id="quizMenuList" role="menu">
+        <button class="mitem" id="btnNew" role="menuitem">➕ Novo</button>
+        <button class="mitem" id="btnImport" role="menuitem" title="Importar quiz de um arquivo de texto">📥 Importar</button>
+        <button class="mitem" id="btnExport" role="menuitem" title="Exportar o quiz atual para arquivo de texto" disabled>📤 Exportar</button>
+        <button class="mitem" id="btnCancel" role="menuitem" title="Descartar o quiz atual" disabled>✖ Cancelar</button>
+      </div>
+    </div>
+    <button class="hbtn start" id="btnRoom" title="Abrir a sala com QR Code para os alunos" disabled>▶ Iniciar sala</button>
     <input type="file" id="fileImport" accept=".txt,text/plain" class="hidden">
   </div>
   <div class="spacer"></div>
+  <button class="hbtn" id="btnAbout" title="Sobre o Master Quiz">ℹ️ Sobre</button>
   <button class="hbtn" id="btnFull" title="Tela cheia">⛶</button>
   <button class="hbtn" id="btnTheme" title="Alternar modo claro/escuro">🌙 Modo Escuro</button>
 </header>
@@ -167,7 +196,7 @@ textarea{resize:vertical;min-height:54px}
 <main>
   <!-- Professor: início -->
   <section class="view" id="vHome">
-    <div class="msgbox"><h2>Modo Professor</h2><p>Crie um novo Quiz ou selecione um Quiz salvo e clique em <b>Carregar</b>.</p></div>
+    <div class="msgbox"><h2>Modo Professor</h2><p>Use o menu <b>Quiz</b> para criar um novo quiz ou importar um arquivo de texto. Depois de revisar, clique em <b>▶ Iniciar sala</b>.</p></div>
     <div class="stage"></div>
   </section>
 
@@ -183,22 +212,25 @@ A) primeira resposta
 *B) resposta correta (marcada com *)
 C) terceira resposta
 D) quarta resposta
+TEMPO: 20
 
 2) Próxima pergunta
 ...</pre>
-        <p class="link">Também são aceitos "Pergunta 1:", letras minúsculas e uma linha "Resposta: B" no lugar do asterisco. Salve o arquivo em UTF-8 (.txt).</p>
+        <p class="link">Também são aceitos "Pergunta 1:", letras minúsculas e uma linha "Resposta: B" no lugar do asterisco. A linha "TEMPO: 20" (em segundos, de 5 a 300) é opcional; sem ela, a pergunta tem 10 segundos. Salve o arquivo em UTF-8 (.txt). A opção Quiz › Exportar baixa o quiz neste mesmo formato.</p>
       </details>
       <div class="card">
         <label for="edTheme"><b>Tema do Quiz</b></label>
         <input type="text" id="edTheme" maxlength="80" placeholder="Ex.: Modelagem de Banco de Dados">
+        <div class="deft">
+          <label>⏱ Tempo padrão por pergunta: <input type="number" id="edDefT" min="5" max="300" step="1" value="10"> segundos</label>
+          <button type="button" class="btn ghost" id="btnApplyT">Aplicar a todas as perguntas</button>
+        </div>
       </div>
       <div id="edList"></div>
       <div class="addrow"><button class="btn" id="btnAddQ" type="button">➕ Adicionar pergunta</button><span class="link" id="edCount"></span></div>
       <div class="errtxt hidden" id="edErr"></div>
-      <div style="display:flex;gap:12px;margin:10px 0 30px">
-        <button class="btn gold" id="btnSave">💾 Salvar</button>
-        <button class="btn ghost" id="btnCancel">Cancelar</button>
-      </div>
+      <div class="oktxt hidden" id="edOk"></div>
+      <div style="height:30px"></div>
     </div>
   </section>
 
@@ -300,6 +332,31 @@ D) quarta resposta
   </section>
 </main>
 
+<div class="modal" id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="abTitle">
+  <div class="card about">
+    <div class="abhead">
+      <div class="abtrophy">🏆</div>
+      <div><h2 id="abTitle">Master Quiz</h2><p class="abtag">O desafio dos saberes</p></div>
+    </div>
+    <p>Um quiz interativo para a sala de aula. O professor cria ou importa as perguntas, abre a sala e os alunos entram pelo celular, escaneando um QR Code. A cada pergunta, a turma responde escolhendo uma figura, e no final o pódio revela os três primeiros colocados.</p>
+    <h3>Como funciona</h3>
+    <ul>
+      <li><b>Professor:</b> crie um quiz pelo menu <i>Quiz › Novo</i> (ou importe um arquivo de texto), defina o tempo de cada pergunta e clique em <i>Iniciar sala</i>.</li>
+      <li><b>Aluno:</b> escaneie o QR Code, digite seu nome e aguarde. Quando a pergunta aparecer na tela do professor, toque na figura da resposta: Quadrado, Triângulo, Círculo ou Losango.</li>
+      <li><b>Pontuação:</b> cada acerto vale até 1000 pontos, e responder mais rápido rende mais.</li>
+    </ul>
+    <h3>Privacidade</h3>
+    <p>Nenhum quiz fica guardado em servidor: eles ficam em arquivos de texto no computador do professor, e a conexão com os alunos é feita diretamente entre os navegadores.</p>
+    <dl class="abmeta">
+      <dt>Versão</dt><dd>1.0 · 2026</dd>
+      <dt>Autor</dt><dd>Fred Lucena</dd>
+      <dt>Sites</dt><dd><a href="https://derfacil.com.br" target="_blank" rel="noopener">derfacil.com.br</a> · <a href="https://fredlucena.com.br" target="_blank" rel="noopener">fredlucena.com.br</a></dd>
+      <dt>Tecnologias</dt><dd>HTML, CSS e JavaScript, com PeerJS e QRCode.js</dd>
+    </dl>
+    <div style="text-align:right"><button class="btn gold" id="abClose">Fechar</button></div>
+  </div>
+</div>
+
 <div class="modal" id="pwModal">
   <form class="card pwbox" id="pwForm" autocomplete="off">
     <h2 style="margin-top:0">🔒 Área do Professor</h2>
@@ -320,7 +377,8 @@ D) quarta resposta
 <script>
 "use strict";
 const $ = s => document.querySelector(s);
-const TIME = 10000;
+const DEFAULT_T = 10;
+const clampT = v => { const n = parseInt(v, 10); return isNaN(n) ? DEFAULT_T : Math.min(300, Math.max(5, n)); };
 const SHAPES = [
   {n:'Quadrado', c:'#26a65b'},
   {n:'Triângulo', c:'#e0443e'},
@@ -363,6 +421,7 @@ $('#btnFull').onclick = () => {
 /* ---------- navegação ---------- */
 function show(id){
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === id));
+  updateTeacherBtns();
 }
 let mode = 'aluno';
 function setMode(m){
@@ -374,7 +433,7 @@ function setMode(m){
     leaveStudent();
     if(H) show(H.phase === 'lobby' ? 'vHost' : (H.phase === 'podium' ? 'vPodium' : 'vQuestion'));
     else show('vHome');
-    refreshQuizSelect();
+    updateTeacherBtns();
   } else {
     if(H && !confirm('Voltar ao modo Aluno encerrará a sala atual. Continuar?')){ return setMode('professor', true); }
     closeHost();
@@ -538,26 +597,21 @@ function stopCelebrate(){
 }
 
 /* ---------- editor de quiz ---------- */
-let editingId = null;
-function refreshQuizSelect(keep){
-  const sel = $('#selQuiz'), cur = keep !== undefined ? keep : sel.value;
-  sel.innerHTML = '<option value="">— Selecionar Quiz —</option>' +
-    loadQuizzes().map(q => `<option value="${q.id}">${esc(q.theme)}</option>`).join('');
-  sel.value = cur;
-  if(sel.value !== cur) sel.value = '';
-  updateTeacherBtns();
-}
+let curQuiz = null;
+function hasQuiz(){ return !!curQuiz || $('#vEditor').classList.contains('on'); }
 function updateTeacherBtns(){
-  const has = !!$('#selQuiz').value;
-  $('#btnLoad').disabled = !has; $('#btnEdit').disabled = !has; $('#btnDel').disabled = !has; $('#btnExport').disabled = !has;
+  const h = hasQuiz();
+  $('#btnExport').disabled = !h;
+  $('#btnCancel').disabled = !h;
+  $('#btnRoom').disabled = !h || !!H;
 }
-$('#selQuiz').onchange = updateTeacherBtns;
 
 let qUid = 0;
 function qCardHTML(q){
   const u = ++qUid;
   let h = `<div class="card qcard" data-u="${u}"><div class="qhead"><h4></h4><button type="button" class="btn ghost qdel" title="Excluir esta pergunta">🗑️ Excluir</button></div>
-    <textarea class="eq" placeholder="Digite a pergunta">${q ? esc(q.q) : ''}</textarea>`;
+    <textarea class="eq" placeholder="Digite a pergunta">${q ? esc(q.q) : ''}</textarea>
+    <div class="trow"><label>⏱ Tempo para responder: <input type="number" class="et" min="5" max="300" step="1" value="${q && q.t ? q.t : clampT($('#edDefT').value)}"> segundos</label></div>`;
   for(let j = 0; j < 4; j++){
     h += `<div class="arow">${shape(j, 30)}
       <input type="text" class="ea" data-j="${j}" placeholder="Resposta ${j + 1} (${SHAPES[j].n})" value="${q ? esc(q.a[j]) : ''}">
@@ -583,9 +637,9 @@ function addQuestion(q, focus){
   }
 }
 function openEditor(quiz){
-  editingId = quiz ? quiz.id : null;
-  $('#edTitle').textContent = quiz ? (quiz.id ? 'Editar Quiz' : 'Quiz importado — revise e salve') : 'Novo Quiz';
+  $('#edTitle').textContent = quiz ? (quiz.imported ? 'Quiz importado — revise, altere e salve' : 'Editar Quiz') : 'Novo Quiz';
   $('#edTheme').value = quiz ? quiz.theme : '';
+  $('#edDefT').value = (quiz && quiz.questions.length && quiz.questions[0].t) ? quiz.questions[0].t : DEFAULT_T;
   $('#edErr').classList.add('hidden');
   $('#edList').innerHTML = '';
   if(quiz && quiz.questions.length) quiz.questions.forEach(q => addQuestion(q)); else addQuestion(null);
@@ -603,6 +657,13 @@ $('#edList').addEventListener('click', e => {
   renumberQuestions();
 });
 $('#btnAddQ').onclick = () => addQuestion(null, true);
+$('#edList').addEventListener('change', e => { if(e.target.matches('.et')) e.target.value = clampT(e.target.value); });
+$('#edDefT').addEventListener('change', e => { e.target.value = clampT(e.target.value); });
+$('#btnApplyT').onclick = () => {
+  const v = clampT($('#edDefT').value);
+  $('#edDefT').value = v;
+  document.querySelectorAll('.et').forEach(x => x.value = v);
+};
 
 /* ---------- importar / exportar (texto) ---------- */
 function quizToText(q){
@@ -611,6 +672,7 @@ function quizToText(q){
   q.questions.forEach((it, i) => {
     L.push((i + 1) + ') ' + one(it.q));
     it.a.forEach((t, j) => L.push((it.c === j ? '*' : '') + 'ABCD'[j] + ') ' + one(t)));
+    L.push('TEMPO: ' + (it.t || 10));
     L.push('');
   });
   return L.join('\r\n');
@@ -621,6 +683,7 @@ function parseQuizText(txt){
   const rRe = /^\s*(?:resposta(?:\s+correta)?|gabarito|correta)\s*[:\-]?\s*([A-Da-d])\b/i;
   const qRe = /^\s*(?:pergunta\s*)?(\d+)\s*[\)\.\:\-]\s*(.+)$/i;
   const aRe = /^\s*(\*?)\s*([A-Da-d])\s*[\)\.\:\-]\s*(\*?)\s*(.*)$/;
+  const tmRe = /^\s*(?:tempo|time)\s*[:\-]?\s*(\d+)\s*(?:s|seg\w*)?\s*$/i;
   let theme = '', cur = null;
   const list = [], warns = [];
   const close = () => {
@@ -632,7 +695,7 @@ function parseQuizText(txt){
     if(cur.c < 0) warns.push(`Pergunta ${n}: sem resposta correta marcada (use * antes da letra).`);
     cur.q = cur.q.trim();
     cur.a = cur.a.map(x => x.trim());
-    list.push({q: cur.q, a: cur.a, c: cur.c});
+    list.push({q: cur.q, a: cur.a, c: cur.c, t: cur.t});
     cur = null;
   };
   txt.split('\n').forEach(raw => {
@@ -640,8 +703,9 @@ function parseQuizText(txt){
     if(!line) return;
     let m;
     if(!cur && !theme && (m = line.match(tRe))){ theme = m[1].trim(); return; }
+    if(cur && (m = line.match(tmRe))){ cur.t = Math.min(300, Math.max(5, parseInt(m[1], 10))); return; }
     if(cur && (m = line.match(rRe))){ cur.c = 'ABCD'.indexOf(m[1].toUpperCase()); cur.fixed = true; return; }
-    if((m = line.match(qRe))){ close(); cur = {q: m[2], a: [], c: -1}; return; }
+    if((m = line.match(qRe))){ close(); cur = {q: m[2], a: [], c: -1, t: 10}; return; }
     if(cur && (m = line.match(aRe))){
       cur.a.push(m[4]);
       if((m[1] || m[3]) && !cur.fixed && cur.c < 0) cur.c = cur.a.length - 1;
@@ -662,12 +726,6 @@ function downloadText(name, text){
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1500);
 }
-$('#btnExport').onclick = () => {
-  const q = loadQuizzes().find(x => x.id === $('#selQuiz').value);
-  if(!q) return;
-  const slug = q.theme.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').toLowerCase() || 'quiz';
-  downloadText('quiz-' + slug + '.txt', quizToText(q));
-};
 $('#btnImport').onclick = () => {
   if(H && !confirm('Isso encerrará a sala atual. Continuar?')) return;
   $('#fileImport').click();
@@ -689,20 +747,59 @@ $('#fileImport').onchange = async e => {
   }
   closeHost();
   const theme = r.theme || f.name.replace(/\.[^.]+$/, '');
-  openEditor({id:null, theme, questions:r.questions});
+  curQuiz = {theme, questions:r.questions};
+  updateTeacherBtns();
+  openEditor({imported:true, theme, questions:r.questions});
   if(r.warns.length){
     alert(`${r.questions.length} pergunta(s) importada(s). Revise antes de salvar:\n\n- ` + r.warns.slice(0, 8).join('\n- ') + (r.warns.length > 8 ? `\n… e mais ${r.warns.length - 8} aviso(s).` : ''));
   }
 };
 
 $('#btnNew').onclick = () => { if(H && !confirm('Isso encerrará a sala atual. Continuar?')) return; closeHost(); openEditor(null); };
-$('#btnEdit').onclick = () => { const q = loadQuizzes().find(x => x.id === $('#selQuiz').value); if(q){ closeHost(); openEditor(q); } };
-$('#btnDel').onclick = () => {
-  const id = $('#selQuiz').value, q = loadQuizzes().find(x => x.id === id);
-  if(q && confirm(`Excluir o quiz "${q.theme}"?`)){ saveQuizzes(loadQuizzes().filter(x => x.id !== id)); refreshQuizSelect(''); }
+function quizFileName(q){
+  const slug = q.theme.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').toLowerCase() || 'quiz';
+  return 'quiz-' + slug + '.txt';
+}
+$('#btnExport').onclick = () => {
+  let q = curQuiz;
+  if($('#vEditor').classList.contains('on')){
+    q = collectQuiz();           // exporta o que está na tela do editor (se estiver completo)
+    if(!q) return;
+    curQuiz = q;
+  }
+  if(!q) return;
+  downloadText(quizFileName(q), quizToText(q));
 };
-$('#btnCancel').onclick = () => show('vHome');
-$('#btnSave').onclick = () => {
+$('#btnCancel').onclick = () => {
+  openMenu(false);
+  if(!hasQuiz()) return;
+  if(!confirm('Cancelar o quiz atual? O que não foi exportado será perdido.')) return;
+  closeHost();
+  curQuiz = null;
+  $('#edList').innerHTML = '';
+  show('vHome');
+  updateTeacherBtns();
+};
+/* menu Quiz */
+function openMenu(o){
+  if(o) updateTeacherBtns();
+  $('#quizMenuList').classList.toggle('hidden', !o);
+  $('#btnQuiz').setAttribute('aria-expanded', o ? 'true' : 'false');
+}
+$('#btnQuiz').onclick = e => { e.stopPropagation(); openMenu($('#quizMenuList').classList.contains('hidden')); };
+$('#quizMenuList').addEventListener('click', e => { if(e.target.closest('.mitem:not(:disabled)')) openMenu(false); }, true);
+document.addEventListener('click', e => { if(!e.target.closest('#quizMenu')) openMenu(false); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') openMenu(false); });
+/* Sobre */
+function openAbout(o){
+  $('#aboutModal').classList.toggle('on', o);
+  if(o){ openMenu(false); $('#abClose').focus(); }
+}
+$('#btnAbout').onclick = () => openAbout(true);
+$('#abClose').onclick = () => openAbout(false);
+$('#aboutModal').addEventListener('click', e => { if(e.target.id === 'aboutModal') openAbout(false); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') openAbout(false); });
+function collectQuiz(){
   const theme = $('#edTheme').value.trim();
   let ok = !!theme, firstBad = theme ? null : $('#edTheme');
   const questions = [];
@@ -710,36 +807,39 @@ $('#btnSave').onclick = () => {
     const q = card.querySelector('.eq').value.trim();
     const a = [...card.querySelectorAll('.ea')].map(x => x.value.trim());
     const c = card.querySelector('input[type=radio]:checked');
-    const valid = q && a.every(Boolean) && c;
+    const tv = card.querySelector('.et').value.trim();
+    const t = /^\d+$/.test(tv) ? parseInt(tv, 10) : NaN;
+    const tOk = t >= 5 && t <= 300;
+    const valid = q && a.every(Boolean) && c && tOk;
     card.classList.toggle('bad', !valid);
     if(!valid){ ok = false; if(!firstBad) firstBad = card; }
-    questions.push({q, a, c: c ? +c.value : -1});
+    questions.push({q, a, c: c ? +c.value : -1, t: tOk ? t : DEFAULT_T});
   });
   const err = $('#edErr');
+  $('#edOk').classList.add('hidden');
   if(!ok){
-    err.textContent = 'Informe o tema e preencha todas as perguntas, as 4 respostas de cada uma e marque a resposta correta (ou exclua as perguntas que não quiser usar).';
+    err.textContent = 'Informe o tema e preencha todas as perguntas, as 4 respostas de cada uma e marque a resposta correta, com tempo entre 5 e 300 segundos (ou exclua as perguntas que não quiser usar).';
     err.classList.remove('hidden');
     firstBad.scrollIntoView({behavior:'smooth', block:'center'});
-    return;
+    return null;
   }
-  const all = loadQuizzes();
-  const id = editingId || ('q' + Date.now().toString(36));
-  const rec = {id, theme, questions};
-  const idx = all.findIndex(x => x.id === id);
-  if(idx >= 0) all[idx] = rec; else all.push(rec);
-  saveQuizzes(all);
-  refreshQuizSelect(id);
-  show('vHome');
+  err.classList.add('hidden');
+  return {theme, questions};
+}
+$('#btnRoom').onclick = () => {
+  if(!hasQuiz() || H) return;
+  let q = curQuiz;
+  if($('#vEditor').classList.contains('on')){
+    q = collectQuiz();           // valida o que está no editor
+    if(!q) return;
+  }
+  curQuiz = q;
+  updateTeacherBtns();
+  startHost(q);
 };
 
 /* ---------- professor: sala ---------- */
 let H = null;
-$('#btnLoad').onclick = () => {
-  const q = loadQuizzes().find(x => x.id === $('#selQuiz').value);
-  if(!q) return;
-  if(H && !confirm('Isso encerrará a sala atual. Continuar?')) return;
-  startHost(q);
-};
 function send(conn, msg){ try{ if(conn && conn.open) conn.send(msg); }catch(e){} }
 function broadcast(msg){ if(H) H.players.forEach(p => send(p.conn, msg)); }
 function online(){ return [...H.players.values()].filter(p => p.online); }
@@ -796,12 +896,12 @@ function onHostData(conn, d){
     while(names.includes(name.toLowerCase())) name = base + ' ' + (n++);
     H.players.set(conn.peer, {name, score:0, conn, online:true, ans:null, ms:0, gained:0, right:false});
     send(conn, {t:'joined', theme:H.quiz.theme, name});
-    if(H.phase === 'question') send(conn, {t:'question', n:H.qi + 1, total:H.quiz.questions.length, left:Math.max(0, TIME - (Date.now() - H.t0))});
+    if(H.phase === 'question') send(conn, {t:'question', n:H.qi + 1, total:H.quiz.questions.length, left:Math.max(0, H.timeMs - (Date.now() - H.t0))});
     renderLobby(); updateCount();
   } else if(d.t === 'answer'){
     const p = H.players.get(conn.peer);
     if(p && H.phase === 'question' && p.ans === null && d.i >= 0 && d.i < 4){
-      p.ans = d.i; p.ms = Math.min(TIME, Date.now() - H.t0);
+      p.ans = d.i; p.ms = Math.min(H.timeMs, Date.now() - H.t0);
       send(conn, {t:'ack'});
       updateCount();
     }
@@ -831,9 +931,10 @@ function closeHost(){
 }
 
 /* ---------- professor: perguntas ---------- */
-$('#btnStart').onclick = () => { ac(); startQuestion(0); };
+$('#btnStart').onclick = () => { try{ ac(); }catch(e){} startQuestion(0); };
 function startQuestion(i){
   H.qi = i; H.phase = 'question'; H.t0 = Date.now(); H.lastTick = -1;
+  H.timeMs = clampT(H.quiz.questions[i].t || DEFAULT_T) * 1000;
   H.players.forEach(p => { p.ans = null; p.ms = 0; p.gained = 0; p.right = false; });
   const q = H.quiz.questions[i];
   $('#qNum').textContent = `Pergunta ${i + 1} de ${H.quiz.questions.length}`;
@@ -844,18 +945,18 @@ function startQuestion(i){
   $('#sideWait').style.display = 'flex';
   $('#sideRank').style.display = 'none';
   $('#tBar').style.width = '100%';
-  $('#tNum').textContent = '10';
+  $('#tNum').textContent = Math.round(H.timeMs / 1000);
   show('vQuestion');
   updateCount();
-  broadcast({t:'question', n:i + 1, total:H.quiz.questions.length, left:TIME});
+  broadcast({t:'question', n:i + 1, total:H.quiz.questions.length, left:H.timeMs});
   sStart();
   clearInterval(H.timer);
   H.timer = setInterval(tick, 100);
 }
 function tick(){
   if(!H || H.phase !== 'question') return;
-  const left = Math.max(0, TIME - (Date.now() - H.t0));
-  $('#tBar').style.width = (left / TIME * 100) + '%';
+  const left = Math.max(0, H.timeMs - (Date.now() - H.t0));
+  $('#tBar').style.width = (left / H.timeMs * 100) + '%';
   const s = Math.ceil(left / 1000);
   $('#tNum').textContent = s;
   if(s <= 3 && s > 0 && s !== H.lastTick){ H.lastTick = s; sBeep(); }
@@ -868,7 +969,7 @@ function endQuestion(){
   const q = H.quiz.questions[H.qi], dist = [0, 0, 0, 0];
   H.players.forEach(p => {
     if(p.ans !== null) dist[p.ans]++;
-    if(p.ans === q.c){ p.right = true; p.gained = Math.round(1000 * (1 - 0.5 * p.ms / TIME)); p.score += p.gained; }
+    if(p.ans === q.c){ p.right = true; p.gained = Math.round(1000 * (1 - 0.5 * p.ms / H.timeMs)); p.score += p.gained; }
   });
   const sorted = [...H.players.values()].sort((a, b) => b.score - a.score);
   H.players.forEach(p => send(p.conn, {t:'result', correct:p.right, answered:p.ans !== null, gained:p.gained, score:p.score, pos:sorted.indexOf(p) + 1}));
@@ -907,7 +1008,7 @@ function startPodium(){
 }
 function podiumNext(){
   if(!H || H.phase !== 'podium' || H.step >= H.seq.length * 2) return;
-  ac();
+  try{ ac(); }catch(e){}
   const place = H.seq[Math.floor(H.step / 2)];
   if(H.step % 2 === 0){
     $('#susText').textContent = place + 'º Lugar';
@@ -1020,7 +1121,7 @@ function onStudentData(d){
 
 /* ---------- início ---------- */
 addEventListener('beforeunload', () => { try{ H && H.peer && H.peer.destroy(); S.peer && S.peer.destroy(); }catch(e){} });
-refreshQuizSelect();
+updateTeacherBtns();
 setMode('aluno', true);
 initStudent();
 </script>
