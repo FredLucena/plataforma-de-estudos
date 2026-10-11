@@ -133,6 +133,8 @@ textarea{resize:vertical;min-height:54px}
 .modal{position:fixed;inset:0;background:rgba(5,12,25,.7);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
 .modal.on{display:flex}
 .pwbox{width:100%;max-width:360px}
+.fmt{margin:10px 0}.fmt summary{cursor:pointer;color:var(--accent);font-weight:700}
+.fmt pre{background:var(--field);border:1px solid var(--border);border-radius:10px;padding:12px;overflow:auto;font-size:.85rem;margin:8px 0}
 #pwInput{width:100%;background:var(--field);border:2px solid var(--border);border-radius:10px;padding:10px 12px;outline:none;font-size:1.3rem;letter-spacing:.35em;text-align:center}
 #pwInput:focus{border-color:var(--accent)}
 .shake{animation:shake .35s}
@@ -153,6 +155,9 @@ textarea{resize:vertical;min-height:54px}
     <button class="hbtn go" id="btnLoad" disabled>Carregar</button>
     <button class="hbtn" id="btnEdit" title="Editar quiz" disabled>✏️</button>
     <button class="hbtn" id="btnDel" title="Excluir quiz" disabled>🗑️</button>
+    <button class="hbtn" id="btnImport" title="Importar quiz de um arquivo de texto">📥 Importar</button>
+    <button class="hbtn" id="btnExport" title="Exportar o quiz selecionado para arquivo de texto" disabled>📤 Exportar</button>
+    <input type="file" id="fileImport" accept=".txt,text/plain" class="hidden">
   </div>
   <div class="spacer"></div>
   <button class="hbtn" id="btnFull" title="Tela cheia">⛶</button>
@@ -170,6 +175,19 @@ textarea{resize:vertical;min-height:54px}
   <section class="view" id="vEditor">
     <div class="editor">
       <h2 id="edTitle">Novo Quiz</h2>
+      <details class="fmt"><summary>Formato do arquivo de texto (importar/exportar)</summary>
+<pre>TEMA: Nome do quiz
+
+1) Texto da pergunta
+A) primeira resposta
+*B) resposta correta (marcada com *)
+C) terceira resposta
+D) quarta resposta
+
+2) Próxima pergunta
+...</pre>
+        <p class="link">Também são aceitos "Pergunta 1:", letras minúsculas e uma linha "Resposta: B" no lugar do asterisco. Salve o arquivo em UTF-8 (.txt).</p>
+      </details>
       <div class="card">
         <label for="edTheme"><b>Tema do Quiz</b></label>
         <input type="text" id="edTheme" maxlength="80" placeholder="Ex.: Modelagem de Banco de Dados">
@@ -531,7 +549,7 @@ function refreshQuizSelect(keep){
 }
 function updateTeacherBtns(){
   const has = !!$('#selQuiz').value;
-  $('#btnLoad').disabled = !has; $('#btnEdit').disabled = !has; $('#btnDel').disabled = !has;
+  $('#btnLoad').disabled = !has; $('#btnEdit').disabled = !has; $('#btnDel').disabled = !has; $('#btnExport').disabled = !has;
 }
 $('#selQuiz').onchange = updateTeacherBtns;
 
@@ -566,7 +584,7 @@ function addQuestion(q, focus){
 }
 function openEditor(quiz){
   editingId = quiz ? quiz.id : null;
-  $('#edTitle').textContent = quiz ? 'Editar Quiz' : 'Novo Quiz';
+  $('#edTitle').textContent = quiz ? (quiz.id ? 'Editar Quiz' : 'Quiz importado — revise e salve') : 'Novo Quiz';
   $('#edTheme').value = quiz ? quiz.theme : '';
   $('#edErr').classList.add('hidden');
   $('#edList').innerHTML = '';
@@ -585,6 +603,98 @@ $('#edList').addEventListener('click', e => {
   renumberQuestions();
 });
 $('#btnAddQ').onclick = () => addQuestion(null, true);
+
+/* ---------- importar / exportar (texto) ---------- */
+function quizToText(q){
+  const one = t => String(t).replace(/\s*\n\s*/g, ' ').trim();
+  const L = ['TEMA: ' + one(q.theme), ''];
+  q.questions.forEach((it, i) => {
+    L.push((i + 1) + ') ' + one(it.q));
+    it.a.forEach((t, j) => L.push((it.c === j ? '*' : '') + 'ABCD'[j] + ') ' + one(t)));
+    L.push('');
+  });
+  return L.join('\r\n');
+}
+function parseQuizText(txt){
+  txt = String(txt).replace(/^﻿/, '').replace(/\r\n?/g, '\n');
+  const tRe = /^\s*(?:tema|t[ií]tulo)\s*[:\-]\s*(.+)$/i;
+  const rRe = /^\s*(?:resposta(?:\s+correta)?|gabarito|correta)\s*[:\-]?\s*([A-Da-d])\b/i;
+  const qRe = /^\s*(?:pergunta\s*)?(\d+)\s*[\)\.\:\-]\s*(.+)$/i;
+  const aRe = /^\s*(\*?)\s*([A-Da-d])\s*[\)\.\:\-]\s*(\*?)\s*(.*)$/;
+  let theme = '', cur = null;
+  const list = [], warns = [];
+  const close = () => {
+    if(!cur) return;
+    const n = list.length + 1;
+    if(cur.a.length !== 4) warns.push(`Pergunta ${n}: tem ${cur.a.length} resposta(s) em vez de 4.`);
+    if(cur.a.length > 4) cur.a.length = 4;
+    while(cur.a.length < 4) cur.a.push('');
+    if(cur.c < 0) warns.push(`Pergunta ${n}: sem resposta correta marcada (use * antes da letra).`);
+    cur.q = cur.q.trim();
+    cur.a = cur.a.map(x => x.trim());
+    list.push({q: cur.q, a: cur.a, c: cur.c});
+    cur = null;
+  };
+  txt.split('\n').forEach(raw => {
+    const line = raw.trim();
+    if(!line) return;
+    let m;
+    if(!cur && !theme && (m = line.match(tRe))){ theme = m[1].trim(); return; }
+    if(cur && (m = line.match(rRe))){ cur.c = 'ABCD'.indexOf(m[1].toUpperCase()); cur.fixed = true; return; }
+    if((m = line.match(qRe))){ close(); cur = {q: m[2], a: [], c: -1}; return; }
+    if(cur && (m = line.match(aRe))){
+      cur.a.push(m[4]);
+      if((m[1] || m[3]) && !cur.fixed && cur.c < 0) cur.c = cur.a.length - 1;
+      return;
+    }
+    if(cur){
+      if(cur.a.length) cur.a[cur.a.length - 1] += ' ' + line; else cur.q += ' ' + line;
+    }
+  });
+  close();
+  return {theme, questions: list, warns};
+}
+
+function downloadText(name, text){
+  const blob = new Blob(['﻿' + text], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+$('#btnExport').onclick = () => {
+  const q = loadQuizzes().find(x => x.id === $('#selQuiz').value);
+  if(!q) return;
+  const slug = q.theme.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').toLowerCase() || 'quiz';
+  downloadText('quiz-' + slug + '.txt', quizToText(q));
+};
+$('#btnImport').onclick = () => {
+  if(H && !confirm('Isso encerrará a sala atual. Continuar?')) return;
+  $('#fileImport').click();
+};
+$('#fileImport').onchange = async e => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if(!f) return;
+  let txt;
+  try{
+    const buf = await f.arrayBuffer();
+    txt = new TextDecoder('utf-8').decode(buf);
+    if(txt.includes('�')) txt = new TextDecoder('windows-1252').decode(buf);
+  }catch(err){ alert('Não foi possível ler o arquivo.'); return; }
+  const r = parseQuizText(txt);
+  if(!r.questions.length){
+    alert('Nenhuma pergunta foi encontrada no arquivo.\n\nFormato esperado:\nTEMA: nome do quiz\n\n1) Pergunta\nA) resposta\n*B) resposta correta\nC) resposta\nD) resposta');
+    return;
+  }
+  closeHost();
+  const theme = r.theme || f.name.replace(/\.[^.]+$/, '');
+  openEditor({id:null, theme, questions:r.questions});
+  if(r.warns.length){
+    alert(`${r.questions.length} pergunta(s) importada(s). Revise antes de salvar:\n\n- ` + r.warns.slice(0, 8).join('\n- ') + (r.warns.length > 8 ? `\n… e mais ${r.warns.length - 8} aviso(s).` : ''));
+  }
+};
+
 $('#btnNew').onclick = () => { if(H && !confirm('Isso encerrará a sala atual. Continuar?')) return; closeHost(); openEditor(null); };
 $('#btnEdit').onclick = () => { const q = loadQuizzes().find(x => x.id === $('#selQuiz').value); if(q){ closeHost(); openEditor(q); } };
 $('#btnDel').onclick = () => {
