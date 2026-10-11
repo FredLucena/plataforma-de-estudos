@@ -130,6 +130,13 @@ textarea{resize:vertical;min-height:54px}
 .sbar{height:10px;background:var(--border);margin:6px 14px 0;border-radius:99px;overflow:hidden}
 .sbar i{display:block;height:100%;width:0;background:var(--accent)}
 .good{color:#26a65b}.badc{color:#e0443e}
+.modal{position:fixed;inset:0;background:rgba(5,12,25,.7);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+.modal.on{display:flex}
+.pwbox{width:100%;max-width:360px}
+#pwInput{width:100%;background:var(--field);border:2px solid var(--border);border-radius:10px;padding:10px 12px;outline:none;font-size:1.3rem;letter-spacing:.35em;text-align:center}
+#pwInput:focus{border-color:var(--accent)}
+.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
 </style>
 </head>
 <body>
@@ -275,6 +282,19 @@ textarea{resize:vertical;min-height:54px}
   </section>
 </main>
 
+<div class="modal" id="pwModal">
+  <form class="card pwbox" id="pwForm" autocomplete="off">
+    <h2 style="margin-top:0">🔒 Área do Professor</h2>
+    <p>Digite a senha para continuar.</p>
+    <input type="password" id="pwInput" inputmode="numeric" placeholder="Senha" autocomplete="off">
+    <div class="errtxt" id="pwErr"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button type="button" class="btn ghost" id="pwCancel">Cancelar</button>
+      <button type="submit" class="btn gold">Entrar</button>
+    </div>
+  </form>
+</div>
+
 <canvas id="fx"></canvas>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -343,7 +363,32 @@ function setMode(m){
     initStudent();
   }
 }
-document.querySelectorAll('#modeSeg button').forEach(b => b.onclick = () => setMode(b.dataset.m));
+const PASS = '2026';
+let pwCb = null;
+function askPassword(cb){
+  pwCb = cb;
+  $('#pwInput').value = ''; $('#pwErr').textContent = '';
+  $('#pwModal').classList.add('on');
+  setTimeout(() => $('#pwInput').focus(), 30);
+}
+function closePw(){ $('#pwModal').classList.remove('on'); pwCb = null; }
+$('#pwForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if($('#pwInput').value === PASS){ const cb = pwCb; closePw(); if(cb) cb(); }
+  else {
+    $('#pwErr').textContent = 'Senha incorreta.';
+    $('#pwInput').value = '';
+    const f = $('#pwForm'); f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake');
+    $('#pwInput').focus();
+  }
+});
+$('#pwCancel').onclick = closePw;
+$('#pwModal').addEventListener('keydown', e => { if(e.key === 'Escape') closePw(); });
+document.querySelectorAll('#modeSeg button').forEach(b => b.onclick = () => {
+  const m = b.dataset.m;
+  if(m === 'professor' && mode !== 'professor') askPassword(() => setMode('professor'));
+  else setMode(m);
+});
 
 /* ---------- áudio ---------- */
 let AC = null, NB = null;
