@@ -323,6 +323,9 @@ TEMPO: 20
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 "use strict";
+const PEER_OPTS = {config:{iceServers:[
+  {urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:global.stun.twilio.com:3478'}
+], iceCandidatePoolSize:4}};
 const $ = s => document.querySelector(s);
 const DEFAULT_T = 10;
 const clampT = v => { const n = parseInt(v, 10); return isNaN(n) ? DEFAULT_T : Math.min(300, Math.max(5, n)); };
@@ -761,7 +764,7 @@ function startHost(quiz){
 }
 function createPeer(tries){
   const id = 'mq-' + Math.random().toString(36).slice(2, 7);
-  const peer = new Peer(id);
+  const peer = new Peer(id, PEER_OPTS);
   H.peer = peer;
   peer.on('open', () => {
     H.room = id;

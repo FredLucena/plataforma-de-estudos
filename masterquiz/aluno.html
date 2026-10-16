@@ -259,6 +259,9 @@ function shape(i, size){
 }
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+const PEER_OPTS = {config:{iceServers:[
+  {urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:global.stun.twilio.com:3478'}
+], iceCandidatePoolSize:4}};
 /* ---------- tema ---------- */
 function setTheme(t){
   document.documentElement.setAttribute('data-theme', t);
@@ -311,12 +314,16 @@ $('#btnJoin').onclick = () => {
   if(!name){ $('#stuErr').textContent = 'Digite seu nome.'; return; }
   try{ localStorage.setItem('masterquiz.name', name); }catch(e){}
   if(typeof Peer === 'undefined'){ $('#stuErr').textContent = 'Não foi possível carregar a biblioteca de conexão.'; return; }
-  $('#stuErr').textContent = 'Conectando…';
+  connect(false);
+};
+function connect(retry){
+  const name = $('#stuName').value.trim();
+  if(!retry) $('#stuErr').textContent = 'Conectando…';
   $('#btnJoin').disabled = true;
   try{ S.peer && S.peer.destroy(); }catch(e){}
-  const peer = new Peer(); S.peer = peer; S.name = name;
+  const peer = new Peer(undefined, PEER_OPTS); S.peer = peer; S.name = name;
   const fail = m => { $('#stuErr').textContent = m; $('#btnJoin').disabled = false; };
-  const to = setTimeout(() => { if(!S.joined) fail('Não foi possível conectar. Verifique o código da sala.'); }, 12000);
+  const to = setTimeout(() => { if(S.joined) return; try{ peer.destroy(); }catch(e){} if(!retry){ $('#btnJoin').disabled = false; $('#stuErr').textContent = 'Tentando novamente…'; connect(true); } else fail('Não foi possível conectar. Verifique se o professor mantém a sala aberta e se você está com internet (tente trocar entre Wi-Fi e dados móveis).'); }, 15000);
   peer.on('error', e => { clearTimeout(to); fail(e.type === 'peer-unavailable' ? 'Sala não encontrada. Peça um novo QR Code ao professor.' : 'Erro de conexão: ' + e.type); });
   peer.on('open', () => {
     const conn = peer.connect(S.room, {reliable:true});
@@ -325,7 +332,7 @@ $('#btnJoin').onclick = () => {
     conn.on('data', d => { clearTimeout(to); onStudentData(d); });
     conn.on('close', () => { if(S.joined) stuMsg('Conexão encerrada.', 'Peça ao professor para abrir a sala novamente.'); });
   });
-};
+}
 function stuShapes(enabled, sel){
   $('#stuShapes').innerHTML = SHAPES.map((s, i) =>
     `<button class="shp${sel === i ? ' sel' : ''}" data-i="${i}" style="--c:${s.c}" aria-label="${s.n}" ${enabled ? '' : 'disabled'}>${shape(i)}</button>`).join('');
