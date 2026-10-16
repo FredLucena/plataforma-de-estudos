@@ -516,7 +516,8 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
   var REPO_FIXO = 'FredLucena/plataforma-de-estudos';
   var DIR_FIXO = 'explorador';   // pasta deste arquivo dentro do repositório
   var GH_MOTIVO = '';
-  var OCULTAR = ['*.html'];   // arquivos da raiz que não aparecem na árvore
+  var OCULTAR = [];                // nomes de arquivos da raiz que não aparecem (ex.: ['readme.md'])
+  var OCULTAR_EXT = ['html'];      // extensões ocultas em todas as pastas
   function cleanPath(p) {
     var parts = String(p || '').split('/').filter(function (s) { return s && s !== '.' && s !== '..'; });
     return parts.join('/');
@@ -558,7 +559,10 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
         if (it.path.indexOf(prefix) !== 0 || (it.type !== 'blob' && it.type !== 'tree')) return;
         var rel = it.path.slice(prefix.length);
         if (!rel) return;
-        if (OCULTAR.indexOf(rel.toLowerCase()) >= 0) return;   // só na raiz (rel sem pasta)
+        if (it.type === 'blob') {
+          var nm = rel.slice(rel.lastIndexOf('/') + 1).toLowerCase(), ex = nm.indexOf('.') >= 0 ? nm.slice(nm.lastIndexOf('.') + 1) : '';
+          if (OCULTAR_EXT.indexOf(ex) >= 0 || (rel.indexOf('/') < 0 && OCULTAR.indexOf(nm) >= 0)) return;
+        }
         n++;
         var i = rel.lastIndexOf('/'), parent = i < 0 ? '' : rel.slice(0, i), name = i < 0 ? rel : rel.slice(i + 1);
         if (!dirs.has(parent)) dirs.set(parent, []);
