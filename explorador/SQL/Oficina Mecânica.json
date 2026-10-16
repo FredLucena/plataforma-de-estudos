@@ -1,0 +1,3418 @@
+{
+  "projectName": "Oficina Mecânica",
+  "mode": "conceptual",
+  "conceptual": {
+    "projectName": "Oficina Mecânica",
+    "nodes": [
+      {
+        "id": "nd_i1amsy9",
+        "type": "entity",
+        "name": "Cliente",
+        "x": 456,
+        "y": 270,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "attrAlignMode": "top",
+        "attrOrderIds": [
+          "nd_l5028fz",
+          "nd_tz0esvu"
+        ],
+        "_dims": {
+          "w": 120,
+          "h": 52
+        }
+      },
+      {
+        "id": "nd_ysujcce",
+        "type": "entity",
+        "name": "PF",
+        "x": 374,
+        "y": 468,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "attrAlignMode": "bottom",
+        "attrOrderIds": [
+          "nd_s2oiagv",
+          "nd_1u1kz86",
+          "nd_jj67xtu"
+        ],
+        "_dims": {
+          "w": 120,
+          "h": 52
+        }
+      },
+      {
+        "id": "nd_wuhh6xh",
+        "type": "entity",
+        "name": "PJ",
+        "x": 542,
+        "y": 468,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "attrAlignMode": "bottom",
+        "attrOrderIds": [
+          "nd_pf47af7",
+          "nd_9x4acqb"
+        ],
+        "_dims": {
+          "w": 120,
+          "h": 52
+        }
+      },
+      {
+        "id": "nd_1hvoff0",
+        "type": "entity",
+        "name": "OES",
+        "x": 852,
+        "y": 270,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "attrAlignMode": "top",
+        "attrOrderIds": [
+          "nd_n5rvkff",
+          "nd_76301ry",
+          "nd_6797up2"
+        ],
+        "_dims": {
+          "w": 120,
+          "h": 52
+        }
+      },
+      {
+        "id": "nd_gyip4jv",
+        "type": "entity",
+        "name": "Veiculo",
+        "x": 1224,
+        "y": 270,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "attrAlignMode": "top",
+        "attrOrderIds": [
+          "nd_7myyaop",
+          "nd_cj3tqkb"
+        ],
+        "_dims": {
+          "w": 120,
+          "h": 52
+        }
+      },
+      {
+        "id": "nd_0kryj7h",
+        "type": "entity",
+        "name": "Modelo",
+        "x": 1230,
+        "y": 468,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "attrAlignMode": "bottom",
+        "attrOrderIds": [
+          "nd_edvpoq1",
+          "nd_ej3g9ft"
+        ],
+        "_dims": {
+          "w": 120,
+          "h": 52
+        }
+      },
+      {
+        "id": "nd_3se1lx8",
+        "type": "entity",
+        "name": "Fabricante",
+        "x": 1422,
+        "y": 366,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "attrAlignMode": "top",
+        "attrOrderIds": [
+          "nd_u6pukev",
+          "nd_t37f8o8"
+        ],
+        "_dims": {
+          "w": 120,
+          "h": 52
+        }
+      },
+      {
+        "id": "nd_sbd83dh",
+        "type": "entity",
+        "name": "Peca",
+        "x": 750,
+        "y": 468,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "attrAlignMode": "bottom",
+        "attrOrderIds": [
+          "nd_9p72ezd",
+          "nd_g4sl34t",
+          "nd_ssadigk"
+        ],
+        "_dims": {
+          "w": 120,
+          "h": 52
+        }
+      },
+      {
+        "id": "nd_wduk96g",
+        "type": "entity",
+        "name": "Servico",
+        "x": 942,
+        "y": 468,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "attrAlignMode": "bottom",
+        "attrOrderIds": [
+          "nd_m8hl8tn",
+          "nd_zm7m92p",
+          "nd_cxy9gmx"
+        ],
+        "_dims": {
+          "w": 120,
+          "h": 52
+        }
+      },
+      {
+        "id": "nd_l5028fz",
+        "type": "attribute",
+        "name": "cli_codigo",
+        "x": 504,
+        "y": 215.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": true,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 70,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_tz0esvu",
+        "type": "attribute",
+        "name": "nome",
+        "x": 408,
+        "y": 189.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 43,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_s2oiagv",
+        "type": "attribute",
+        "name": "cli_cpf",
+        "x": 422,
+        "y": 522.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": true,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 50,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_1u1kz86",
+        "type": "attribute",
+        "name": "nome",
+        "x": 374,
+        "y": 548.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 43,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_jj67xtu",
+        "type": "attribute",
+        "name": "sexo",
+        "x": 326,
+        "y": 574.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 38,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_pf47af7",
+        "type": "attribute",
+        "name": "cli_cnpj",
+        "x": 590,
+        "y": 522.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": true,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 56,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_9x4acqb",
+        "type": "attribute",
+        "name": "razaosocial",
+        "x": 494,
+        "y": 548.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 77,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_n5rvkff",
+        "type": "attribute",
+        "name": "oes_numero",
+        "x": 900,
+        "y": 215.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": true,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 82,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_76301ry",
+        "type": "attribute",
+        "name": "descricao",
+        "x": 852,
+        "y": 189.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 67,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_6797up2",
+        "type": "attribute",
+        "name": "data",
+        "x": 804,
+        "y": 163.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 37,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_7myyaop",
+        "type": "attribute",
+        "name": "vei_placa",
+        "x": 1272,
+        "y": 215.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": true,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 66,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_cj3tqkb",
+        "type": "attribute",
+        "name": "cor",
+        "x": 1176,
+        "y": 189.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 29,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_edvpoq1",
+        "type": "attribute",
+        "name": "mod_codigo",
+        "x": 1278,
+        "y": 522.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": true,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 82,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_ej3g9ft",
+        "type": "attribute",
+        "name": "descricao",
+        "x": 1182,
+        "y": 548.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 67,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_u6pukev",
+        "type": "attribute",
+        "name": "fab_codigo",
+        "x": 1470,
+        "y": 311.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": true,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 76,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_t37f8o8",
+        "type": "attribute",
+        "name": "nome",
+        "x": 1374,
+        "y": 285.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 43,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_9p72ezd",
+        "type": "attribute",
+        "name": "pec_codigo",
+        "x": 798,
+        "y": 522.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": true,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 78,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_g4sl34t",
+        "type": "attribute",
+        "name": "descricao",
+        "x": 750,
+        "y": 548.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 67,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_ssadigk",
+        "type": "attribute",
+        "name": "preco",
+        "x": 702,
+        "y": 574.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 44,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_m8hl8tn",
+        "type": "attribute",
+        "name": "ser_codigo",
+        "x": 990,
+        "y": 522.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": true,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 74,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_zm7m92p",
+        "type": "attribute",
+        "name": "descricao",
+        "x": 942,
+        "y": 548.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 67,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_cxy9gmx",
+        "type": "attribute",
+        "name": "preco",
+        "x": 894,
+        "y": 574.5,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "v",
+        "_dims": {
+          "w": 44,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_2yyx5ll",
+        "type": "relationship",
+        "name": "utiliza",
+        "x": 750,
+        "y": 366,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "attrAlignMode": "left",
+        "attrOrderIds": [
+          "nd_9sibnqi",
+          "nd_81xjf7q"
+        ],
+        "_dims": {
+          "w": 118,
+          "h": 74
+        }
+      },
+      {
+        "id": "nd_9sibnqi",
+        "type": "attribute",
+        "name": "quantidade",
+        "x": 612,
+        "y": 360,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "h",
+        "_dims": {
+          "w": 76,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_81xjf7q",
+        "type": "attribute",
+        "name": "preco",
+        "x": 642,
+        "y": 378,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "h",
+        "_dims": {
+          "w": 44,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_ebfly6a",
+        "type": "relationship",
+        "name": "possui",
+        "x": 942,
+        "y": 366,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "attrAlignMode": "right",
+        "attrOrderIds": [
+          "nd_9l7ogb2",
+          "nd_4n2i42v"
+        ],
+        "_dims": {
+          "w": 118,
+          "h": 74
+        }
+      },
+      {
+        "id": "nd_9l7ogb2",
+        "type": "attribute",
+        "name": "quantidade",
+        "x": 1002,
+        "y": 353,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "h",
+        "_dims": {
+          "w": 76,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_4n2i42v",
+        "type": "attribute",
+        "name": "preco",
+        "x": 1002,
+        "y": 379,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "lineAxis": "h",
+        "_dims": {
+          "w": 44,
+          "h": 22
+        }
+      },
+      {
+        "id": "nd_3paq1ej",
+        "type": "relationship",
+        "name": "gera",
+        "x": 654,
+        "y": 270,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "_dims": {
+          "w": 118,
+          "h": 74
+        }
+      },
+      {
+        "id": "nd_m2mpkf2",
+        "type": "relationship",
+        "name": "contem",
+        "x": 1044,
+        "y": 270,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "_dims": {
+          "w": 118,
+          "h": 74
+        }
+      },
+      {
+        "id": "nd_e9s06mf",
+        "type": "relationship",
+        "name": "possui",
+        "x": 1224,
+        "y": 366,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "_dims": {
+          "w": 118,
+          "h": 74
+        }
+      },
+      {
+        "id": "nd_vcc9c2m",
+        "type": "relationship",
+        "name": "fabrica",
+        "x": 1422,
+        "y": 468,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "partial",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "_dims": {
+          "w": 118,
+          "h": 74
+        }
+      },
+      {
+        "id": "nd_1uxgnsz",
+        "type": "generalization",
+        "name": "Generalização 1",
+        "x": 458,
+        "y": 372,
+        "weak": false,
+        "identifying": false,
+        "attrKind": "simple",
+        "isKey": false,
+        "coverage": "total",
+        "overlap": "disjoint",
+        "noteW": null,
+        "noteH": null,
+        "align": "left",
+        "_dims": {
+          "w": 46,
+          "h": 34
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "ed_75h7q4s",
+        "from": "nd_i1amsy9",
+        "to": "nd_l5028fz",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_km2p1bg",
+        "from": "nd_i1amsy9",
+        "to": "nd_tz0esvu",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_kwovura",
+        "from": "nd_ysujcce",
+        "to": "nd_s2oiagv",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_cumei61",
+        "from": "nd_ysujcce",
+        "to": "nd_1u1kz86",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_tgdymoo",
+        "from": "nd_ysujcce",
+        "to": "nd_jj67xtu",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_slu2e3c",
+        "from": "nd_wuhh6xh",
+        "to": "nd_pf47af7",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_pi9onp1",
+        "from": "nd_wuhh6xh",
+        "to": "nd_9x4acqb",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_ybwuje1",
+        "from": "nd_1hvoff0",
+        "to": "nd_n5rvkff",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_dmqv56k",
+        "from": "nd_1hvoff0",
+        "to": "nd_76301ry",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_to5pee6",
+        "from": "nd_1hvoff0",
+        "to": "nd_6797up2",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_m4nzjsd",
+        "from": "nd_gyip4jv",
+        "to": "nd_7myyaop",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_iwxrf0m",
+        "from": "nd_gyip4jv",
+        "to": "nd_cj3tqkb",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_9b4g0ki",
+        "from": "nd_0kryj7h",
+        "to": "nd_edvpoq1",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_jv2vnr4",
+        "from": "nd_0kryj7h",
+        "to": "nd_ej3g9ft",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_b1co8ol",
+        "from": "nd_3se1lx8",
+        "to": "nd_u6pukev",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_muh58ho",
+        "from": "nd_3se1lx8",
+        "to": "nd_t37f8o8",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_mr7lnbn",
+        "from": "nd_sbd83dh",
+        "to": "nd_9p72ezd",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_nwlcrh5",
+        "from": "nd_sbd83dh",
+        "to": "nd_g4sl34t",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_4jgvblk",
+        "from": "nd_sbd83dh",
+        "to": "nd_ssadigk",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_v2kgr1d",
+        "from": "nd_wduk96g",
+        "to": "nd_m8hl8tn",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_kl7qmrd",
+        "from": "nd_wduk96g",
+        "to": "nd_zm7m92p",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_ngo45x2",
+        "from": "nd_wduk96g",
+        "to": "nd_cxy9gmx",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_qo09jfv",
+        "from": "nd_sbd83dh",
+        "to": "nd_2yyx5ll",
+        "kind": "participation",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_nvz7go7",
+        "from": "nd_1hvoff0",
+        "to": "nd_2yyx5ll",
+        "kind": "participation",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_k5ypmz7",
+        "from": "nd_2yyx5ll",
+        "to": "nd_9sibnqi",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_re91hmy",
+        "from": "nd_2yyx5ll",
+        "to": "nd_81xjf7q",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_f6jzlzh",
+        "from": "nd_wduk96g",
+        "to": "nd_ebfly6a",
+        "kind": "participation",
+        "min": "1",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_5cmvvmd",
+        "from": "nd_1hvoff0",
+        "to": "nd_ebfly6a",
+        "kind": "participation",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_nv84rbf",
+        "from": "nd_ebfly6a",
+        "to": "nd_9l7ogb2",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_fsakisv",
+        "from": "nd_ebfly6a",
+        "to": "nd_4n2i42v",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_sq31sam",
+        "from": "nd_i1amsy9",
+        "to": "nd_3paq1ej",
+        "kind": "participation",
+        "min": "1",
+        "max": "1",
+        "role": ""
+      },
+      {
+        "id": "ed_lnne7ty",
+        "from": "nd_1hvoff0",
+        "to": "nd_3paq1ej",
+        "kind": "participation",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_3seandj",
+        "from": "nd_gyip4jv",
+        "to": "nd_m2mpkf2",
+        "kind": "participation",
+        "min": "1",
+        "max": "1",
+        "role": ""
+      },
+      {
+        "id": "ed_4ha5oax",
+        "from": "nd_1hvoff0",
+        "to": "nd_m2mpkf2",
+        "kind": "participation",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_n9dyuxb",
+        "from": "nd_0kryj7h",
+        "to": "nd_e9s06mf",
+        "kind": "participation",
+        "min": "1",
+        "max": "1",
+        "role": ""
+      },
+      {
+        "id": "ed_54vxbct",
+        "from": "nd_gyip4jv",
+        "to": "nd_e9s06mf",
+        "kind": "participation",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_x9tsc98",
+        "from": "nd_3se1lx8",
+        "to": "nd_vcc9c2m",
+        "kind": "participation",
+        "min": "1",
+        "max": "1",
+        "role": ""
+      },
+      {
+        "id": "ed_0jtxmu4",
+        "from": "nd_0kryj7h",
+        "to": "nd_vcc9c2m",
+        "kind": "participation",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_xsnvnnh",
+        "from": "nd_i1amsy9",
+        "to": "nd_1uxgnsz",
+        "kind": "plain",
+        "min": "0",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_bs596hm",
+        "from": "nd_1uxgnsz",
+        "to": "nd_ysujcce",
+        "kind": "plain",
+        "min": "1",
+        "max": "N",
+        "role": ""
+      },
+      {
+        "id": "ed_0xgven5",
+        "from": "nd_1uxgnsz",
+        "to": "nd_wuhh6xh",
+        "kind": "plain",
+        "min": "1",
+        "max": "N",
+        "role": ""
+      }
+    ],
+    "nextIds": {
+      "entity": 1,
+      "relationship": 1,
+      "attribute": 1,
+      "generalization": 2,
+      "note": 1
+    },
+    "attrAnchorV": 2
+  },
+  "logical": {
+    "projectName": "Oficina Mecânica",
+    "nodes": [
+      {
+        "id": "nd_wh9rhh4",
+        "type": "table",
+        "name": "Cliente",
+        "x": -30,
+        "y": 84,
+        "columns": [
+          {
+            "name": "cli_codigo",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": true,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "IDENTITY",
+                "p1": "",
+                "p2": ""
+              },
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "nome",
+            "dataType": "VARCHAR",
+            "dataSize": "50",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          }
+        ],
+        "_dims": {
+          "w": 170,
+          "h": 76,
+          "cols": [
+            {
+              "name": "cli_codigo",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": true,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "IDENTITY",
+                  "p1": "",
+                  "p2": ""
+                },
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "nome",
+              "dataType": "VARCHAR",
+              "dataSize": "50",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "nd_43t63zf",
+        "type": "table",
+        "name": "PF",
+        "x": -144,
+        "y": 258,
+        "columns": [
+          {
+            "name": "cli_cpf",
+            "dataType": "CHAR",
+            "dataSize": "11",
+            "pk": true,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "cliente_cli_codigo",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": false,
+            "fk": true,
+            "fkTable": "nd_wh9rhh4",
+            "fkColumn": "cli_codigo",
+            "cardChild": {
+              "min": "0",
+              "max": "1"
+            },
+            "cardParent": {
+              "min": "1",
+              "max": "1"
+            },
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "nome",
+            "dataType": "VARCHAR",
+            "dataSize": "50",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "sexo",
+            "dataType": "CHAR",
+            "dataSize": "1",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              },
+              {
+                "name": "CHECK",
+                "p1": "sexo IN ('M', 'F')",
+                "p2": ""
+              }
+            ]
+          }
+        ],
+        "_dims": {
+          "w": 222,
+          "h": 114,
+          "cols": [
+            {
+              "name": "cli_cpf",
+              "dataType": "CHAR",
+              "dataSize": "11",
+              "pk": true,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "cliente_cli_codigo",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": false,
+              "fk": true,
+              "fkTable": "nd_wh9rhh4",
+              "fkColumn": "cli_codigo",
+              "cardChild": {
+                "min": "0",
+                "max": "1"
+              },
+              "cardParent": {
+                "min": "1",
+                "max": "1"
+              },
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "nome",
+              "dataType": "VARCHAR",
+              "dataSize": "50",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "sexo",
+              "dataType": "CHAR",
+              "dataSize": "1",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                },
+                {
+                  "name": "CHECK",
+                  "p1": "sexo IN ('M', 'F')",
+                  "p2": ""
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "nd_z47zi5d",
+        "type": "table",
+        "name": "PJ",
+        "x": 84,
+        "y": 248,
+        "columns": [
+          {
+            "name": "cli_cnpj",
+            "dataType": "CHAR",
+            "dataSize": "14",
+            "pk": true,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "cliente_cli_codigo",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": false,
+            "fk": true,
+            "fkTable": "nd_wh9rhh4",
+            "fkColumn": "cli_codigo",
+            "cardChild": {
+              "min": "0",
+              "max": "1"
+            },
+            "cardParent": {
+              "min": "1",
+              "max": "1"
+            },
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "razaosocial",
+            "dataType": "VARCHAR",
+            "dataSize": "50",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          }
+        ],
+        "_dims": {
+          "w": 222,
+          "h": 95,
+          "cols": [
+            {
+              "name": "cli_cnpj",
+              "dataType": "CHAR",
+              "dataSize": "14",
+              "pk": true,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "cliente_cli_codigo",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": false,
+              "fk": true,
+              "fkTable": "nd_wh9rhh4",
+              "fkColumn": "cli_codigo",
+              "cardChild": {
+                "min": "0",
+                "max": "1"
+              },
+              "cardParent": {
+                "min": "1",
+                "max": "1"
+              },
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "razaosocial",
+              "dataType": "VARCHAR",
+              "dataSize": "50",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "nd_mdzt4e0",
+        "type": "table",
+        "name": "OES",
+        "x": 438,
+        "y": 84,
+        "columns": [
+          {
+            "name": "oes_numero",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": true,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "IDENTITY",
+                "p1": "",
+                "p2": ""
+              },
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "cliente_cli_codigo",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": false,
+            "fk": true,
+            "fkTable": "nd_wh9rhh4",
+            "fkColumn": "cli_codigo",
+            "cardChild": {
+              "min": "0",
+              "max": "N"
+            },
+            "cardParent": {
+              "min": "1",
+              "max": "1"
+            },
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "veiculo_vei_placa",
+            "dataType": "CHAR",
+            "dataSize": "7",
+            "pk": false,
+            "fk": true,
+            "fkTable": "nd_x34qb08",
+            "fkColumn": "vei_placa",
+            "cardChild": {
+              "min": "0",
+              "max": "N"
+            },
+            "cardParent": {
+              "min": "1",
+              "max": "1"
+            },
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "descricao",
+            "dataType": "VARCHAR",
+            "dataSize": "50",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "data",
+            "dataType": "DATE",
+            "dataSize": "",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          }
+        ],
+        "_dims": {
+          "w": 242,
+          "h": 133,
+          "cols": [
+            {
+              "name": "oes_numero",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": true,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "IDENTITY",
+                  "p1": "",
+                  "p2": ""
+                },
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "cliente_cli_codigo",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": false,
+              "fk": true,
+              "fkTable": "nd_wh9rhh4",
+              "fkColumn": "cli_codigo",
+              "cardChild": {
+                "min": "0",
+                "max": "N"
+              },
+              "cardParent": {
+                "min": "1",
+                "max": "1"
+              },
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "veiculo_vei_placa",
+              "dataType": "CHAR",
+              "dataSize": "7",
+              "pk": false,
+              "fk": true,
+              "fkTable": "nd_x34qb08",
+              "fkColumn": "vei_placa",
+              "cardChild": {
+                "min": "0",
+                "max": "N"
+              },
+              "cardParent": {
+                "min": "1",
+                "max": "1"
+              },
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "descricao",
+              "dataType": "VARCHAR",
+              "dataSize": "50",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "data",
+              "dataType": "DATE",
+              "dataSize": "",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "nd_x34qb08",
+        "type": "table",
+        "name": "Veiculo",
+        "x": 856,
+        "y": 84,
+        "columns": [
+          {
+            "name": "vei_placa",
+            "dataType": "CHAR",
+            "dataSize": "7",
+            "pk": true,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "modelo_mod_codigo",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": false,
+            "fk": true,
+            "fkTable": "nd_6hfaosf",
+            "fkColumn": "mod_codigo",
+            "cardChild": {
+              "min": "0",
+              "max": "N"
+            },
+            "cardParent": {
+              "min": "1",
+              "max": "1"
+            },
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "cor",
+            "dataType": "VARCHAR",
+            "dataSize": "20",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          }
+        ],
+        "_dims": {
+          "w": 216,
+          "h": 95,
+          "cols": [
+            {
+              "name": "vei_placa",
+              "dataType": "CHAR",
+              "dataSize": "7",
+              "pk": true,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "modelo_mod_codigo",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": false,
+              "fk": true,
+              "fkTable": "nd_6hfaosf",
+              "fkColumn": "mod_codigo",
+              "cardChild": {
+                "min": "0",
+                "max": "N"
+              },
+              "cardParent": {
+                "min": "1",
+                "max": "1"
+              },
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "cor",
+              "dataType": "VARCHAR",
+              "dataSize": "20",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "nd_6hfaosf",
+        "type": "table",
+        "name": "Modelo",
+        "x": 862,
+        "y": 246,
+        "columns": [
+          {
+            "name": "mod_codigo",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": true,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "IDENTITY",
+                "p1": "",
+                "p2": ""
+              },
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "fabricante_fab_codigo",
+            "dataType": "CHAR",
+            "dataSize": "14",
+            "pk": false,
+            "fk": true,
+            "fkTable": "nd_m2pa140",
+            "fkColumn": "fab_codigo",
+            "cardChild": {
+              "min": "0",
+              "max": "N"
+            },
+            "cardParent": {
+              "min": "1",
+              "max": "1"
+            },
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ],
+            "dataDecimals": ""
+          },
+          {
+            "name": "descricao",
+            "dataType": "VARCHAR",
+            "dataSize": "50",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          }
+        ],
+        "_dims": {
+          "w": 275,
+          "h": 95,
+          "cols": [
+            {
+              "name": "mod_codigo",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": true,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "IDENTITY",
+                  "p1": "",
+                  "p2": ""
+                },
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "fabricante_fab_codigo",
+              "dataType": "CHAR",
+              "dataSize": "14",
+              "pk": false,
+              "fk": true,
+              "fkTable": "nd_m2pa140",
+              "fkColumn": "fab_codigo",
+              "cardChild": {
+                "min": "0",
+                "max": "N"
+              },
+              "cardParent": {
+                "min": "1",
+                "max": "1"
+              },
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ],
+              "dataDecimals": ""
+            },
+            {
+              "name": "descricao",
+              "dataType": "VARCHAR",
+              "dataSize": "50",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "nd_m2pa140",
+        "type": "table",
+        "name": "Fabricante",
+        "x": 862,
+        "y": 414,
+        "columns": [
+          {
+            "name": "fab_codigo",
+            "dataType": "CHAR",
+            "dataSize": "14",
+            "pk": true,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ],
+            "dataDecimals": ""
+          },
+          {
+            "name": "nome",
+            "dataType": "VARCHAR",
+            "dataSize": "50",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          }
+        ],
+        "_dims": {
+          "w": 203,
+          "h": 76,
+          "cols": [
+            {
+              "name": "fab_codigo",
+              "dataType": "CHAR",
+              "dataSize": "14",
+              "pk": true,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ],
+              "dataDecimals": ""
+            },
+            {
+              "name": "nome",
+              "dataType": "VARCHAR",
+              "dataSize": "50",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "nd_cp2aniz",
+        "type": "table",
+        "name": "Peca",
+        "x": 330,
+        "y": 426,
+        "columns": [
+          {
+            "name": "pec_codigo",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": true,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "IDENTITY",
+                "p1": "",
+                "p2": ""
+              },
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "descricao",
+            "dataType": "VARCHAR",
+            "dataSize": "50",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "preco",
+            "dataType": "DECIMAL",
+            "dataSize": "5",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ],
+            "dataDecimals": "2"
+          }
+        ],
+        "_dims": {
+          "w": 176,
+          "h": 95,
+          "cols": [
+            {
+              "name": "pec_codigo",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": true,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "IDENTITY",
+                  "p1": "",
+                  "p2": ""
+                },
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "descricao",
+              "dataType": "VARCHAR",
+              "dataSize": "50",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "preco",
+              "dataType": "DECIMAL",
+              "dataSize": "5",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ],
+              "dataDecimals": "2"
+            }
+          ]
+        }
+      },
+      {
+        "id": "nd_pozdz0p",
+        "type": "table",
+        "name": "Servico",
+        "x": 576,
+        "y": 426,
+        "columns": [
+          {
+            "name": "ser_codigo",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": true,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "IDENTITY",
+                "p1": "",
+                "p2": ""
+              },
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "descricao",
+            "dataType": "VARCHAR",
+            "dataSize": "50",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "preco",
+            "dataType": "DECIMAL",
+            "dataSize": "5",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ],
+            "dataDecimals": "2"
+          }
+        ],
+        "_dims": {
+          "w": 176,
+          "h": 95,
+          "cols": [
+            {
+              "name": "ser_codigo",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": true,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "IDENTITY",
+                  "p1": "",
+                  "p2": ""
+                },
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "descricao",
+              "dataType": "VARCHAR",
+              "dataSize": "50",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "preco",
+              "dataType": "DECIMAL",
+              "dataSize": "5",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ],
+              "dataDecimals": "2"
+            }
+          ]
+        }
+      },
+      {
+        "id": "nd_3ww96yr",
+        "type": "table",
+        "name": "OES_Peca",
+        "x": 328,
+        "y": 256,
+        "columns": [
+          {
+            "name": "peca_pec_codigo",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": true,
+            "fk": true,
+            "fkTable": "nd_cp2aniz",
+            "fkColumn": "pec_codigo",
+            "cardChild": {
+              "min": "0",
+              "max": "N"
+            },
+            "cardParent": {
+              "min": "1",
+              "max": "1"
+            },
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "oes_oes_numero",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": true,
+            "fk": true,
+            "fkTable": "nd_mdzt4e0",
+            "fkColumn": "oes_numero",
+            "cardChild": {
+              "min": "0",
+              "max": "N"
+            },
+            "cardParent": {
+              "min": "1",
+              "max": "1"
+            },
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "quantidade",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "preco",
+            "dataType": "DECIMAL",
+            "dataSize": "5",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ],
+            "dataDecimals": "2"
+          }
+        ],
+        "_dims": {
+          "w": 229,
+          "h": 114,
+          "cols": [
+            {
+              "name": "peca_pec_codigo",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": true,
+              "fk": true,
+              "fkTable": "nd_cp2aniz",
+              "fkColumn": "pec_codigo",
+              "cardChild": {
+                "min": "0",
+                "max": "N"
+              },
+              "cardParent": {
+                "min": "1",
+                "max": "1"
+              },
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "oes_oes_numero",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": true,
+              "fk": true,
+              "fkTable": "nd_mdzt4e0",
+              "fkColumn": "oes_numero",
+              "cardChild": {
+                "min": "0",
+                "max": "N"
+              },
+              "cardParent": {
+                "min": "1",
+                "max": "1"
+              },
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "quantidade",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "preco",
+              "dataType": "DECIMAL",
+              "dataSize": "5",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ],
+              "dataDecimals": "2"
+            }
+          ]
+        }
+      },
+      {
+        "id": "nd_xk1r5qa",
+        "type": "table",
+        "name": "OES_Servico",
+        "x": 578,
+        "y": 256,
+        "columns": [
+          {
+            "name": "servico_ser_codigo",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": true,
+            "fk": true,
+            "fkTable": "nd_pozdz0p",
+            "fkColumn": "ser_codigo",
+            "cardChild": {
+              "min": "0",
+              "max": "N"
+            },
+            "cardParent": {
+              "min": "1",
+              "max": "1"
+            },
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "oes_oes_numero",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": true,
+            "fk": true,
+            "fkTable": "nd_mdzt4e0",
+            "fkColumn": "oes_numero",
+            "cardChild": {
+              "min": "1",
+              "max": "N"
+            },
+            "cardParent": {
+              "min": "1",
+              "max": "1"
+            },
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "quantidade",
+            "dataType": "INT",
+            "dataSize": "",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ]
+          },
+          {
+            "name": "preco",
+            "dataType": "DECIMAL",
+            "dataSize": "5",
+            "pk": false,
+            "fk": false,
+            "fkTable": null,
+            "fkColumn": null,
+            "cardChild": null,
+            "cardParent": null,
+            "constraints": [
+              {
+                "name": "NOT NULL",
+                "p1": "",
+                "p2": ""
+              }
+            ],
+            "dataDecimals": "2"
+          }
+        ],
+        "_dims": {
+          "w": 249,
+          "h": 114,
+          "cols": [
+            {
+              "name": "servico_ser_codigo",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": true,
+              "fk": true,
+              "fkTable": "nd_pozdz0p",
+              "fkColumn": "ser_codigo",
+              "cardChild": {
+                "min": "0",
+                "max": "N"
+              },
+              "cardParent": {
+                "min": "1",
+                "max": "1"
+              },
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "oes_oes_numero",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": true,
+              "fk": true,
+              "fkTable": "nd_mdzt4e0",
+              "fkColumn": "oes_numero",
+              "cardChild": {
+                "min": "1",
+                "max": "N"
+              },
+              "cardParent": {
+                "min": "1",
+                "max": "1"
+              },
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "quantidade",
+              "dataType": "INT",
+              "dataSize": "",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ]
+            },
+            {
+              "name": "preco",
+              "dataType": "DECIMAL",
+              "dataSize": "5",
+              "pk": false,
+              "fk": false,
+              "fkTable": null,
+              "fkColumn": null,
+              "cardChild": null,
+              "cardParent": null,
+              "constraints": [
+                {
+                  "name": "NOT NULL",
+                  "p1": "",
+                  "p2": ""
+                }
+              ],
+              "dataDecimals": "2"
+            }
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "fk_nd_43t63zf_nd_wh9rhh4",
+        "from": "nd_43t63zf",
+        "to": "nd_wh9rhh4",
+        "kind": "fk",
+        "role": "cliente_cli_codigo",
+        "cardChild": {
+          "min": "0",
+          "max": "1"
+        },
+        "cardParent": {
+          "min": "1",
+          "max": "1"
+        }
+      },
+      {
+        "id": "fk_nd_z47zi5d_nd_wh9rhh4",
+        "from": "nd_z47zi5d",
+        "to": "nd_wh9rhh4",
+        "kind": "fk",
+        "role": "cliente_cli_codigo",
+        "cardChild": {
+          "min": "0",
+          "max": "1"
+        },
+        "cardParent": {
+          "min": "1",
+          "max": "1"
+        }
+      },
+      {
+        "id": "fk_nd_mdzt4e0_nd_wh9rhh4",
+        "from": "nd_mdzt4e0",
+        "to": "nd_wh9rhh4",
+        "kind": "fk",
+        "role": "cliente_cli_codigo",
+        "cardChild": {
+          "min": "0",
+          "max": "N"
+        },
+        "cardParent": {
+          "min": "1",
+          "max": "1"
+        }
+      },
+      {
+        "id": "fk_nd_mdzt4e0_nd_x34qb08",
+        "from": "nd_mdzt4e0",
+        "to": "nd_x34qb08",
+        "kind": "fk",
+        "role": "veiculo_vei_placa",
+        "cardChild": {
+          "min": "0",
+          "max": "N"
+        },
+        "cardParent": {
+          "min": "1",
+          "max": "1"
+        }
+      },
+      {
+        "id": "fk_nd_x34qb08_nd_6hfaosf",
+        "from": "nd_x34qb08",
+        "to": "nd_6hfaosf",
+        "kind": "fk",
+        "role": "modelo_mod_codigo",
+        "cardChild": {
+          "min": "0",
+          "max": "N"
+        },
+        "cardParent": {
+          "min": "1",
+          "max": "1"
+        }
+      },
+      {
+        "id": "fk_nd_6hfaosf_nd_m2pa140",
+        "from": "nd_6hfaosf",
+        "to": "nd_m2pa140",
+        "kind": "fk",
+        "role": "fabricante_fab_codigo",
+        "cardChild": {
+          "min": "0",
+          "max": "N"
+        },
+        "cardParent": {
+          "min": "1",
+          "max": "1"
+        }
+      },
+      {
+        "id": "fk_nd_3ww96yr_nd_cp2aniz",
+        "from": "nd_3ww96yr",
+        "to": "nd_cp2aniz",
+        "kind": "fk",
+        "role": "peca_pec_codigo",
+        "cardChild": {
+          "min": "0",
+          "max": "N"
+        },
+        "cardParent": {
+          "min": "1",
+          "max": "1"
+        }
+      },
+      {
+        "id": "fk_nd_3ww96yr_nd_mdzt4e0",
+        "from": "nd_3ww96yr",
+        "to": "nd_mdzt4e0",
+        "kind": "fk",
+        "role": "oes_oes_numero",
+        "cardChild": {
+          "min": "0",
+          "max": "N"
+        },
+        "cardParent": {
+          "min": "1",
+          "max": "1"
+        }
+      },
+      {
+        "id": "fk_nd_xk1r5qa_nd_pozdz0p",
+        "from": "nd_xk1r5qa",
+        "to": "nd_pozdz0p",
+        "kind": "fk",
+        "role": "servico_ser_codigo",
+        "cardChild": {
+          "min": "0",
+          "max": "N"
+        },
+        "cardParent": {
+          "min": "1",
+          "max": "1"
+        }
+      },
+      {
+        "id": "fk_nd_xk1r5qa_nd_mdzt4e0",
+        "from": "nd_xk1r5qa",
+        "to": "nd_mdzt4e0",
+        "kind": "fk",
+        "role": "oes_oes_numero",
+        "cardChild": {
+          "min": "1",
+          "max": "N"
+        },
+        "cardParent": {
+          "min": "1",
+          "max": "1"
+        }
+      }
+    ],
+    "nextIds": {
+      "table": 1,
+      "note": 1
+    }
+  },
+  "physicalSql": "USE master;\nIF DB_ID('Oficina') IS NOT NULL\n   DROP DATABASE Oficina;\nCREATE DATABASE Oficina;\nGO\nUSE Oficina;\nCREATE TABLE Cliente (\n  cli_codigo INT IDENTITY NOT NULL,\n  nome VARCHAR(50) NOT NULL,\n  PRIMARY KEY (cli_codigo)\n);\n\nCREATE TABLE Fabricante (\n  fab_codigo CHAR(14) NOT NULL,\n  nome VARCHAR(50) NOT NULL,\n  PRIMARY KEY (fab_codigo)\n);\n\nCREATE TABLE Peca (\n  pec_codigo INT IDENTITY NOT NULL,\n  descricao VARCHAR(50) NOT NULL,\n  preco DECIMAL(5,2) NOT NULL,\n  PRIMARY KEY (pec_codigo)\n);\n\nCREATE TABLE Servico (\n  ser_codigo INT IDENTITY NOT NULL,\n  descricao VARCHAR(50) NOT NULL,\n  preco DECIMAL(5,2) NOT NULL,\n  PRIMARY KEY (ser_codigo)\n);\n\nCREATE TABLE PF (\n  cli_cpf CHAR(11) NOT NULL,\n  cliente_cli_codigo INT NOT NULL,\n  nome VARCHAR(50) NOT NULL,\n  sexo CHAR(1) NOT NULL CHECK (sexo IN ('M', 'F')),\n  PRIMARY KEY (cli_cpf),\n  FOREIGN KEY (cliente_cli_codigo) REFERENCES Cliente (cli_codigo)\n);\n\nCREATE TABLE PJ (\n  cli_cnpj CHAR(14) NOT NULL,\n  cliente_cli_codigo INT NOT NULL,\n  razaosocial VARCHAR(50) NOT NULL,\n  PRIMARY KEY (cli_cnpj),\n  FOREIGN KEY (cliente_cli_codigo) REFERENCES Cliente (cli_codigo)\n);\n\nCREATE TABLE Modelo (\n  mod_codigo INT IDENTITY NOT NULL,\n  fabricante_fab_codigo CHAR(14) NOT NULL,\n  descricao VARCHAR(50) NOT NULL,\n  PRIMARY KEY (mod_codigo),\n  FOREIGN KEY (fabricante_fab_codigo) REFERENCES Fabricante (fab_codigo)\n);\n\nCREATE TABLE Veiculo (\n  vei_placa CHAR(7) NOT NULL,\n  modelo_mod_codigo INT NOT NULL,\n  cor VARCHAR(20) NOT NULL,\n  PRIMARY KEY (vei_placa),\n  FOREIGN KEY (modelo_mod_codigo) REFERENCES Modelo (mod_codigo)\n);\n\nCREATE TABLE OES (\n  oes_numero INT IDENTITY NOT NULL,\n  cliente_cli_codigo INT NOT NULL,\n  veiculo_vei_placa CHAR(7) NOT NULL,\n  descricao VARCHAR(50) NOT NULL,\n  data DATE NOT NULL,\n  PRIMARY KEY (oes_numero),\n  FOREIGN KEY (cliente_cli_codigo) REFERENCES Cliente (cli_codigo),\n  FOREIGN KEY (veiculo_vei_placa) REFERENCES Veiculo (vei_placa)\n);\n\nCREATE TABLE OES_Peca (\n  peca_pec_codigo INT NOT NULL,\n  oes_oes_numero INT NOT NULL,\n  quantidade INT NOT NULL,\n  preco DECIMAL(5,2) NOT NULL,\n  PRIMARY KEY (peca_pec_codigo, oes_oes_numero),\n  FOREIGN KEY (peca_pec_codigo) REFERENCES Peca (pec_codigo),\n  FOREIGN KEY (oes_oes_numero) REFERENCES OES (oes_numero)\n);\n\nCREATE TABLE OES_Servico (\n  servico_ser_codigo INT NOT NULL,\n  oes_oes_numero INT NOT NULL,\n  quantidade INT NOT NULL,\n  preco DECIMAL(5,2) NOT NULL,\n  PRIMARY KEY (servico_ser_codigo, oes_oes_numero),\n  FOREIGN KEY (servico_ser_codigo) REFERENCES Servico (ser_codigo),\n  FOREIGN KEY (oes_oes_numero) REFERENCES OES (oes_numero)\n);",
+  "dictionary": [
+    [
+      "Cliente",
+      "cli_codigo",
+      "INT",
+      "PK\nIDENTITY\nNOT NULL",
+      "",
+      "PF(cli_cpf)\nPJ(cli_cnpj)\nOES(oes_numero)"
+    ],
+    [
+      "",
+      "nome",
+      "VARCHAR(50)",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "PF",
+      "cli_cpf",
+      "CHAR(11)",
+      "PK\nNOT NULL",
+      "",
+      ""
+    ],
+    [
+      "",
+      "cliente_cli_codigo",
+      "INT",
+      "FK\nNOT NULL",
+      "",
+      "Cliente(cli_codigo)"
+    ],
+    [
+      "",
+      "nome",
+      "VARCHAR(50)",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "",
+      "sexo",
+      "CHAR(1)",
+      "NOT NULL\nCHECK(sexo IN ('M', 'F'))",
+      "",
+      ""
+    ],
+    [
+      "PJ",
+      "cli_cnpj",
+      "CHAR(14)",
+      "PK\nNOT NULL",
+      "",
+      ""
+    ],
+    [
+      "",
+      "cliente_cli_codigo",
+      "INT",
+      "FK\nNOT NULL",
+      "",
+      "Cliente(cli_codigo)"
+    ],
+    [
+      "",
+      "razaosocial",
+      "VARCHAR(50)",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "OES",
+      "oes_numero",
+      "INT",
+      "PK\nIDENTITY\nNOT NULL",
+      "",
+      "OES_Peca(peca_pec_codigo, oes_oes_numero)\nOES_Servico(servico_ser_codigo, oes_oes_numero)"
+    ],
+    [
+      "",
+      "cliente_cli_codigo",
+      "INT",
+      "FK\nNOT NULL",
+      "",
+      "Cliente(cli_codigo)"
+    ],
+    [
+      "",
+      "veiculo_vei_placa",
+      "CHAR(7)",
+      "FK\nNOT NULL",
+      "",
+      "Veiculo(vei_placa)"
+    ],
+    [
+      "",
+      "descricao",
+      "VARCHAR(50)",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "",
+      "data",
+      "DATE",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "Veiculo",
+      "vei_placa",
+      "CHAR(7)",
+      "PK\nNOT NULL",
+      "",
+      "OES(oes_numero)"
+    ],
+    [
+      "",
+      "modelo_mod_codigo",
+      "INT",
+      "FK\nNOT NULL",
+      "",
+      "Modelo(mod_codigo)"
+    ],
+    [
+      "",
+      "cor",
+      "VARCHAR(20)",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "Modelo",
+      "mod_codigo",
+      "INT",
+      "PK\nIDENTITY\nNOT NULL",
+      "",
+      "Veiculo(vei_placa)"
+    ],
+    [
+      "",
+      "fabricante_fab_codigo",
+      "CHAR(14)",
+      "FK\nNOT NULL",
+      "",
+      "Fabricante(fab_codigo)"
+    ],
+    [
+      "",
+      "descricao",
+      "VARCHAR(50)",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "Fabricante",
+      "fab_codigo",
+      "CHAR(14)",
+      "PK\nNOT NULL",
+      "",
+      "Modelo(mod_codigo)"
+    ],
+    [
+      "",
+      "nome",
+      "VARCHAR(50)",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "Peca",
+      "pec_codigo",
+      "INT",
+      "PK\nIDENTITY\nNOT NULL",
+      "",
+      "OES_Peca(peca_pec_codigo, oes_oes_numero)"
+    ],
+    [
+      "",
+      "descricao",
+      "VARCHAR(50)",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "",
+      "preco",
+      "DECIMAL(5,2)",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "Servico",
+      "ser_codigo",
+      "INT",
+      "PK\nIDENTITY\nNOT NULL",
+      "",
+      "OES_Servico(servico_ser_codigo, oes_oes_numero)"
+    ],
+    [
+      "",
+      "descricao",
+      "VARCHAR(50)",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "",
+      "preco",
+      "DECIMAL(5,2)",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "OES_Peca",
+      "peca_pec_codigo",
+      "INT",
+      "PK\nFK\nNOT NULL",
+      "",
+      "Peca(pec_codigo)"
+    ],
+    [
+      "",
+      "oes_oes_numero",
+      "INT",
+      "PK\nFK\nNOT NULL",
+      "",
+      "OES(oes_numero)"
+    ],
+    [
+      "",
+      "quantidade",
+      "INT",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "",
+      "preco",
+      "DECIMAL(5,2)",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "OES_Servico",
+      "servico_ser_codigo",
+      "INT",
+      "PK\nFK\nNOT NULL",
+      "",
+      "Servico(ser_codigo)"
+    ],
+    [
+      "",
+      "oes_oes_numero",
+      "INT",
+      "PK\nFK\nNOT NULL",
+      "",
+      "OES(oes_numero)"
+    ],
+    [
+      "",
+      "quantidade",
+      "INT",
+      "NOT NULL",
+      "",
+      ""
+    ],
+    [
+      "",
+      "preco",
+      "DECIMAL(5,2)",
+      "NOT NULL",
+      "",
+      ""
+    ]
+  ]
+}
