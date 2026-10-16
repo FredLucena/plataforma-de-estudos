@@ -516,7 +516,7 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
   var REPO_FIXO = 'FredLucena/plataforma-de-estudos';
   var DIR_FIXO = 'explorador';   // pasta deste arquivo dentro do repositório
   var GH_MOTIVO = '';
-  var OCULTAR = ['index.html'];   // arquivos da raiz que não aparecem na árvore
+  var OCULTAR = ['*.html'];   // arquivos da raiz que não aparecem na árvore
   function cleanPath(p) {
     var parts = String(p || '').split('/').filter(function (s) { return s && s !== '.' && s !== '..'; });
     return parts.join('/');
