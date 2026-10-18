@@ -318,6 +318,7 @@ $('#btnJoin').onclick = () => {
 };
 function connect(retry){
   const name = $('#stuName').value.trim();
+  S.kicked = false;
   if(!retry) $('#stuErr').textContent = 'Conectando…';
   $('#btnJoin').disabled = true;
   try{ S.peer && S.peer.destroy(); }catch(e){}
@@ -330,7 +331,7 @@ function connect(retry){
     S.conn = conn;
     conn.on('open', () => conn.send({t:'join', name}));
     conn.on('data', d => { clearTimeout(to); onStudentData(d); });
-    conn.on('close', () => { if(S.joined) stuMsg('Conexão encerrada.', 'Peça ao professor para abrir a sala novamente.'); });
+    conn.on('close', () => { if(S.joined && !S.kicked) stuMsg('Conexão encerrada.', 'Peça ao professor para abrir a sala novamente.'); });
   });
 }
 function stuShapes(enabled, sel){
@@ -370,6 +371,10 @@ function onStudentData(d){
   } else if(d.t === 'final'){
     stuShapes(false);
     stuMsg(`Você ficou em ${d.rank}º lugar!`, `${d.score} pontos. Obrigado por participar!`);
+  } else if(d.t === 'kicked'){
+    S.kicked = true; S.joined = false; stuShapes(false); stuBar(0);
+    stuMsg('Você foi desconectado pelo professor.', 'Se foi engano, escaneie o QR Code novamente.');
+    try{ S.peer && S.peer.destroy(); }catch(e){}
   } else if(d.t === 'closed'){
     stuShapes(false); stuBar(0);
     stuMsg('O professor encerrou a sala.', '');

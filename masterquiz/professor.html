@@ -71,6 +71,7 @@ textarea{resize:vertical;min-height:54px}
 .link{font-size:.8rem;word-break:break-all;color:var(--muted)}
 .warn{background:#fff4d6;color:#6b4a00;border-radius:10px;padding:8px 12px;font-size:.85rem}
 .players{display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;overflow:auto;margin-top:10px}
+.kick{margin-left:10px;border:0;background:transparent;color:inherit;opacity:.55;font-size:1rem;font-weight:800;cursor:pointer;padding:0 2px;line-height:1}.kick:hover{opacity:1;color:#e0443e}
 .chip{background:var(--field);border:2px solid var(--border);border-radius:999px;padding:8px 16px;font-weight:700;animation:pop .35s}
 @keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
 /* question */
@@ -815,9 +816,18 @@ function renderLobby(){
   if(!H) return;
   const on = online();
   $('#plCount').textContent = on.length;
-  $('#plList').innerHTML = on.map(p => `<div class="chip">${esc(p.name)}</div>`).join('') || '<span class="link">Aguardando alunos…</span>';
+  $('#plList').innerHTML = on.map(p => `<div class="chip">${esc(p.name)}<button class="kick" data-id="${esc(p.conn.peer)}" title="Desconectar ${esc(p.name)}" aria-label="Desconectar ${esc(p.name)}">✕</button></div>`).join('') || '<span class="link">Aguardando alunos…</span>';
   $('#btnStart').disabled = !on.length || H.phase !== 'lobby';
 }
+$('#plList').addEventListener('click', e => {
+  const b = e.target.closest('.kick'); if(!b || !H) return;
+  const p = H.players.get(b.dataset.id); if(!p) return;
+  if(!confirm('Desconectar ' + p.name + ' da sala?')) return;
+  send(p.conn, {t:'kicked'});
+  H.players.delete(b.dataset.id);
+  setTimeout(() => { try{ p.conn.close(); }catch(e){} }, 300);
+  renderLobby(); updateCount();
+});
 function updateCount(){
   if(!H || H.phase !== 'question') return;
   const on = online();
