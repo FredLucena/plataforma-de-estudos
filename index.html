@@ -71,6 +71,9 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,5.2vw,3.7re
 .copy li::before{content:"";position:absolute;left:0;top:.62em;width:8px;height:8px;background:currentColor;opacity:.75;border-radius:2px}
 .btn{display:inline-block;background:#fff;color:var(--ink);font-weight:700;text-decoration:none;padding:14px 26px;border-radius:12px}
 .btn:hover{background:var(--folder)}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn.alt{background:transparent;color:#fff;border:2px solid #fff;padding:12px 24px}
+.btn.alt:hover{background:#fff;color:var(--ink)}
 .art svg{width:100%;height:auto;display:block}
 .art text{font-family:var(--body)}
 
@@ -112,7 +115,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
       </div>
       <ul class="menu" id="ferramentas" aria-label="Escolha uma ferramenta">
         <li><a class="m-der" href="#der-facil"><i aria-hidden="true"></i>DER Fácil<small>Modelagem de dados</small></a></li>
-        <li><a class="m-quiz" href="#master-quiz"><i aria-hidden="true"></i>Master Quiz<small>Quiz ao vivo</small></a></li>
+        <li><a class="m-quiz" href="#master-quiz"><i aria-hidden="true"></i>Master Quiz<small>Quiz ao vivo, para professor e aluno</small></a></li>
         <li><a class="m-exp" href="#explorador"><i aria-hidden="true"></i>Explorador<small>Arquivos compartilhados</small></a></li>
         <li><a class="m-clock" href="#relogio"><i aria-hidden="true"></i>Horário de Prova<small>Hora em tela inteira</small></a></li>
       </ul>
@@ -173,7 +176,10 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
         <li>Pódio com os três primeiros colocados no final</li>
         <li>Os quizzes ficam no seu computador, sem armazenamento em servidor</li>
       </ul>
-      <a class="btn" href="https://fredlucena.com.br/masterquiz/professor.html">Abrir o Master Quiz</a>
+      <div class="btns">
+        <a class="btn" href="https://fredlucena.com.br/masterquiz/professor.html">Versão do professor</a>
+        <a class="btn alt" href="https://fredlucena.com.br/masterquiz/aluno.html">Versão do aluno</a>
+      </div>
     </div>
     <div class="art">
       <svg viewBox="0 0 440 280" role="img" aria-label="Tela de pergunta com quatro alternativas: quadrado, triângulo, círculo e losango">
