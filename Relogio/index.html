@@ -13,6 +13,10 @@
     --accent: #2f6fed;
     --border: #dde2ec;
     --shadow: 0 6px 24px rgba(20, 30, 60, .08);
+    /* --z = zoom do navegador (Ctrl + scroll), calculado em JS; 1 = zoom normal */
+    --z: 1;
+    --vw: calc(1vw * var(--z));
+    --vh: calc(1vh * var(--z));
   }
   :root[data-theme="dark"] {
     --bg: #0f1420;
@@ -27,31 +31,26 @@
   body {
     margin: 0;
     min-height: 100vh;
+    min-height: 100dvh;
     background: var(--bg);
     color: var(--text);
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px 16px 48px;
+    padding: calc(2 * var(--vh)) calc(3 * var(--vw));
     transition: background .25s, color .25s;
   }
+  /* Tudo é dimensionado pela largura (vw) e altura (vh) da janela,
+     então ao maximizar o navegador a página se ajusta e mostra todas as informações. */
   .topbar {
     width: 100%;
-    max-width: 960px;
+    max-width: 1800px;
     display: flex;
     justify-content: flex-end;
     gap: 8px;
   }
-  /* Tela inteira: conteúdo ocupa toda a tela */
-  :root.cheia body { padding: 16px 24px; }
-  :root.cheia main { max-width: none; flex: 1; justify-content: center; gap: 4vh; margin-top: 0; }
-  :root.cheia .topbar { max-width: none; }
-  :root.cheia #titulo { font-size: clamp(2rem, 6vw, 5rem); }
-  :root.cheia #relogio { font-size: clamp(4rem, 24vw, 22rem); }
-  :root.cheia .horas { max-width: 1400px; }
-  :root.cheia .card input[type="time"] { font-size: clamp(1.9rem, 4vw, 3.5rem); }
-  :root.cheia .dica { display: none; }
+  .topbar button { font-size: min(calc(1.6 * var(--vw)), calc(2.4 * var(--vh))); padding: .4em .9em; }
   button {
     font: inherit;
     cursor: pointer;
@@ -65,33 +64,34 @@
   button:hover { border-color: var(--accent); }
   main {
     width: 100%;
-    max-width: 960px;
+    max-width: 1800px;
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 28px;
-    margin-top: 12px;
+    justify-content: center;
+    gap: calc(2.5 * var(--vh));
   }
   #titulo {
     width: 100%;
     text-align: center;
-    font-size: clamp(1.6rem, 4.5vw, 3rem);
+    font-size: min(calc(5 * var(--vw)), calc(7.5 * var(--vh)));
     font-weight: 700;
     color: var(--text);
     background: transparent;
     border: 2px dashed transparent;
     border-radius: 12px;
-    padding: 8px 12px;
+    padding: .1em .4em;
     outline: none;
   }
   #titulo:hover, #titulo:focus { border-color: var(--border); }
   #titulo::placeholder { color: var(--muted); }
-  .dica { margin: -18px 0 0; font-size: .8rem; color: var(--muted); }
+  .dica { margin: calc(-1.5 * var(--vh)) 0 0; font-size: min(calc(1.4 * var(--vw)), calc(2 * var(--vh))); color: var(--muted); }
   #relogio {
     font-family: ui-monospace, "SF Mono", Consolas, "Courier New", monospace;
     font-variant-numeric: tabular-nums;
     font-weight: 700;
-    font-size: clamp(3.5rem, 18vw, 11rem);
+    font-size: min(calc(14 * var(--vw)), calc(21 * var(--vh)));
     line-height: 1;
     letter-spacing: .02em;
     color: var(--accent);
@@ -102,40 +102,38 @@
     box-shadow: var(--shadow);
   }
   #data {
-    margin-top: -12px;
-    font-size: clamp(1.2rem, 4vw, 2.2rem);
+    font-size: min(calc(3.5 * var(--vw)), calc(5 * var(--vh)));
     font-weight: 600;
     color: var(--muted);
     text-align: center;
   }
-  :root.cheia #data { font-size: clamp(1.6rem, 4.5vw, 4rem); margin-top: 0; }
   .horas {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: calc(1.5 * var(--vw));
   }
   .card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 18px;
-    padding: 18px;
+    padding: calc(1.6 * var(--vh)) calc(1.6 * var(--vw));
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: calc(1.2 * var(--vh));
   }
-  .card label { font-weight: 600; color: var(--muted); font-size: .95rem; }
+  .card label { font-weight: 600; color: var(--muted); font-size: min(calc(1.8 * var(--vw)), calc(2.8 * var(--vh))); }
   .card input[type="time"] {
     font: inherit;
-    font-size: 1.9rem;
+    font-size: min(calc(4.5 * var(--vw)), calc(7 * var(--vh)));
     font-weight: 600;
     text-align: center;
     color: var(--text);
     background: transparent;
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 8px;
+    padding: .1em;
     width: 100%;
     color-scheme: light;
   }
@@ -143,15 +141,16 @@
   .card input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
   .campo { position: relative; display: flex; gap: 8px; align-items: center; }
   .campo input { flex: 1; min-width: 0; }
-  .relogio-btn { padding: 8px 12px; border-radius: 12px; font-size: 1.4rem; line-height: 1; }
+  .relogio-btn { padding: .3em .5em; border-radius: 12px; font-size: min(calc(3 * var(--vw)), calc(5 * var(--vh))); line-height: 1; }
   .janela {
-    position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 10;
+    position: absolute; bottom: calc(100% + 8px); left: 0; right: 0; z-index: 10;
+    font-size: 16px;
     background: var(--card); border: 1px solid var(--border); border-radius: 16px;
     box-shadow: var(--shadow); padding: 12px;
   }
   .janela[hidden] { display: none; }
   .colunas { display: flex; gap: 8px; }
-  .col { flex: 1; height: 180px; overflow-y: auto; position: relative; display: flex; flex-direction: column; gap: 4px; }
+  .col { flex: 1; height: min(180px, 28vh); overflow-y: auto; position: relative; display: flex; flex-direction: column; gap: 4px; }
   .col button { border-radius: 8px; padding: 6px; border-color: transparent; }
   .col button.sel { background: var(--accent); border-color: var(--accent); color: #fff; }
   .acoes { display: flex; gap: 8px; margin-top: 10px; }
@@ -193,6 +192,17 @@
   const pad = n => String(n).padStart(2, "0");
   const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
   const ler = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+
+  // Zoom do navegador (Ctrl + scroll): as unidades vw/vh compensam o zoom,
+  // então medimos a mudança e aplicamos de volta para o relógio acompanhar.
+  function ajustarZoom() {
+    const dpr = window.devicePixelRatio || 1;
+    let base = parseFloat(ler("dpr_base"));
+    if (!base) { base = dpr; guardar("dpr_base", String(base)); }
+    document.documentElement.style.setProperty("--z", (dpr / base).toFixed(3));
+  }
+  ajustarZoom();
+  window.addEventListener("resize", ajustarZoom);
 
   // Relógio
   function atualizar() {
