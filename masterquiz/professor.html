@@ -75,7 +75,7 @@ textarea{resize:vertical;min-height:54px}
 .chip{background:var(--field);border:2px solid var(--border);border-radius:999px;padding:8px 16px;font-weight:700;animation:pop .35s}
 @keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
 /* question */
-.qwrap{display:grid;grid-template-columns:1fr 300px;gap:18px;padding:18px;flex:1;min-height:0}
+.qwrap{display:grid;grid-template-rows:minmax(0,1fr);grid-template-columns:minmax(0,1fr) 300px;gap:18px;padding:18px;flex:1;min-height:0}
 @media(max-width:900px){.qwrap{grid-template-columns:1fr}}
 .qmain{display:flex;flex-direction:column;gap:14px;min-height:0}
 .qtop{display:flex;align-items:center;gap:14px}
@@ -83,12 +83,12 @@ textarea{resize:vertical;min-height:54px}
 .tbarw{flex:1;height:14px;background:var(--border);border-radius:99px;overflow:hidden}
 #tBar{height:100%;width:100%;background:linear-gradient(90deg,#26a65b,#e6b020,#e0443e);background-size:300% 100%;border-radius:99px;transition:width .1s linear}
 #tNum{font-size:1.8rem;font-weight:900;min-width:2ch;text-align:right}
-.qtext{font-size:clamp(1.3rem,3.2vw,2.4rem);font-weight:800;text-align:center;padding:18px;flex:0 0 auto}
-.answers{display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1}
+.qtext{font-size:calc(clamp(1.3rem,3.2vw,2.4rem)*var(--k,1));overflow-wrap:anywhere;font-weight:800;text-align:center;padding:18px;flex:0 0 auto}
+.answers{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(0,1fr);gap:14px;flex:1;min-height:0}
 @media(max-width:600px){.answers{grid-template-columns:1fr}}
-.ans{position:relative;background:var(--c);color:#fff;border-radius:14px;display:flex;align-items:center;gap:14px;padding:14px 18px;font-size:clamp(1rem,2.2vw,1.5rem);font-weight:700;min-height:90px;transition:opacity .3s,transform .3s}
-.ans svg{width:48px;height:48px;flex:none;fill:#fff}
-.ans span{flex:1}
+.ans{position:relative;background:var(--c);color:#fff;border-radius:14px;display:flex;align-items:center;gap:14px;padding:14px 18px;font-size:calc(clamp(1rem,2.2vw,1.5rem)*var(--k,1));font-weight:700;min-height:calc(90px*var(--k,1));overflow:hidden;transition:opacity .3s,transform .3s}
+.ans svg{width:calc(48px*var(--k,1));height:calc(48px*var(--k,1));flex:none;fill:#fff}
+.ans span{flex:1;min-width:0;overflow-wrap:anywhere}
 .ans .cnt{background:rgba(0,0,0,.3);padding:4px 12px;border-radius:99px;font-size:1rem;display:none}
 .rev .ans{opacity:.3}
 .rev .ans.ok{opacity:1;transform:scale(1.03);box-shadow:0 0 0 5px #fff,0 0 28px 8px rgba(255,255,255,.5)}
@@ -796,10 +796,19 @@ function dropPlayer(conn){
 function onHostData(conn, d){
   if(!H || !d) return;
   if(d.t === 'join'){
+    const dev = String(d.dev || '').slice(0, 64); let carry = null;
+    if(dev){
+      for(const [k, pl] of [...H.players]){
+        if(pl.dev !== dev || k === conn.peer) continue;
+        if(pl.online && pl.conn && pl.conn.open){ send(conn, {t:'dup'}); setTimeout(() => { try{ conn.close(); }catch(e){} }, 300); return; }
+        carry = pl; H.players.delete(k);
+      }
+    }
     let name = String(d.name || 'Aluno').trim().slice(0, 20) || 'Aluno', base = name, n = 2;
     const names = [...H.players.values()].map(p => p.name.toLowerCase());
     while(names.includes(name.toLowerCase())) name = base + ' ' + (n++);
-    H.players.set(conn.peer, {name, score:0, conn, online:true, ans:null, ms:0, gained:0, right:false});
+    if(carry) name = carry.name;
+    H.players.set(conn.peer, {name, dev, score:carry ? carry.score : 0, conn, online:true, ans:null, ms:0, gained:0, right:false});
     send(conn, {t:'joined', theme:H.quiz.theme, name});
     if(H.phase === 'question') send(conn, {t:'question', n:H.qi + 1, total:H.quiz.questions.length, left:Math.max(0, H.timeMs - (Date.now() - H.t0))});
     renderLobby(); updateCount();
@@ -834,6 +843,28 @@ function updateCount(){
   $('#qCount').textContent = on.filter(p => p.ans !== null).length;
   $('#qTotal').textContent = on.length;
 }
+/* ajusta textos da pergunta e das respostas para caberem na tela */
+function fitQuestion(){
+  const v = $('#vQuestion'); if(!v || !v.classList.contains('on')) return;
+  const qm = $('#qMain'), qt = $('#qText');
+  const bad = () => {
+    const lim = document.querySelector('main').getBoundingClientRect().bottom;
+    const els = [...v.querySelectorAll('.ans')];
+    return qm.scrollHeight > qm.clientHeight + 1 || qt.scrollHeight > qt.clientHeight + 1 ||
+      els.some(e => e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1) ||
+      (els.length > 0 && els[els.length - 1].getBoundingClientRect().bottom > lim + 1);
+  };
+  v.style.setProperty('--k', 1);
+  if(!bad()) return;
+  let lo = 0.25, hi = 1;
+  v.style.setProperty('--k', lo);
+  for(let i = 0; i < 9; i++){
+    const mid = (lo + hi) / 2; v.style.setProperty('--k', mid);
+    if(bad()) hi = mid; else lo = mid;
+  }
+  v.style.setProperty('--k', lo);
+}
+addEventListener('resize', fitQuestion);
 $('#btnClose').onclick = () => { closeHost(); show('vHome'); };
 function closeHost(){
   if(!H) return;
@@ -861,6 +892,7 @@ function startQuestion(i){
   $('#tBar').style.width = '100%';
   $('#tNum').textContent = Math.round(H.timeMs / 1000);
   show('vQuestion');
+  fitQuestion(); requestAnimationFrame(fitQuestion);
   updateCount();
   broadcast({t:'question', n:i + 1, total:H.quiz.questions.length, left:H.timeMs});
   sStart();

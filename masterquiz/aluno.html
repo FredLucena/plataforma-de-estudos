@@ -308,6 +308,13 @@ $('#btnManual').onclick = () => {
 };
 $('#manualRoom').addEventListener('keydown', e => { if(e.key === 'Enter') $('#btnManual').click(); });
 $('#stuName').addEventListener('keydown', e => { if(e.key === 'Enter') $('#btnJoin').click(); });
+function getDev(){
+  try{
+    let v = localStorage.getItem('masterquiz.dev');
+    if(!v){ v = 'd' + Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem('masterquiz.dev', v); }
+    return v;
+  }catch(e){ return S.dev || (S.dev = 'd' + Math.random().toString(36).slice(2)); }
+}
 $('#btnJoin').onclick = () => {
   const name = $('#stuName').value.trim();
   if(!name){ $('#stuErr').textContent = 'Digite seu nome.'; return; }
@@ -328,7 +335,7 @@ function connect(retry){
   peer.on('open', () => {
     const conn = peer.connect(S.room, {reliable:true});
     S.conn = conn;
-    conn.on('open', () => conn.send({t:'join', name}));
+    conn.on('open', () => conn.send({t:'join', name, dev:getDev()}));
     conn.on('data', d => { clearTimeout(to); onStudentData(d); });
     conn.on('close', () => { if(S.joined && !S.kicked) stuMsg('Conexão encerrada.', 'Peça ao professor para abrir a sala novamente.'); });
   });
@@ -370,6 +377,10 @@ function onStudentData(d){
   } else if(d.t === 'final'){
     stuShapes(false);
     stuMsg(`Você ficou em ${d.rank}º lugar!`, `${d.score} pontos. Obrigado por participar!`);
+  } else if(d.t === 'dup'){
+    S.joined = false; $('#btnJoin').disabled = false;
+    $('#stuErr').textContent = 'Este equipamento já está conectado a esta sala.';
+    try{ S.peer && S.peer.destroy(); }catch(e){}
   } else if(d.t === 'kicked'){
     S.kicked = true; S.joined = false; stuShapes(false); stuBar(0);
     stuMsg('Você foi desconectado pelo professor.', 'Se foi engano, escaneie o QR Code novamente.');
