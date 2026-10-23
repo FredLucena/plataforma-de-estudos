@@ -1,0 +1,158 @@
+TEMA: Ciência de Dados
+
+1. O que indicam as medidas de tendência central?
+a) O grau de variação e a dispersão dos dados.
+*b) O ponto central ou a localização típica de um conjunto de dados.
+c) Os valores atípicos que se afastam da média.
+d) A divisão dos dados em cem partes iguais.
+TEMPO: 20
+2. Qual medida representa o valor do meio em dados ordenados?
+*a) Mediana.
+b) Amplitude.
+c) Variância.
+d) Desvio padrão.
+TEMPO: 20
+
+
+3. Como são chamados os valores que se destacam significativamente do restante?
+a) Quartis.
+*b) Outliers.
+c) Decis.
+d) Ramos.
+TEMPO: 20
+
+
+4. Qual medida de dispersão é a diferença entre o maior e o menor valor?
+a) Variância.
+b) Desvio padrão.
+*c) Amplitude.
+d) Coeficiente de variação.
+TEMPO: 20
+
+
+5. O que mede a variância em um conjunto de dados?
+*a) A dispersão dos dados em relação à média.
+b) A proporção de categorias em um gráfico de pizza.
+c) O ponto exato de equilíbrio aritmético.
+d) A frequência máxima de repetição de um valor.
+TEMPO: 20
+
+
+6. O desvio padrão é obtido tirando-se qual operação da variância?
+a) A soma total dos elementos.
+b) A divisão pelo número de elementos menos um.
+c) A multiplicação pelo coeficiente de variação.
+*d) A raiz quadrada.
+TEMPO: 20
+
+
+7. O que indica o coeficiente de variação (Cv)?
+a) Apenas a média aritmética ponderada.
+*b) A dispersão relativa dos dados em relação à média.
+c) O valor exato do terceiro quartil.
+d) A quantidade de outliers presentes na amostra.
+TEMPO: 20
+
+
+8. Como são chamadas as medidas que dividem os dados em partes iguais, como quartis e decis?
+a) Medidas de tendência central.
+*b) Separatrizes ou medidas de posição.
+c) Medidas de regressão linear.
+d) Gráficos de dispersão.
+TEMPO: 20
+
+
+9. Em quantos partes iguais os decis dividem um conjunto de dados?
+a) Duas partes.
+b) Quatro partes.
+*c) Dez partes.
+d) Cem partes.
+TEMPO: 20
+
+
+10. Qual tipo de gráfico utiliza colunas justapostas (coladas) para variáveis contínuas?
+*a) Histograma.
+b) Gráfico de colunas.
+c) Gráfico de setores.
+d) Gráfico de dispersão.
+TEMPO: 20
+
+
+11. Qual gráfico é ideal para representar partes de um todo ou proporções?
+a) Diagrama de ramos e folhas.
+b) Histograma.
+*c) Gráfico de setores (pizza).
+d) Gráfico de linhas.
+TEMPO: 20
+
+
+12. O que mostra o diagrama de caixa (boxplot)?
+a) Apenas a média e a moda dos dados.
+*b) A distribuição através de quartis, mediana e outliers.
+c) A regressão polinomial de segunda ordem.
+d) A frequência acumulada de Pareto.
+TEMPO: 20
+
+
+13. Qual ferramenta gráfica baseia-se na regra 80/20 para priorizar problemas?
+a) Gráfico de dispersão.
+*b) Gráfico de Pareto.
+c) Gráfico de linhas.
+d) Diagrama de pontos.
+TEMPO: 20
+
+
+14. O que representam os ramos em um diagrama de ramos e folhas?
+a) As unidades dos números.
+*b) As partes mais significativas, como dezenas ou centenas.
+c) Os valores atípicos absolutos.
+d) As frequências acumuladas percentuais.
+TEMPO: 20
+
+
+15. Qual técnica estatística modela a relação entre uma variável dependente e preditoras?
+a) Mediana ponderada.
+*b) Regressão estatística.
+c) Correção de Bessel.
+d) Distribuição amodal.
+TEMPO: 20
+
+
+16. Qual tipo de regressão é utilizada para problemas de classificação binária (sim/não)?
+a) Regressão linear simples.
+b) Regressão linear múltipla.
+*c) Regressão logística.
+d) Regressão polinomial.
+TEMPO: 20
+
+
+17. O que caracteriza um conjunto de dados amodal?
+a) Possui apenas uma moda definida.
+b) Possui duas ou mais modas.
+*c) Todos os valores aparecem a mesma quantidade de vezes.
+d) Não possui média aritmética.
+TEMPO: 20
+
+
+18. O divisor $(n - 1)$ na variância amostral serve para quê?
+a) Aumentar a amplitude total.
+b) Encontrar o primeiro quartil exato.
+*c) Corrigir o viés em uma amostra pequena (Correção de Bessel).
+d) Transformar a variância em moda.
+TEMPO: 20
+
+
+19. Qual eixo em um gráfico de dispersão representa uma observação com duas variáveis quantitativas?
+a) Apenas o eixo vertical fixo.
+*b) As coordenadas correspondentes aos valores das duas variáveis.
+c) Somente o eixo horizontal de categorias.
+d) O somatório das frequências relativas.
+TEMPO: 20
+
+
+20. Qual é a principal diferença visual entre um histograma e um gráfico de colunas?
+a) O histograma usa linhas tracejadas e o de colunas usa pontos.
+*b) O histograma possui colunas justapostas (coladas), enquanto o de colunas possui espaços.
+c) O gráfico de colunas representa variáveis contínuas.
+d) O histograma não possui eixo vertical.
+TEMPO: 20
