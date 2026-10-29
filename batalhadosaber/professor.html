@@ -747,6 +747,104 @@ html.trailzoom{overflow:hidden}
 .bigov.onrank .bigfig .stu{font-size:clamp(1.4rem,8cqw,2.8rem)}
 .bigov.onrank .bigfig .chn{font-size:clamp(1.05rem,5.4cqw,1.8rem)}
 
+/* tela final do professor em tela cheia: ocupa toda a área */
+html.fs #s-final{gap:1.2vh}
+html.fs #s-final>.hero{flex:none; margin:0; display:flex; align-items:baseline; gap:2vw; flex-wrap:wrap}
+html.fs #s-final>.hero h1{font-size:clamp(1.6rem,4.6vh,3rem); margin:0}
+html.fs #s-final>.hero p{margin:0}
+html.fs #s-final>.podium{flex:none; margin:0; min-height:0; height:clamp(150px,27vh,300px); gap:1.6vw}
+html.fs #s-final .pod{max-width:min(24vw,260px)}
+html.fs #s-final .pod .av{--s:clamp(48px,7.5vh,92px) !important}
+html.fs #s-final .pod .nm{font-size:clamp(1rem,2.4vh,1.6rem)}
+html.fs #s-final .pod.p1 .stand{height:clamp(70px,12vh,150px)}
+html.fs #s-final .pod.p2 .stand{height:clamp(50px,8.5vh,105px)}
+html.fs #s-final .pod.p3 .stand{height:clamp(36px,6vh,75px)}
+html.fs #s-final>.split{flex:1 1 0; min-height:0; grid-template-columns:minmax(0,1.6fr) minmax(0,1fr); align-items:stretch}
+html.fs #s-final>.split>.rankbox{overflow:auto; min-height:0; align-content:start}
+html.fs #s-final #tslotF{min-height:0; height:100%}
+html.fs #s-final #tslotF>*{height:100%}
+html.fs #s-final>.actions{flex:none; margin:0}
+html.fs #s-final>.podium{height:auto; flex:none}
+html.fs #s-final .pod.p1 .stand{height:clamp(56px,10vh,130px)}
+html.fs #s-final .pod.p2 .stand{height:clamp(40px,7vh,90px)}
+html.fs #s-final .pod.p3 .stand{height:clamp(30px,5vh,64px)}
+html.fs #s-final .stage.live{min-height:0; height:100%}
+html.fs #s-final #tslotF{overflow:hidden}
+html.fs #s-final .pod .stand{font-size:clamp(1rem,2.8vh,1.8rem); padding-top:4px; box-sizing:border-box}
+html.fs #s-final .pod.p1 .stand{height:clamp(64px,12vh,150px)}
+html.fs #s-final .pod.p2 .stand{height:clamp(52px,9vh,110px)}
+html.fs #s-final .pod.p3 .stand{height:clamp(44px,7vh,80px)}
+
+/* tela inicial do professor em tela cheia: ocupa toda a área */
+html.fs #s-setup{gap:2vh}
+html.fs #s-setup>.hero{flex:none; margin:0}
+html.fs #s-setup>.setup-grid{flex:1 1 0; min-height:0; margin:0; grid-template-rows:minmax(0,1fr); align-items:stretch}
+html.fs #s-setup>.setup-grid>.card{min-height:0; overflow:auto; justify-content:space-evenly; gap:1.4vh}
+html.fs #s-setup>.setup-grid h2{font-size:clamp(1.4rem,3.4vh,2.4rem); margin:0}
+html.fs #s-setup .phase-pick{gap:clamp(8px,2vh,28px); flex:1; align-content:space-evenly}
+html.fs #s-setup .phase-pick .check{font-size:clamp(1rem,2.5vh,1.7rem)}
+html.fs #s-setup .check input{width:clamp(22px,3vh,34px); height:clamp(22px,3vh,34px)}
+html.fs #s-setup .field-row{font-size:clamp(1rem,2.5vh,1.7rem)}
+html.fs #s-setup .field-row select{font-size:inherit; padding:.5em .8em}
+html.fs #s-setup>.setup-grid>.card:nth-child(2) .check{font-size:clamp(1rem,2.5vh,1.7rem)}
+html.fs #s-setup>.setup-grid>.card .muted{font-size:clamp(.95rem,2.2vh,1.5rem); line-height:1.5}
+html.fs #s-setup>.start-row{flex:none; margin:0; padding:clamp(12px,2.4vh,30px) clamp(18px,2vw,40px)}
+html.fs #s-setup>.start-row .rules{font-size:clamp(1rem,2.5vh,1.7rem)}
+html.fs #s-setup>.start-row .btn-lg{font-size:clamp(1.1rem,2.8vh,1.9rem); padding:.7em 1.8em}
+html.fs #s-setup>.hero p{font-size:clamp(1rem,2.4vh,1.6rem)}
+html.fs #btnFullHero{font-size:clamp(1rem,2.4vh,1.5rem)}
+html.fs #s-setup .phase-pick{gap:clamp(4px,1.2vh,20px)}
+html.fs #s-setup .phase-pick .check{font-size:clamp(.95rem,2.2vh,1.6rem)}
+/* relatório e listas longas: rolam dentro da tela cheia */
+html.fs #s-report:not([hidden]){overflow-y:auto; overflow-x:hidden; display:block !important; padding-right:4px}
+html.fs .joinbox,html.fs .lobby>*{min-height:0}
+html.fs .lobby>section:last-child,html.fs .lobby>div:last-child{overflow:auto}
+
+/* tela final: mapa à esquerda; pódio sobre a classificação à direita */
+.finalright{display:flex; flex-direction:column; gap:14px; min-width:0}
+.finalright .podium{margin:0; min-height:0}
+html.fs #s-final>.split{grid-template-columns:minmax(0,1.9fr) minmax(0,1fr); gap:1.6vw}
+html.fs #s-final .finalright{min-height:0; height:100%}
+html.fs #s-final .finalright>.podium{flex:none; height:auto; min-height:0; gap:.8vw}
+html.fs #s-final .finalright .pod{max-width:33%; min-width:0}
+html.fs #s-final .finalright>.rankbox{flex:1 1 0; min-height:0; overflow:auto}
+html.fs #s-final>.hero{display:none}
+/* mapa sem moldura escura: o retângulo tem exatamente o tamanho do mapa */
+html.fs #s-final #tslotF{display:flex; align-items:center; justify-content:center; height:100%; overflow:hidden}
+html.fs #s-final #tslotF>.stage.live{flex:none; height:auto; min-height:0; width:min(100%,calc((100vh - 150px) * 1.8333)); aspect-ratio:1408 / 768; background:none; border-radius:14px}
+html.fs #s-final #tslotF .board{width:100% !important}
+html.fs #s-final #tslotF>*{width:100%; height:100%; display:flex; align-items:center; justify-content:center; min-height:0}
+html.fs #s-final #tslotF .stage.live{flex:none; height:auto; min-height:0; width:min(100%,calc((100vh - 150px) * 1.8333)); aspect-ratio:1408 / 768; background:none; border-radius:14px}
+
+.finalbar{justify-content:center; flex-wrap:wrap; gap:10px; flex:none}
+html.fs #s-final #tslotF .stage.live.zoom,html.fs #s-final #tslotF>.stage.live.zoom,html #s-final #tslotF .stage.live.zoom{position:fixed; inset:0; width:100vw; height:100vh; height:100dvh; max-width:none; aspect-ratio:auto; border-radius:0; display:block; z-index:3000}
+html #s-final #tslotF .stage.live.zoom .board{width:min(100vw,calc(100vh * 1.8333)) !important; margin:0 auto}
+
+.finalleft{display:flex; flex-direction:column; gap:10px; min-width:0; min-height:0}
+html.fs #s-final .finalleft{height:100%}
+html.fs #s-final .finalleft>#tslotF{flex:1 1 0; height:auto; min-height:0}
+html.fs #s-final #tslotF>.stage.live{width:min(100%,calc((100vh - 230px) * 1.8333))}
+html.fs #s-final #tslotF .stage.live{width:min(100%,calc((100vh - 230px) * 1.8333))}
+html.fs #s-final #tslotF .stage.live.zoom{width:100vw}
+html.fs #s-final .finalleft>#tslotF,html.fs #s-final .finalleft>#tslotF>*{align-items:flex-start}
+html.fs #s-final .finalbar{justify-content:flex-start}
+
+.finalright>.actions{margin:0; flex:none; justify-content:center}
+html.fs #s-final .finalright>.actions{margin-top:auto}
+html.fs #s-final .finalleft>#tslotF,html.fs #s-final .finalleft>#tslotF>*{align-items:flex-end}
+html.fs #s-final .finalleft>#tslotF{justify-content:flex-start}
+html.fs #s-final #tslotF>.stage.live,html.fs #s-final #tslotF .stage.live{width:min(100%,calc((100vh - 200px) * 1.8333))}
+html.fs #s-final .finalleft>#tslotF .stage.live.zoom{width:100vw}
+html.fs #s-final>.hero{display:none}
+html.fs #s-final .finalleft{justify-content:flex-end}
+html.fs #s-final .finalleft>#tslotF{flex:none; height:auto; width:100%}
+html.fs #s-final .finalleft>#tslotF>*{height:auto}
+html.fs #s-final .finalbar{padding-left:3%; gap:1.2vw}
+html.fs #s-final .finalbar .btn{font-size:clamp(.9rem,1.9vh,1.2rem)}
+html.fs #s-final .finalleft{padding-bottom:var(--fab,72px); box-sizing:border-box}
+html.fs [hidden]{display:none !important}
+html #s-final #tslotF .stage.live.zoom,html.fs #s-final #tslotF .stage.live.zoom{background:#2a1a0e; border:0; box-shadow:none; display:flex; align-items:center; justify-content:center; padding:0; margin:0}
+
 </style>
 </head>
 <body>
@@ -967,7 +1065,7 @@ function trailMount(host,phases,total){
     function onKey(e){if(e.key==='Escape'){e.stopPropagation(); close();}}
     ov.addEventListener('click',function(e){if(e.target===ov||e.target.classList.contains('bigx')) close();});
     document.addEventListener('keydown',onKey,true);
-    if(rk&&zm){var rr=rk.getBoundingClientRect(); ov.classList.add('onrank','fixedrk');
+    if(rk&&zm){var fr=split.querySelector('.finalright'); var rr=(fr||rk).getBoundingClientRect(); ov.classList.add('onrank','fixedrk');
       ov.style.cssText='position:fixed;left:'+rr.left+'px;top:'+rr.top+'px;width:'+rr.width+'px;height:'+rr.height+'px;inset:auto;right:auto;bottom:auto;left:'+rr.left+'px;top:'+rr.top+'px'; stage.appendChild(ov);}
     else if(rk){keep=[rk.style.height,rk.style.minHeight]; var h=rk.offsetHeight; rk.style.height=h+'px'; rk.style.minHeight=h+'px'; rk.classList.add('hasbig'); ov.classList.add('onrank'); rk.appendChild(ov);}
     else board.appendChild(ov);
@@ -2166,9 +2264,12 @@ var PHASE_INFO=[
 var SCREENS=['setup','lobby','question','reveal','final','report'];
 var S={E:null,peer:null,code:'',st:null,tick:0,key:'',trail:null,trailHost:null,autoReveal:true,revealing:'',report:null,view:'',bt:0,status:'',err:''};
 
+var curScreen='';
+function syncFs(){var f=!!(document.fullscreenElement||document.webkitFullscreenElement); document.documentElement.classList.toggle('fs',f||curScreen==='final'); try{window.dispatchEvent(new Event('resize'));}catch(x){}}
 function show(name){
+  curScreen=name; syncFs();
   SCREENS.forEach(function(s){$('s-'+s).hidden=(s!==name);});
-  $('topActions').hidden=!S.E;
+  $('topActions').hidden=!S.E||name==='final';
   if(S.E) $('topCode').textContent=S.code||'…';
 }
 function toast(msg){
@@ -2395,13 +2496,14 @@ function renderReveal(changedKey){
       '<span class="hq-stat">'+scored+' de '+st.players.length+' acertaram</span></div>'+
     '<div class="card hq-card">'+MQ.qHeadHTML(q)+MQ.staticAnswerHTML(q,st.reveal,st.dist)+
       '<div class="fb ok" style="margin-top:16px"><h4>Explicação</h4><p class="exp">'+esc(st.reveal.explain||'')+'</p></div></div>'+
-    '<div class="actions"><button type="button" class="btn btn-primary btn-lg" id="btnTrail">Ver trilha e ranking</button></div></div>'+
+    '<div class="actions"><button type="button" class="btn btn-primary btn-lg" id="btnTrail">Ver trilha e ranking</button><button type="button" class="btn btn-primary btn-lg" id="btnNextA">'+(last?'Ver pódio':'Próxima pergunta')+'</button></div></div>'+
     '<div id="rvB" hidden><div class="hq-head"><div class="eyebrow">Trilha e ranking · após a pergunta '+(st.q_index+1)+' de '+st.total+'</div></div>'+
     '<div class="split"><div id="tslotR"></div><section class="card rankbox"><h3>Ranking</h3><div id="rk" style="display:grid;gap:10px"></div></section></div>'+
     '<div class="actions" style="margin-top:16px"><button type="button" class="btn" id="btnBackQ">← Voltar à resposta</button><button type="button" class="btn btn-primary btn-lg" id="btnNext">'+(last?'Ver pódio':'Próxima pergunta')+'</button></div></div>';
     $('btnTrail').onclick=function(){S.rstep='b'; showStep();};
     $('btnBackQ').onclick=function(){S.rstep='a'; showStep();};
-    $('btnNext').onclick=function(){act('next');};
+    $('btnNext').onclick=function(){if(last) enterFs(); act('next');};
+    $('btnNextA').onclick=function(){if(last) enterFs(); act('next');};
     $('tslotR').appendChild(S.trailHost);
     showStep();
   }
@@ -2419,19 +2521,24 @@ function renderFinal(changedKey){
   S.view='final';
   var st=S.st;
   if(changedKey||$('s-final').hidden){
-    show('final'); ensureTrail();
+    show('final'); ensureTrail(); enterFs();
+    if(!(document.fullscreenElement||document.webkitFullscreenElement)){ var arm=function(ev){ document.removeEventListener('pointerdown',arm,true); document.removeEventListener('keydown',arm,true); if(curScreen==='final') enterFs(); }; document.addEventListener('pointerdown',arm,true); document.addEventListener('keydown',arm,true); }
     var P=st.players, pod=[1,0,2].map(function(i){return P[i]?{p:P[i],pos:i+1}:null;}).filter(Boolean);
+    var PODHTML='<div class="podium">'+pod.map(function(o){
+      return '<div class="pod p'+o.pos+'">'+MQ.avatar(o.p.avatar,o.pos===1?96:72)+'<div class="nm">'+esc(o.p.name)+'</div><div class="sc">'+o.p.score+' pts</div><div class="stand">'+o.pos+'º</div></div>';
+    }).join('')+'</div>';
     $('s-final').innerHTML=
     '<div class="hero" style="margin-bottom:6px"><h1>Fim de <span class="hl">jogo</span></h1><p>'+P.length+' jogadores · '+st.total+' perguntas</p></div>'+
-    '<div class="podium">'+pod.map(function(o){
-      return '<div class="pod p'+o.pos+'">'+MQ.avatar(o.p.avatar,o.pos===1?96:72)+'<div class="nm">'+esc(o.p.name)+'</div><div class="sc">'+o.p.score+' pts</div><div class="stand">'+o.pos+'º</div></div>';
-    }).join('')+'</div>'+
-    '<div class="split"><section class="card rankbox"><h3>Classificação final</h3><div style="display:grid;gap:10px">'+MQ.rankHTML(P,P.length)+'</div></section><div id="tslotF"></div></div>'+
-    '<div class="actions"><button type="button" class="btn btn-blue" id="btnRep">Relatório da turma</button><button type="button" class="btn" id="btnCsv">Baixar CSV</button><button type="button" class="btn btn-primary" id="btnNew2">Nova sala</button></div>';
+    '<div class="split"><div class="finalleft"><div class="field-row finalbar"><span class="eyebrow">Sala</span><span class="pill-code">'+esc($('topCode').textContent)+'</span><button type="button" class="btn btn-sm js-full">Tela cheia</button><button type="button" class="btn btn-sm" id="fEnd">Encerrar jogo</button><button type="button" class="btn btn-sm" id="fNew">Fechar sala</button></div><div id="tslotF"></div></div><div class="finalright">'+PODHTML+'<section class="card rankbox"><h3>Classificação final</h3><div style="display:grid;gap:10px">'+MQ.rankHTML(P,P.length)+'</div></section><div class="actions"><button type="button" class="btn btn-blue" id="btnRep">Relatório</button><button type="button" class="btn" id="btnCsv">Baixar CSV</button><button type="button" class="btn btn-primary" id="btnNew2">Nova sala</button></div></div></div>';
     $('tslotF').appendChild(S.trailHost);
+    (function(){var fr=document.querySelector('#s-final .finalright'),fl=document.querySelector('#s-final .finalleft'),ac=fr&&fr.querySelector('.actions');
+      function fit(){ if(ac&&fl) fl.style.setProperty('--fab',(ac.offsetHeight+14)+'px'); }
+      fit(); window.addEventListener('resize',fit); setTimeout(fit,300);})();
     $('btnRep').onclick=openReport;
     $('btnCsv').onclick=function(){var r=S.E.report();download('batalha-do-saber-'+r.code+'-alunos.csv',csvPlayers(r));};
     $('btnNew2').onclick=function(){renderSetup();};
+    $('fEnd').onclick=function(){$('btnEnd').onclick();};
+    $('fNew').onclick=function(){renderSetup();};
   }
   S.trail.update(trailPlayers(),{final:true});
 }
@@ -2492,9 +2599,14 @@ $('btnNew').onclick=function(){
 };
 $('btnEnd').onclick=function(){
   if(!S.E||S.E.status==='finished') return;
-  if(confirm('Encerrar o jogo agora? A pergunta em andamento não será pontuada.')) act('finish');
+  if(confirm('Encerrar o jogo agora? A pergunta em andamento não será pontuada.')){ enterFs(); act('finish'); }
 };
-document.addEventListener('fullscreenchange',function(){document.documentElement.classList.toggle('fs',!!document.fullscreenElement); try{window.dispatchEvent(new Event('resize'));}catch(x){}});
+document.addEventListener('fullscreenchange',syncFs);
+function enterFs(){
+  var d=document.documentElement, req=d.requestFullscreen||d.webkitRequestFullscreen;
+  if(document.fullscreenElement||document.webkitFullscreenElement||!req) return;
+  try{ var r=req.call(d); if(r&&r.catch) r.catch(function(){}); }catch(e){}
+}
 function toggleFs(){
   var d=document.documentElement, ex=document.exitFullscreen||document.webkitExitFullscreen, req=d.requestFullscreen||d.webkitRequestFullscreen;
   try{
@@ -2502,7 +2614,7 @@ function toggleFs(){
     if(r&&r.catch) r.catch(function(){});
   }catch(e){}
 }
-document.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest('#btnFull,#btnFullHero'); if(t) toggleFs();});
+document.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest('#btnFull,#btnFullHero,.js-full'); if(t) toggleFs();});
 /* tenta tela cheia ao abrir; navegadores só permitem após um gesto do usuário, então a 1ª interação também aciona */
 (function(){
   var d=document.documentElement, req=d.requestFullscreen||d.webkitRequestFullscreen, done=false;
@@ -2510,12 +2622,12 @@ document.addEventListener('click',function(e){var t=e.target.closest&&e.target.c
   function isFs(){return !!(document.fullscreenElement||document.webkitFullscreenElement);}
   function go(){ if(done||isFs()) return; try{var r=req.call(d); if(r&&r.then){r.then(function(){done=true;off();},function(){});} else {done=true; off();}}catch(e){} }
   function off(){['pointerdown','keydown','touchend'].forEach(function(t){document.removeEventListener(t,onGesture,true);});}
-  function onGesture(ev){ if(ev.target&&ev.target.closest&&ev.target.closest('#btnFull,#btnFullHero')){off();return;} go(); }
+  function onGesture(ev){ if(ev.target&&ev.target.closest&&ev.target.closest('#btnFull,#btnFullHero,.js-full')){off();return;} go(); }
   ['pointerdown','keydown','touchend'].forEach(function(t){document.addEventListener(t,onGesture,true);});
   go();
   document.addEventListener('fullscreenchange',function(){ if(isFs()){done=true;} });
 })();
-document.addEventListener('webkitfullscreenchange',function(){document.documentElement.classList.toggle('fs',!!document.webkitFullscreenElement);});
+document.addEventListener('webkitfullscreenchange',syncFs);
 
 renderSetup();
 })();
