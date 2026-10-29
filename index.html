@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fred Lucena | DER Fácil, Master Quiz, Explorador e Horário de Prova</title>
-<meta name="description" content="Ferramentas para a sala de aula criadas por Fred Lucena: DER Fácil, Master Quiz, Explorador e Horário de Prova.">
+<title>Fred Lucena | DER Fácil, Master Quiz, Batalha do Saber, Explorador e Horário de Prova</title>
+<meta name="description" content="Ferramentas para a sala de aula criadas por Fred Lucena: DER Fácil, Master Quiz, Batalha do Saber, Explorador e Horário de Prova.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
@@ -17,6 +17,7 @@
   --violet:#3A1C71;
   --graph:#22252B;
   --crimson:#A3262F;
+  --battle:#2B45C9;
   --folder:#F2B632;
   --red:#E5484D;
   --blue:#3E63DD;
@@ -51,6 +52,7 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,5.2vw,3.7re
 .menu i{width:16px;height:16px;flex:none;display:block}
 .menu .m-der i{background:var(--teal);border-radius:50% 0 50% 0}
 .menu .m-quiz i{background:var(--violet);clip-path:polygon(50% 0,100% 100%,0 100%)}
+.menu .m-battle i{background:var(--battle);clip-path:polygon(0 100%,0 20%,20% 20%,20% 0,40% 0,40% 20%,60% 20%,60% 0,80% 0,80% 20%,100% 20%,100% 100%)}
 .menu .m-exp i{background:var(--folder);border-radius:3px 3px 3px 3px}
 .menu .m-clock i{border:4px solid var(--crimson);border-radius:50%}
 .menu small{margin-left:auto;font-family:var(--body);font-weight:500;font-size:.9rem;color:var(--soft);letter-spacing:0;text-align:right}
@@ -59,6 +61,7 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,5.2vw,3.7re
 .band{color:#fff;padding:88px 0}
 .band.der{background:var(--teal)}
 .band.quiz{background:var(--violet)}
+.band.battle{background:var(--battle)}
 .band.exp{background:var(--graph)}
 .band.clock{background:var(--crimson)}
 .inner{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
@@ -102,6 +105,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     <nav aria-label="Ferramentas">
       <a href="#der-facil">DER Fácil</a>
       <a href="#master-quiz">Master Quiz</a>
+      <a href="#batalha-do-saber">Batalha do Saber</a>
       <a href="#explorador">Explorador</a>
       <a href="#relogio">Horário de Prova</a>
     </nav>
@@ -116,6 +120,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
       <ul class="menu" id="ferramentas" aria-label="Escolha uma ferramenta">
         <li><a class="m-der" href="#der-facil"><i aria-hidden="true"></i>DER Fácil<small>Modelagem de dados</small></a></li>
         <li><a class="m-quiz" href="#master-quiz"><i aria-hidden="true"></i>Master Quiz<small>Quiz ao vivo, para professor e aluno</small></a></li>
+        <li><a class="m-battle" href="#batalha-do-saber"><i aria-hidden="true"></i>Batalha do Saber<small>Quiz em trilha, para professor e aluno</small></a></li>
         <li><a class="m-exp" href="#explorador"><i aria-hidden="true"></i>Explorador<small>Arquivos compartilhados</small></a></li>
         <li><a class="m-clock" href="#relogio"><i aria-hidden="true"></i>Horário de Prova<small>Hora em tela inteira</small></a></li>
       </ul>
@@ -201,7 +206,70 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   </div>
 </section>
 
-<section class="band exp" id="explorador" aria-labelledby="h-exp">
+<section class="band battle" id="batalha-do-saber" aria-labelledby="h-battle">
+  <div class="wrap inner">
+    <div class="copy">
+      <h2 id="h-battle">Batalha do Saber</h2>
+      <p class="tag">Uma trilha até o castelo, valendo pontos.</p>
+      <p class="d">Quiz ao vivo para a sala de aula. Você cria uma sala, projeta o código na tela e a turma entra pelo celular. A trilha mostra quem está na frente.</p>
+      <ul>
+        <li>Perguntas de múltipla escolha, verdadeiro ou falso, completar o SQL e ligar pares</li>
+        <li>Fases até o chefão, com a opção de escolher as fases e embaralhar as perguntas</li>
+        <li>100 pontos por acerto, mais bônus pela rapidez e pela sequência de acertos</li>
+        <li>Classificação final e desempenho por pergunta, com resultados em CSV</li>
+        <li>Conexão direta entre os navegadores, sem servidor de dados</li>
+      </ul>
+      <div class="btns">
+        <a class="btn" href="https://fredlucena.com.br/batalhadosaber/professor.html">Versão do professor</a>
+        <a class="btn alt" href="https://fredlucena.com.br/batalhadosaber/aluno.html">Versão do aluno</a>
+      </div>
+    </div>
+    <div class="art">
+      <svg viewBox="0 0 440 280" role="img" aria-label="Mapa de uma trilha com cinco fases, dois alunos no caminho e um castelo no final">
+        <rect x="8" y="8" width="424" height="264" rx="14" fill="#D6EAFF"/>
+        <path d="M50 232 L150 200 L110 140 L230 120 L300 70" fill="none" stroke="#14173A" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M50 232 L150 200 L110 140 L230 120 L300 70" fill="none" stroke="#fff" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M300 70 L336 74" stroke="#14173A" stroke-width="3" stroke-dasharray="2 6" stroke-linecap="round"/>
+        <g stroke="#14173A" stroke-width="3">
+          <circle cx="50" cy="232" r="15" fill="#FFD23F"/>
+          <circle cx="150" cy="200" r="15" fill="#FFD23F"/>
+          <circle cx="110" cy="140" r="15" fill="#FFD23F"/>
+          <circle cx="230" cy="120" r="15" fill="#FFD23F"/>
+          <circle cx="300" cy="70" r="15" fill="#FF6B6B"/>
+        </g>
+        <g font-size="15" font-weight="700" fill="#14173A" text-anchor="middle">
+          <text x="50" y="237">1</text>
+          <text x="150" y="205">2</text>
+          <text x="110" y="145">3</text>
+          <text x="230" y="125">4</text>
+          <text x="300" y="75">5</text>
+        </g>
+        <g stroke="#14173A" stroke-width="3">
+          <circle cx="186" cy="183" r="13" fill="#3DDBB0"/>
+          <circle cx="72" cy="124" r="13" fill="#FF6B6B"/>
+        </g>
+        <g fill="#14173A">
+          <circle cx="182" cy="180" r="1.8"/><circle cx="190" cy="180" r="1.8"/>
+          <circle cx="68" cy="121" r="1.8"/><circle cx="76" cy="121" r="1.8"/>
+        </g>
+        <g fill="none" stroke="#14173A" stroke-width="2" stroke-linecap="round">
+          <path d="M182 187 Q186 190 190 187"/>
+          <path d="M68 128 Q72 131 76 128"/>
+        </g>
+        <g stroke="#14173A" stroke-width="3" stroke-linejoin="round">
+          <rect x="336" y="46" width="80" height="54" fill="#14173A"/>
+          <path d="M336 46 V36 h14 v10 M358 46 V36 h14 v10 M380 46 V36 h14 v10 M402 46 V36 h14 v10" fill="#14173A"/>
+        </g>
+        <path d="M376 100 V84 a8 8 0 0 1 16 0 V100 Z" fill="#FFD23F"/>
+        <path d="M376 36 V14" stroke="#14173A" stroke-width="3" stroke-linecap="round"/>
+        <polygon points="376,14 398,21 376,28" fill="#FF6B6B" stroke="#14173A" stroke-width="2" stroke-linejoin="round"/>
+        <text x="376" y="124" font-size="14" font-weight="700" fill="#14173A" text-anchor="middle">Chefão</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="band exp flip" id="explorador" aria-labelledby="h-exp">
   <div class="wrap inner">
     <div class="copy">
       <h2 id="h-exp">Explorador</h2>
@@ -252,7 +320,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   </div>
 </section>
 
-<section class="band clock flip" id="relogio" aria-labelledby="h-clock">
+<section class="band clock" id="relogio" aria-labelledby="h-clock">
   <div class="wrap inner">
     <div class="copy">
       <h2 id="h-clock">Horário de Prova</h2>
