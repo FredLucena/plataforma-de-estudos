@@ -1207,7 +1207,7 @@ function construirEstatico() {
 const cv = $('#cv'), vctx = cv.getContext('2d');
 const mundo = document.createElement('canvas'); mundo.width = W * SC; mundo.height = H * SC; const ctx = mundo.getContext('2d');
 let camMode = false, vw = W, vh = H, zoom = +lsGet('dtp_zoom', 1) || 1, baseVw = 380;
-const zoomMin = () => Math.max(.4, baseVw / W), zoomMax = 2.6;
+const zoomMin = () => Math.max(.15, baseVw / W), zoomMax = 2.6;
 function setZoom(z) { zoom = Math.max(zoomMin(), Math.min(zoomMax, z)); lsSet('dtp_zoom', +zoom.toFixed(3)); ajustarCanvas(); }
 function ajustarCanvas() {
   const m = matchMedia('(pointer:coarse), (max-width:760px)').matches; $('#tela-jogo').classList.toggle('cam', m);
@@ -1215,7 +1215,7 @@ function ajustarCanvas() {
   if (camMode) {
     const dpr = Math.min(2, window.devicePixelRatio || 1), cw = Math.round(r.width * dpr), ch = Math.round(r.height * dpr);
     if (cv.width !== cw || cv.height !== ch) { cv.width = cw; cv.height = ch; }
-    baseVw = Math.min(W, Math.max(380, r.width / 1.2)); zoom = Math.max(zoomMin(), Math.min(zoomMax, zoom)); vw = Math.min(W, baseVw / zoom); vh = vw * r.height / r.width; if (vh > H) { vh = H; vw = vh * r.width / r.height; }
+    baseVw = Math.min(W, Math.max(380, r.width / 1.2)); zoom = Math.max(zoomMin(), Math.min(zoomMax, zoom)); vw = Math.min(W, baseVw / zoom); vh = vw * r.height / r.width;
   } else { if (cv.width !== W * SC) { cv.width = W * SC; cv.height = H * SC; } vw = W; vh = H; }
 }
 addEventListener('resize', () => { if (jogoAtivo) ajustarCanvas(); });
@@ -1335,8 +1335,10 @@ function desenhar(t) {
   ctx.globalCompositeOperation = 'source-over';
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   if (camMode) {
-    const sx = Math.max(0, Math.min(W - vw, S.x - vw / 2)), sy = Math.max(0, Math.min(H - vh, S.y - 50 - vh / 2)); camSx = sx; camSy = sy;
-    vctx.drawImage(mundo, sx * SC, sy * SC, vw * SC, vh * SC, 0, 0, cv.width, cv.height);
+    const sx = vw >= W ? (W - vw) / 2 : Math.max(0, Math.min(W - vw, S.x - vw / 2)), sy = vh >= H ? (H - vh) / 2 : Math.max(0, Math.min(H - vh, S.y - 50 - vh / 2)); camSx = sx; camSy = sy;
+    vctx.fillStyle = '#05040a'; vctx.fillRect(0, 0, cv.width, cv.height);
+    const x0 = Math.max(0, sx), y0 = Math.max(0, sy), x1 = Math.min(W, sx + vw), y1 = Math.min(H, sy + vh), k = cv.width / vw;
+    vctx.drawImage(mundo, x0 * SC, y0 * SC, (x1 - x0) * SC, (y1 - y0) * SC, (x0 - sx) * k, (y0 - sy) * k, (x1 - x0) * k, (y1 - y0) * k);
   } else { camSx = 0; camSy = 0; vctx.drawImage(mundo, 0, 0, cv.width, cv.height); }
   vctx.drawImage(VIGNETA, 0, 0, cv.width, cv.height);
   if (t - tMini > .1) { tMini = t; desenharMini(); }
