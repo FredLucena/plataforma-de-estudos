@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>O Mistério da Tabela Perdida — Módulo do Aluno</title>
+<meta name="description" content="Jogo de investigação para aprender Banco de Dados: resolva desafios, conquiste ferramentas e descubra quem apagou a tabela.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:wght@500;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07060c;--bg2:#0e0c16;--panel:#16121f;--panel2:#1d1829;--panel3:#251f33;
+  --ouro:#c9a24b;--ouro2:#f1d78a;--ouro3:#8a6d28;
+  --vinho:#7a1f33;--vinho2:#a52a45;
+  --perg:#eadfc2;--perg2:#d9c9a0;--tinta:#2b2118;
+  --txt:#e8e2d4;--mut:#a39bb2;--linha:#3a3250;
+  --ok:#4caf7a;--err:#e0574f;--azul:#6a8be0;
+  --f-titulo:'Cinzel','Cinzel Decorative',Georgia,serif;
+  --f-corpo:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --f-maq:'Special Elite','Courier New',monospace;
+  --f-ui:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font-family:var(--f-corpo);font-size:19px;font-weight:600;line-height:1.4}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+h1,h2,h3,h4{font-family:var(--f-titulo);font-weight:700;margin:0;letter-spacing:.04em}
+a{color:var(--ouro2)}
+code{font-family:'Consolas','Courier New',monospace;font-size:.88em;background:rgba(201,162,75,.14);border:1px solid rgba(201,162,75,.28);padding:0 .35em;border-radius:4px;color:inherit;white-space:pre-wrap;word-break:break-word}
+pre{font-family:'Consolas','Courier New',monospace;font-size:.85em;background:rgba(0,0,0,.35);border:1px solid rgba(201,162,75,.3);padding:.7em .9em;border-radius:6px;overflow:auto;margin:.5em 0;white-space:pre-wrap}
+
+/* Botões */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;cursor:pointer;
+  font-family:var(--f-titulo);font-weight:700;font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;
+  padding:.8em 1.4em;border-radius:3px;border:1px solid var(--ouro);color:var(--ouro2);
+  background:linear-gradient(180deg,rgba(201,162,75,.16),rgba(201,162,75,.04));
+  transition:transform .15s,box-shadow .2s,background .2s,filter .2s;text-decoration:none;user-select:none}
+.btn:hover:not(:disabled){background:linear-gradient(180deg,rgba(241,215,138,.28),rgba(201,162,75,.1));box-shadow:0 0 18px rgba(201,162,75,.35);transform:translateY(-1px)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.primario{background:linear-gradient(180deg,#d9b55c,#9c7a2d);color:#1a1208;border-color:#f1d78a;text-shadow:0 1px 0 rgba(255,255,255,.3)}
+.btn.primario:hover:not(:disabled){background:linear-gradient(180deg,#f1d78a,#b38f3a);box-shadow:0 0 24px rgba(241,215,138,.5)}
+.btn.perigo{border-color:var(--vinho2);color:#ff9aa9;background:linear-gradient(180deg,rgba(165,42,69,.2),rgba(165,42,69,.05))}
+.btn.pequeno{font-size:.7rem;padding:.55em 1em}
+.btn.fantasma{border-color:var(--linha);color:var(--mut);background:transparent}
+
+/* Toast */
+#toasts{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:#1c1628;border:1px solid var(--ouro);color:var(--ouro2);padding:.6em 1.2em;border-radius:4px;font-family:var(--f-ui);font-size:.85rem;box-shadow:0 8px 30px rgba(0,0,0,.6);animation:toastIn .3s ease,toastOut .4s ease 2.6s forwards}
+.toast.err{border-color:var(--err);color:#ffb3ad}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(8px)}}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(3,2,8,.78);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;animation:fadeIn .25s ease}
+.modal-bg.topo{z-index:1100}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{max-height:calc(100vh - 32px);overflow:auto;animation:subir .3s ease}
+@keyframes subir{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+
+/* Pergaminho */
+.perg{background:
+  radial-gradient(ellipse at 20% 10%,rgba(255,255,255,.35),transparent 55%),
+  radial-gradient(ellipse at 90% 100%,rgba(120,80,30,.28),transparent 60%),
+  linear-gradient(180deg,var(--perg),var(--perg2));
+  color:var(--tinta);border:2px solid #7a5d2a;border-radius:6px;
+  box-shadow:0 0 0 4px #1a1208,0 0 0 5px var(--ouro3),0 30px 70px rgba(0,0,0,.75),inset 0 0 70px rgba(110,70,20,.35)}
+.perg h3,.perg h2{color:#4a1520}
+.perg code{background:rgba(122,31,51,.1);border-color:rgba(122,31,51,.35);color:#4a1520}
+.perg pre{background:rgba(43,33,24,.1);border-color:rgba(122,31,51,.35);color:var(--tinta)}
+
+/* Formulários (usados principalmente no módulo do professor) */
+label.campo{display:block;margin-bottom:14px;font-family:var(--f-ui);font-size:.82rem;color:var(--mut);font-weight:600;letter-spacing:.02em}
+label.campo>span{display:block;margin-bottom:5px}
+.in,input[type=text],input[type=number],textarea,select{width:100%;background:#0d0a14;border:1px solid var(--linha);border-radius:4px;padding:.6em .8em;color:var(--txt);font-family:var(--f-ui);font-size:.95rem;font-weight:400;outline:none;transition:border-color .2s,box-shadow .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--ouro);box-shadow:0 0 0 3px rgba(201,162,75,.18)}
+textarea{resize:vertical;min-height:80px;line-height:1.45}
+::selection{background:rgba(201,162,75,.4)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#0d0a14}::-webkit-scrollbar-thumb{background:#3a3250;border-radius:6px}::-webkit-scrollbar-thumb:hover{background:var(--ouro3)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+input[type=file]{font-family:var(--f-ui);font-size:.82rem;color:var(--mut)}
+input[type=file]::file-selector-button{font-family:var(--f-titulo);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--ouro2);background:linear-gradient(180deg,rgba(201,162,75,.16),rgba(201,162,75,.04));border:1px solid var(--ouro);border-radius:3px;padding:.6em 1em;margin-right:10px;cursor:pointer}
+input[type=file]::file-selector-button:hover{background:rgba(241,215,138,.25)}
+
+
+/* ========== Telas ========== */
+.tela{position:fixed;inset:0;display:none;overflow:auto}
+.tela.ativa{display:block;animation:fadeIn .5s ease}
+
+.fs-fix{position:fixed;top:12px;right:12px;z-index:20}
+/* ---------- Título ---------- */
+#tela-titulo{background:radial-gradient(ellipse at 78% 12%,#2a2547 0%,#120f22 38%,#07060c 80%);overflow:hidden}
+.lua{position:absolute;right:12%;top:7%;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle at 38% 36%,#fffbe8,#e9deb3 55%,#bfb27f);box-shadow:0 0 60px 20px rgba(255,244,200,.25),0 0 160px 60px rgba(255,244,200,.1)}
+.estrelas{position:absolute;inset:0;background-image:radial-gradient(1.5px 1.5px at 20px 30px,#fff,transparent),radial-gradient(1px 1px at 120px 80px,#fff,transparent),radial-gradient(1.5px 1.5px at 220px 20px,#fff9,transparent),radial-gradient(1px 1px at 330px 120px,#fff,transparent),radial-gradient(1px 1px at 80px 170px,#fff8,transparent);background-size:360px 220px;opacity:.7}
+.casarao{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(1500px,150vw);height:auto;display:block}
+.casarao .jan{fill:#f6c453;animation:pisca 4s infinite}
+@keyframes pisca{0%,100%{opacity:1}45%{opacity:.35}50%{opacity:.9}70%{opacity:.5}}
+.neblina{position:absolute;left:-10%;right:-10%;bottom:0;height:34%;background:radial-gradient(ellipse at 20% 100%,rgba(120,110,160,.28),transparent 60%),radial-gradient(ellipse at 75% 100%,rgba(120,110,160,.22),transparent 60%);animation:nev 14s ease-in-out infinite alternate;pointer-events:none}
+@keyframes nev{from{transform:translateX(-4%)}to{transform:translateX(4%)}}
+.chuva{position:absolute;inset:0;background-image:repeating-linear-gradient(105deg,rgba(190,200,255,.0) 0 14px,rgba(190,200,255,.16) 14px 15px);background-size:100% 100%;animation:chuva .5s linear infinite;opacity:.35;pointer-events:none}
+@keyframes chuva{to{background-position:-30px 60px}}
+#raio{position:fixed;inset:0;background:#dfe8ff;opacity:0;pointer-events:none;z-index:900;mix-blend-mode:screen}
+#raio.flash{animation:raio .7s ease-out}
+@keyframes raio{0%{opacity:0}8%{opacity:.55}16%{opacity:.08}24%{opacity:.4}100%{opacity:0}}
+.titulo-box{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:7vh 20px 0;text-align:center}
+.sobre{font-family:var(--f-titulo);letter-spacing:.5em;font-size:.8rem;color:var(--mut);text-transform:uppercase}
+.titulo-box h1{font-family:'Cinzel Decorative',var(--f-titulo);font-size:clamp(2.1rem,6.2vw,4.4rem);line-height:1.1;margin:.3em 0 .1em;background:linear-gradient(180deg,#fff3c4 0%,#e0bb62 45%,#9c7a2d 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 18px rgba(0,0,0,.8));text-shadow:none}
+.subtit{font-size:1.25rem;color:#cfc6dc;font-style:italic;margin-bottom:2.2rem}
+.menu-titulo{display:flex;flex-direction:column;gap:12px;align-items:center}
+.menu-titulo .btn{min-width:290px}
+.rodape-t{position:absolute;z-index:3;left:0;right:0;bottom:12px;text-align:center;font-family:var(--f-ui);font-size:.72rem;color:#8f87a0;font-weight:400;padding:0 12px}
+.rodape-t b{color:var(--ouro2);font-weight:600}
+.fonte-missao{margin-top:22px;font-family:var(--f-ui);font-size:.75rem;color:#9d95ae;font-weight:400}
+.fonte-missao a{cursor:pointer;color:var(--ouro2);text-decoration:underline}
+
+/* ---------- Avatar ---------- */
+#tela-avatar{background:radial-gradient(ellipse at 50% 0%,#241c36,#0a0813 70%)}
+.av-wrap{max-width:1040px;margin:0 auto;padding:28px 18px 40px}
+.av-wrap h2{text-align:center;color:var(--ouro2);font-size:1.7rem;margin-bottom:6px}
+.av-wrap .lead{text-align:center;color:var(--mut);margin-bottom:22px}
+.av-grid{display:grid;grid-template-columns:minmax(260px,330px) 1fr;gap:26px;align-items:start}
+@media(max-width:820px){.av-grid{grid-template-columns:1fr}}
+.ficha{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--ouro3);border-radius:6px;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.ficha .retrato{height:260px;display:flex;align-items:flex-end;justify-content:center;background:radial-gradient(ellipse at 50% 85%,rgba(201,162,75,.28),transparent 65%);border-bottom:1px solid var(--linha);margin-bottom:14px}
+.ficha .retrato svg{height:250px;filter:drop-shadow(0 10px 14px rgba(0,0,0,.6));animation:flutua 3.4s ease-in-out infinite}
+@keyframes flutua{50%{transform:translateY(-6px)}}
+.ficha .nome-av{text-align:center;font-family:var(--f-titulo);color:var(--ouro2);margin-bottom:14px;min-height:1.3em}
+.ficha input{font-family:var(--f-ui)}
+.opcoes-av{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:560px){.opcoes-av{grid-template-columns:repeat(2,1fr)}}
+.av-card{cursor:pointer;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--linha);border-radius:6px;padding:10px 8px 8px;text-align:center;transition:.2s;position:relative}
+.av-card:hover{border-color:var(--ouro);transform:translateY(-3px)}
+.av-card.sel{border-color:var(--ouro2);box-shadow:0 0 0 1px var(--ouro2),0 0 26px rgba(241,215,138,.28);background:linear-gradient(180deg,#2d2440,var(--panel2))}
+.av-card.sel::after{content:'✓';position:absolute;top:6px;right:8px;color:#1a1208;background:var(--ouro2);width:20px;height:20px;border-radius:50%;font-size:.75rem;line-height:20px;font-family:var(--f-ui);font-weight:700}
+.av-card svg{height:128px;width:auto}
+.av-card .n{font-family:var(--f-titulo);font-size:.68rem;letter-spacing:.08em;color:var(--txt);margin-top:4px}
+.acoes-av{display:flex;justify-content:space-between;margin-top:24px;gap:10px;flex-wrap:wrap}
+
+/* ---------- Jogo ---------- */
+#tela-jogo{background:radial-gradient(ellipse at 50% 30%,#171227,#05040a 75%);overflow:hidden}
+.hud{height:56px;display:flex;align-items:center;gap:14px;padding:0 14px;background:linear-gradient(180deg,#14101f,#0b0913);border-bottom:1px solid var(--ouro3);position:relative;z-index:5}
+.hud .eu{display:flex;align-items:center;gap:10px;min-width:0}
+.hud .eu .mini{width:34px;height:40px;overflow:hidden;border:1px solid var(--ouro3);border-radius:50%;background:radial-gradient(circle,#2b2342,#120e1d);flex:none;position:relative}
+.hud .eu .mini svg{position:absolute;left:-2px;top:2px;width:38px;height:auto}
+.hud .eu .nm{font-family:var(--f-titulo);font-size:.82rem;color:var(--ouro2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.hud .eu .sub{font-size:.72rem;color:var(--mut);font-family:var(--f-ui);font-weight:400}
+.hud .meio{flex:1;text-align:center;font-family:var(--f-titulo);color:var(--ouro);font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat{font-family:var(--f-ui);font-size:.78rem;color:var(--mut);text-align:center;line-height:1.15;font-weight:400}
+.stat b{display:block;font-family:var(--f-titulo);font-size:1rem;color:var(--ouro2)}
+.hud .btn{padding:.55em .8em;font-size:.68rem}
+@media(max-width:720px){.hud .meio,.hud .eu .sub,.hud .lbl{display:none}.hud{gap:8px;padding:0 8px}.hud .eu .nm{max-width:96px;font-size:.74rem}.stat b{font-size:.9rem}.barra-inv .rot{display:none}.barra-inv{padding:0 8px}}
+#tela-jogo.cam .palco-area{padding:0}
+#tela-jogo.cam .palco{width:100%;height:100%;aspect-ratio:auto;border-radius:0;box-shadow:none;border-left:0;border-right:0}
+#tela-jogo.cam #mini{width:104px}
+@media(max-width:560px){.carta{padding:18px 16px 16px}.enun{font-size:1.14rem}.opc{font-size:1rem;padding:.55em .7em}.carta-topo h3{font-size:1.05rem}.painel{padding:16px}.premio .big{font-size:4rem}}
+.palco-area{height:calc(100% - 56px - 66px);display:flex;align-items:center;justify-content:center;padding:8px}
+.palco{position:relative;width:min(100%,calc((100vh - 56px - 66px - 16px) * 1.5789));aspect-ratio:1200/760;border:2px solid var(--ouro3);border-radius:4px;box-shadow:0 0 0 5px #0d0a14,0 0 0 6px var(--ouro3),0 20px 60px rgba(0,0,0,.8);background:#000}
+#cv{width:100%;height:100%;display:block;border-radius:2px;touch-action:none}
+#mini{position:absolute;right:10px;top:10px;width:176px;height:auto;border:1px solid var(--ouro3);border-radius:3px;background:rgba(5,4,10,.8);opacity:.92}
+#prompt{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(10,8,18,.9);border:1px solid var(--ouro);color:var(--ouro2);padding:.55em 1.1em;border-radius:3px;font-family:var(--f-ui);font-size:.85rem;font-weight:500;pointer-events:none;opacity:0;transition:opacity .2s;max-width:92%;text-align:center;box-shadow:0 0 20px rgba(201,162,75,.25)}
+#prompt.v{opacity:1}
+#prompt kbd{font-family:var(--f-titulo);background:var(--ouro);color:#1a1208;border-radius:3px;padding:.05em .45em;margin-right:.4em;font-size:.8rem}
+.dica-ctrl{position:absolute;left:10px;top:10px;font-family:var(--f-ui);font-size:.7rem;color:#b8b0c8;background:rgba(5,4,10,.6);border:1px solid var(--linha);border-radius:3px;padding:.3em .6em;font-weight:400;transition:opacity 1s}
+.dpad{position:absolute;left:12px;bottom:12px;width:150px;height:150px;display:none;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:4px;z-index:3}
+.dpad button{background:rgba(20,16,32,.75);border:1px solid var(--ouro3);color:var(--ouro2);border-radius:8px;font-size:1.1rem;touch-action:none}
+.dpad button:active{background:rgba(201,162,75,.4)}
+.dpad .u{grid-column:2;grid-row:1}.dpad .l{grid-column:1;grid-row:2}.dpad .r{grid-column:3;grid-row:2}.dpad .d{grid-column:2;grid-row:3}
+#btn-acao{position:absolute;right:12px;bottom:14px;width:84px;height:84px;border-radius:50%;display:none;z-index:3;font-size:.58rem;letter-spacing:.02em;padding:0;line-height:1.1}
+@media (pointer:coarse),(max-width:760px){.dpad,#btn-acao{display:grid}#btn-acao{display:flex}.dica-ctrl{display:none}#mini{width:120px}}
+.barra-inv{height:66px;display:flex;align-items:center;gap:12px;padding:0 14px;background:linear-gradient(0deg,#14101f,#0b0913);border-top:1px solid var(--ouro3)}
+.barra-inv .rot{font-family:var(--f-titulo);font-size:.68rem;letter-spacing:.2em;color:var(--mut);text-transform:uppercase;white-space:nowrap}
+#inv{display:flex;gap:6px;flex:1;overflow-x:auto;padding:4px 2px}
+.slot{flex:none;width:42px;height:42px;border:1px solid var(--linha);border-radius:5px;background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;position:relative}
+.slot.cheio{border-color:var(--ouro);background:radial-gradient(circle,rgba(201,162,75,.28),rgba(201,162,75,.04));box-shadow:0 0 10px rgba(201,162,75,.3)}
+.slot.novo{animation:novo 1.2s ease}
+@keyframes novo{0%{transform:scale(.2) rotate(-30deg);opacity:0}60%{transform:scale(1.35)}100%{transform:scale(1)}}
+.prog{font-family:var(--f-ui);font-size:.78rem;color:var(--mut);white-space:nowrap;font-weight:400}.prog b{color:var(--ouro2)}
+
+/* ---------- Modais do jogo ---------- */
+.carta{width:min(720px,94vw);padding:26px 30px 24px;position:relative}
+.carta-topo{display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(122,31,51,.4);padding-bottom:12px;margin-bottom:12px}
+.carta-topo .ico{font-size:2.4rem;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
+.carta-topo h3{font-size:1.25rem}.carta-topo small{font-family:var(--f-ui);font-weight:500;color:#6e5a3a;font-size:.8rem}
+.carta-topo .etapa{margin-left:auto;font-family:var(--f-titulo);font-size:.68rem;letter-spacing:.14em;color:#7a1f33;border:1px solid #7a1f33;border-radius:3px;padding:.25em .6em;white-space:nowrap}
+.narr{font-style:italic;color:#5a4630;margin:0 0 14px;font-size:1.02rem}
+.enun{font-size:1.3rem;line-height:1.35;margin-bottom:16px;color:#241a10}
+.opcoes{display:flex;flex-direction:column;gap:9px}
+.opc{display:flex;gap:12px;align-items:flex-start;text-align:left;cursor:pointer;background:rgba(255,255,255,.35);border:1.5px solid rgba(122,93,42,.55);border-radius:5px;padding:.65em .9em;color:var(--tinta);font-weight:600;font-size:1.08rem;line-height:1.3;transition:.15s}
+.opc b{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid #7a1f33;color:#7a1f33;display:flex;align-items:center;justify-content:center;font-family:var(--f-titulo);font-size:.82rem;margin-top:1px;background:rgba(255,255,255,.4)}
+.opc:hover:not(:disabled){background:rgba(255,255,255,.7);border-color:#7a1f33;transform:translateX(3px)}
+.opc.sel{background:#fff7dc;border-color:#7a1f33;box-shadow:0 0 0 2px rgba(122,31,51,.3)}
+.opc.sel b{background:#7a1f33;color:#fff}
+.opc.certa{background:#d9f1dd;border-color:#2e8a52;box-shadow:0 0 0 2px rgba(46,138,82,.3)}.opc.certa b{background:#2e8a52;border-color:#2e8a52;color:#fff}
+.opc.errada{background:#f7d9d6;border-color:#b63a35;animation:treme .4s}.opc.errada b{background:#b63a35;border-color:#b63a35;color:#fff}
+.opc:disabled{cursor:default}
+@keyframes treme{20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.opc code{background:rgba(122,31,51,.1)}
+.feedback{margin-top:14px;padding:12px 14px;border-radius:5px;font-size:1.02rem;display:none;line-height:1.35}
+.feedback.v{display:block;animation:subir .3s}
+.feedback.ok{background:rgba(46,138,82,.15);border:1px solid #2e8a52;color:#16502e}
+.feedback.no{background:rgba(182,58,53,.12);border:1px solid #b63a35;color:#6d1c19}
+.feedback strong{font-family:var(--f-titulo);letter-spacing:.06em;display:block;margin-bottom:3px}
+.carta .acoes{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.carta .btn{border-color:#7a1f33;color:#7a1f33;background:rgba(255,255,255,.35)}
+.carta .btn:hover:not(:disabled){background:rgba(122,31,51,.12);box-shadow:0 0 14px rgba(122,31,51,.3)}
+.carta .btn.primario{background:linear-gradient(180deg,#a52a45,#6b1a2b);color:#fff;border-color:#4a1520;text-shadow:none}
+.carta .btn.primario:hover:not(:disabled){background:linear-gradient(180deg,#c13a58,#7a1f33);box-shadow:0 0 20px rgba(165,42,69,.5)}
+.carta .btn.fantasma{border-color:#a08a5c;color:#6e5a3a}
+
+.premio{width:min(540px,94vw);text-align:center;padding:30px 30px 24px}
+.premio .tit{font-family:var(--f-titulo);font-size:.8rem;letter-spacing:.4em;color:#7a1f33;text-transform:uppercase}
+.premio .big{font-size:5.4rem;margin:8px 0 0;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));animation:brilha 2.2s ease-in-out infinite}
+@keyframes brilha{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.12) rotate(3deg)}}
+.premio h3{font-size:1.5rem;margin:.1em 0}.premio .uso{font-style:italic;color:#5a4630;margin-bottom:14px}
+.pista{background:rgba(255,255,255,.4);border-left:4px solid #7a1f33;text-align:left;padding:.7em 1em;border-radius:0 5px 5px 0;font-family:var(--f-maq);font-size:.92rem;line-height:1.4;color:#2b2118;font-weight:400}
+.pista small{display:block;font-family:var(--f-titulo);letter-spacing:.2em;font-size:.62rem;color:#7a1f33;margin-bottom:4px;text-transform:uppercase}
+.premio .acoes{justify-content:center}
+
+.painel{width:min(820px,94vw);background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--ouro3);border-radius:6px;padding:22px 26px;box-shadow:0 30px 70px rgba(0,0,0,.7)}
+.painel h3{color:var(--ouro2);font-size:1.2rem;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.painel .fechar{background:none;border:none;color:var(--mut);font-size:1.5rem;cursor:pointer;line-height:1}
+.abas{display:flex;gap:6px;margin-bottom:14px;border-bottom:1px solid var(--linha)}
+.aba{background:none;border:none;border-bottom:2px solid transparent;padding:.55em 1em;cursor:pointer;color:var(--mut);font-family:var(--f-titulo);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase}
+.aba.at{color:var(--ouro2);border-bottom-color:var(--ouro)}
+.lista-p{display:flex;flex-direction:column;gap:10px}
+.item-p{display:flex;gap:14px;background:rgba(255,255,255,.04);border:1px solid var(--linha);border-radius:5px;padding:12px 14px}
+.item-p .i{font-size:2rem;flex:none;width:44px;text-align:center}
+.item-p h4{font-size:.85rem;color:var(--ouro2);margin-bottom:3px}
+.item-p p{margin:0;font-family:var(--f-maq);font-size:.88rem;font-weight:400;color:#d8d0e4;line-height:1.4}
+.vazio{color:var(--mut);font-style:italic;text-align:center;padding:24px 8px}
+.sus-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.sus{background:rgba(255,255,255,.04);border:1px solid var(--linha);border-radius:6px;padding:14px;position:relative;transition:.2s}
+.sus .f{font-size:2.6rem;text-align:center}
+.sus h4{text-align:center;color:var(--ouro2);font-size:.85rem;margin:2px 0}
+.sus .pp{text-align:center;color:var(--mut);font-size:.82rem;font-family:var(--f-ui);font-weight:500}
+.sus p{font-size:.95rem;margin:.5em 0 0;color:#cfc6dc}
+.sus label{display:flex;align-items:center;gap:6px;margin-top:8px;font-family:var(--f-ui);font-size:.75rem;color:var(--mut);cursor:pointer;font-weight:400}
+.sus.desc{opacity:.45}.sus.desc h4,.sus.desc .f{text-decoration:line-through}
+.sus.escolha{cursor:pointer}.sus.escolha:hover{border-color:var(--ouro)}.sus.escolha.sel{border-color:var(--ouro2);box-shadow:0 0 0 1px var(--ouro2),0 0 24px rgba(241,215,138,.3);background:rgba(241,215,138,.08)}
+.metodos{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin:8px 0 6px}
+.met{cursor:pointer;background:#0d0a14;border:1px solid var(--linha);border-radius:5px;padding:.7em 1em;font-family:'Consolas','Courier New',monospace;font-size:.92rem;color:#e8e2d4;font-weight:400;transition:.15s;text-align:left}
+.met:hover{border-color:var(--ouro)}.met.sel{border-color:var(--ouro2);background:rgba(241,215,138,.1);box-shadow:0 0 0 1px var(--ouro2)}
+.sec-t{font-family:var(--f-titulo);letter-spacing:.18em;font-size:.72rem;color:var(--ouro);text-transform:uppercase;margin:14px 0 8px}
+.msg-acus{margin-top:12px;padding:10px 14px;border-radius:5px;font-family:var(--f-ui);font-size:.9rem;display:none;font-weight:400}
+.msg-acus.v{display:block}.msg-acus.no{background:rgba(224,87,79,.12);border:1px solid var(--err);color:#ffb3ad}
+
+/* ---------- Final ---------- */
+#tela-final{background:radial-gradient(ellipse at 50% 0%,#2b2142,#08070f 70%)}
+.fin-wrap{max-width:900px;margin:0 auto;padding:32px 18px 60px}
+.fin-wrap .selo{text-align:center;font-family:var(--f-titulo);letter-spacing:.5em;font-size:.8rem;color:var(--ouro);margin-bottom:6px}
+.fin-wrap h2{text-align:center;font-family:'Cinzel Decorative',var(--f-titulo);font-size:clamp(1.7rem,5vw,2.8rem);background:linear-gradient(180deg,#fff3c4,#c9a24b);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:18px}
+.epilogo{font-size:1.2rem;line-height:1.5;padding:22px 26px;margin-bottom:22px}
+.rank{display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.rank .medalha{font-size:4rem;filter:drop-shadow(0 0 20px rgba(241,215,138,.5))}
+.rank .tt{font-family:var(--f-titulo);font-size:1.4rem;color:var(--ouro2)}.rank .st{color:var(--mut);font-family:var(--f-ui);font-weight:400;font-size:.9rem}
+.cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:22px}
+.cartao{background:var(--panel2);border:1px solid var(--linha);border-radius:6px;padding:12px;text-align:center}
+.cartao b{display:block;font-family:var(--f-titulo);font-size:1.5rem;color:var(--ouro2)}.cartao span{font-family:var(--f-ui);font-size:.75rem;color:var(--mut);font-weight:400}
+.sala-linha{display:grid;grid-template-columns:34px 1fr 90px;gap:10px;align-items:center;margin-bottom:8px;font-family:var(--f-ui);font-size:.82rem;font-weight:400}
+.sala-linha .bar{height:10px;background:#0d0a14;border-radius:5px;overflow:hidden;border:1px solid var(--linha)}.sala-linha .bar i{display:block;height:100%;background:linear-gradient(90deg,#8a6d28,#f1d78a)}
+.rev{background:var(--panel2);border:1px solid var(--linha);border-radius:6px;padding:12px 16px;margin-bottom:10px}
+.rev h4{font-size:.78rem;color:var(--ouro2);margin-bottom:6px}.rev .qq{font-size:1.02rem}.rev .ee{font-size:.95rem;color:#cfc6dc;margin-top:6px;border-top:1px dashed var(--linha);padding-top:6px}
+.cod-rel{width:100%;min-height:90px;font-family:'Consolas',monospace;font-size:.72rem}
+.fin-acoes{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+.confete{position:fixed;top:-20px;width:9px;height:14px;z-index:1200;pointer-events:none;animation:cai linear forwards}
+@keyframes cai{to{transform:translateY(110vh) rotate(720deg);opacity:.9}}
+.cx-c{width:100%;font-family:var(--f-ui)}
+.aviso{font-family:var(--f-ui);font-size:.82rem;font-weight:400;color:var(--mut);line-height:1.5}
+.aviso b{color:var(--ouro2)}
+.linha-fl{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+ul.como{padding-left:1.1em;line-height:1.55;margin:.4em 0}ul.como li{margin-bottom:.35em}
+.kbdl kbd{font-family:var(--f-titulo);background:var(--ouro);color:#1a1208;border-radius:3px;padding:.05em .45em;font-size:.75rem}
+</style>
+</head>
+<body>
+<div id="raio"></div>
+
+<!-- ============ TÍTULO ============ -->
+<section id="tela-titulo" class="tela ativa">
+  <button class="btn pequeno fantasma fs-fix" data-fs><span class="fsi">⛶</span> Tela inteira</button>
+  <div class="estrelas"></div><div class="lua"></div>
+  <svg class="casarao" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <defs><linearGradient id="gcasa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c0a15"/><stop offset="1" stop-color="#050409"/></linearGradient></defs>
+    <g fill="url(#gcasa)" stroke="#1a1626" stroke-width="1.5">
+      <rect x="380" y="230" width="440" height="290"/><polygon points="360,232 600,112 840,232"/>
+      <rect x="150" y="320" width="240" height="200"/><polygon points="140,322 270,252 400,322"/>
+      <rect x="810" y="320" width="240" height="200"/><polygon points="800,322 930,252 1060,322"/>
+      <rect x="248" y="170" width="92" height="350"/><polygon points="236,172 294,70 352,172"/>
+      <rect x="862" y="150" width="92" height="370"/><polygon points="850,152 908,46 966,152"/>
+      <rect x="520" y="150" width="30" height="80"/><rect x="660" y="140" width="30" height="90"/>
+      <rect x="540" y="388" width="120" height="132"/><path d="M540 388 Q600 330 660 388Z"/>
+    </g>
+    <g class="jan">
+      <rect x="420" y="270" width="26" height="40" rx="12" style="animation-delay:0s"/><rect x="480" y="270" width="26" height="40" rx="12" style="animation-delay:1.1s"/>
+      <rect x="694" y="270" width="26" height="40" rx="12" style="animation-delay:2.3s"/><rect x="754" y="270" width="26" height="40" rx="12" style="animation-delay:.6s"/>
+      <rect x="578" y="190" width="44" height="50" rx="20" style="animation-delay:1.7s"/>
+      <rect x="420" y="380" width="26" height="40" rx="12" style="animation-delay:2.9s"/><rect x="480" y="380" width="26" height="40" rx="12" style="animation-delay:.3s"/>
+      <rect x="694" y="380" width="26" height="40" rx="12" style="animation-delay:1.4s"/><rect x="754" y="380" width="26" height="40" rx="12" style="animation-delay:3.3s"/>
+      <rect x="276" y="220" width="22" height="34" rx="10" style="animation-delay:.9s"/><rect x="890" y="200" width="22" height="34" rx="10" style="animation-delay:2.1s"/>
+      <rect x="276" y="320" width="22" height="34" rx="10" style="animation-delay:3.1s"/><rect x="890" y="320" width="22" height="34" rx="10" style="animation-delay:1.9s"/>
+      <rect x="210" y="380" width="24" height="36" rx="11" style="animation-delay:.4s"/><rect x="300" y="380" width="24" height="36" rx="11" style="animation-delay:2.6s"/>
+      <rect x="876" y="380" width="24" height="36" rx="11" style="animation-delay:1.2s"/><rect x="966" y="380" width="24" height="36" rx="11" style="animation-delay:3.6s"/>
+    </g>
+    <g fill="#04030a"><path d="M0 520 L0 470 Q60 430 120 470 Q180 410 250 470 L250 520Z"/><path d="M950 520 L950 470 Q1020 410 1090 470 Q1150 430 1200 470 L1200 520Z"/>
+      <g stroke="#04030a" stroke-width="3">
+        <path d="M0 500H1200" stroke-width="5"/>
+        <path d="M20 500V470M60 500V470M100 500V470M140 500V470M180 500V470M220 500V470M260 500V470M300 500V470M340 500V470M380 500V470M420 500V470M780 500V470M820 500V470M860 500V470M900 500V470M940 500V470M980 500V470M1020 500V470M1060 500V470M1100 500V470M1140 500V470M1180 500V470"/>
+      </g></g>
+  </svg>
+  <div class="chuva"></div><div class="neblina"></div>
+  <div class="titulo-box">
+    <div class="sobre">Um caso de Banco de Dados</div>
+    <h1>O Mistério<br>da Tabela Perdida</h1>
+    <div class="subtit">Na mansão Codd, uma tabela desapareceu na calada da noite…</div>
+    <div class="menu-titulo">
+      <button class="btn primario" id="b-iniciar">🔎 Iniciar investigação</button>
+      <button class="btn" id="b-continuar" style="display:none">↻ Continuar caso salvo</button>
+      <button class="btn pequeno fantasma" id="b-como">Como jogar</button>
+    </div>
+    <div class="fonte-missao" id="fonte-missao"></div>
+  </div>
+  <div class="rodape-t">Módulo do Aluno · criado por <b>Prof. Fred Lucena</b> · Banco de Dados</div>
+</section>
+
+<!-- ============ AVATAR ============ -->
+<section id="tela-avatar" class="tela">
+  <button class="btn pequeno fantasma fs-fix" data-fs><span class="fsi">⛶</span> Tela inteira</button>
+  <div class="av-wrap">
+    <h2>Escolha seu detetive</h2>
+    <p class="lead">Quem vai percorrer os corredores da mansão Codd?</p>
+    <div class="av-grid">
+      <div class="ficha">
+        <div class="retrato" id="retrato"></div>
+        <div class="nome-av" id="nome-av"></div>
+        <label class="campo"><span>Seu nome (aparecerá no relatório)</span><input type="text" id="f-nome" maxlength="50" placeholder="Ex.: Maria Silva" autocomplete="off"></label>
+        <label class="campo"><span>Turma (opcional)</span><input type="text" id="f-turma" maxlength="30" placeholder="Ex.: ADS 1º período"></label>
+        <label class="campo" style="margin-bottom:0"><span>Matrícula (opcional)</span><input type="text" id="f-mat" maxlength="20" placeholder="Ex.: 20261234"></label>
+      </div>
+      <div><div class="opcoes-av" id="opcoes-av"></div></div>
+    </div>
+    <div class="acoes-av">
+      <button class="btn fantasma" id="b-av-voltar">← Voltar</button>
+      <button class="btn primario" id="b-av-ok">Entrar na mansão →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ JOGO ============ -->
+<section id="tela-jogo" class="tela">
+  <div class="hud">
+    <div class="eu"><div class="mini" id="hud-mini"></div><div><div class="nm" id="hud-nome"></div><div class="sub" id="hud-sub"></div></div></div>
+    <div class="meio" id="hud-titulo"></div>
+    <div class="stat"><b id="hud-pontos">0</b>pontos</div>
+    <div class="stat"><b id="hud-tempo">0:00</b>tempo</div>
+    <button class="btn pequeno" id="b-caderno" title="Caderno de pistas (C)">📓<span class="lbl"> Caderno</span></button>
+    <button class="btn pequeno fantasma" data-fs><span class="fsi">⛶</span></button>
+    <button class="btn pequeno fantasma" id="b-som" title="Som">🔊</button>
+    <button class="btn pequeno fantasma" id="b-menu" title="Menu (Esc)">☰</button>
+  </div>
+  <div class="palco-area">
+    <div class="palco">
+      <canvas id="cv"></canvas>
+      <canvas id="mini" width="352" height="223"></canvas>
+      <div class="dica-ctrl" id="dica-ctrl">Setas / WASD para andar · <b>E</b> para investigar · <b>C</b> caderno</div>
+      <div id="prompt"></div>
+      <div class="dpad" id="dpad"><button class="u" data-d="u">▲</button><button class="l" data-d="l">◀</button><button class="r" data-d="r">▶</button><button class="d" data-d="d">▼</button></div>
+      <button class="btn primario" id="btn-acao">Investigar</button>
+    </div>
+  </div>
+  <div class="barra-inv">
+    <span class="rot">Ferramentas</span><div id="inv"></div><span class="prog" id="prog"></span>
+  </div>
+</section>
+
+<!-- ============ FINAL ============ -->
+<section id="tela-final" class="tela"><div class="fin-wrap" id="fin-wrap"></div></section>
+
+<div id="modal-root"></div>
+<div id="toasts"></div>
+
+<script>
+/* ===== O Mistério da Tabela Perdida — núcleo compartilhado (aluno + professor) ===== */
+const DTP = (() => {
+
+  /* ---------- Utilidades ---------- */
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  // Mini-formatação: `código`, ```bloco```, **negrito**, quebras de linha
+  const fmt = s => {
+    let t = esc(s);
+    t = t.replace(/```([\s\S]*?)```/g, (m, c) => '<pre>' + c.trim() + '</pre>');
+    t = t.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    t = t.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    return t.replace(/\n/g, '<br>');
+  };
+  const b64e = s => btoa(unescape(encodeURIComponent(s)));
+  const b64d = s => decodeURIComponent(escape(atob(s.replace(/\s+/g, ''))));
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const fmtTempo = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0'); };
+  const lsGet = (k, d = null) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
+  const lsDel = k => { try { localStorage.removeItem(k); } catch (e) {} };
+  const hash = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+  const baixar = (nome, texto, mime = 'application/json') => {
+    const b = new Blob([texto], { type: mime + ';charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = nome;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  };
+  const copiar = async txt => {
+    try { await navigator.clipboard.writeText(txt); return true; }
+    catch (e) { const t = document.createElement('textarea'); t.value = txt; t.style.position = 'fixed'; t.style.opacity = '0'; document.body.appendChild(t); t.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (_) {} t.remove(); return ok; }
+  };
+  const toast = (msg, err) => {
+    let r = document.getElementById('toasts'); if (!r) { r = document.createElement('div'); r.id = 'toasts'; document.body.appendChild(r); }
+    const d = document.createElement('div'); d.className = 'toast' + (err ? ' err' : ''); d.textContent = msg; r.appendChild(d); setTimeout(() => d.remove(), 3100);
+  };
+
+  /* ---------- Configuração padrão ---------- */
+  const CONFIG_PADRAO = {
+    titulo: 'O Mistério da Tabela Perdida',
+    turma: '',
+    porSala: 2,              // desafios por sala (1 ou 2)
+    embaralhar: true,        // embaralhar alternativas
+    revelarGabarito: true,   // mostrar a resposta certa e a explicação após errar
+    pontos: [100, 60, 30],   // pontos por 1ª, 2ª e demais tentativas
+    bonusAcusacao: [200, 120, 60],
+    penalidadeAcusacao: 50
+  };
+
+  /* ---------- Salas, ferramentas e pistas ---------- */
+  const SALAS = [
+    { id: 1, nome: 'Biblioteca', tema: 'Conceitos de Banco de Dados', ico: '📚',
+      intro: 'Estantes empoeiradas guardam o livro de registros do servidor. Para abri-lo, prove que domina os fundamentos.',
+      ferr: [
+        { ico: '🔦', nome: 'Lanterna de Mão', uso: 'Amplia o alcance da sua luz pela mansão escura.',
+          pista: 'Sob o feixe da lanterna, o livro de registros (log) do servidor: às 00h13 a tabela CLIENTES foi removida por inteiro — estrutura e dados sumiram, não apenas as linhas.' },
+        { ico: '📖', nome: 'Manual do SGBD', uso: 'Explica quem pode fazer o quê no sistema.',
+          pista: 'O manual afirma: remover tabelas exige privilégio de administrador (DBA). Contas comuns só consultam ou alteram registros.' }] },
+    { id: 2, nome: 'Sala de Jantar', tema: 'Modelagem Entidade-Relacionamento', ico: '🍷',
+      intro: 'A mesa ainda está posta. Os convidados da festa de ontem deixaram álibis… e muitas perguntas.',
+      ferr: [
+        { ico: '📜', nome: 'Lista de Convidados', uso: 'Registra quem esteve onde durante a festa.',
+          pista: 'Alfred Select serviu o jantar até 1h30, à vista de dezenas de convidados. Álibi confirmado.' },
+        { ico: '🧪', nome: 'Kit de Análise', uso: 'Confere horários e testemunhas.',
+          pista: 'Dona Fátima Foreign assinava contratos diante de duas testemunhas às 00h13. Álibi confirmado.' }] },
+    { id: 3, nome: 'Salão de Música', tema: 'Modelo Relacional e Chaves', ico: '🎹',
+      intro: 'Um piano de cauda desafina sozinho. Algo escondido entre as teclas liga uma tabela à outra.',
+      ferr: [
+        { ico: '🎧', nome: 'Gravador de Voz', uso: 'Reproduz conversas captadas na madrugada.',
+          pista: 'Uma voz grave no corredor dos servidores: “Só vim trocar a lâmpada… esse backup aí deve ser lixo, vou limpar tudo.”' },
+        { ico: '🗝️', nome: 'Chave de Manutenção', uso: 'Mostra quem tem acesso às portas restritas.',
+          pista: 'A porta dos servidores foi aberta com chave de manutenção, sem arrombamento. Só o Lorde e o faz-tudo da mansão possuem cópia.' }] },
+    { id: 4, nome: 'Estufa', tema: 'Normalização', ico: '🌿',
+      intro: 'Entre samambaias e orquídeas, tudo precisa estar no lugar certo — sem repetição e sem desperdício.',
+      ferr: [
+        { ico: '🥾', nome: 'Molde de Pegadas', uso: 'Revela rastros deixados no chão.',
+          pista: 'Pegadas de bota com terra adubada vão da estufa até a sala dos servidores.' },
+        { ico: '🧤', nome: 'Luvas de Látex', uso: 'Permite coletar digitais sem contaminar a prova.',
+          pista: 'Digitais sujas de terra foram encontradas no teclado do servidor.' }] },
+    { id: 5, nome: 'Escritório do Lorde', tema: 'SQL — Definição de Dados (DDL)', ico: '🖋️',
+      intro: 'O notebook do Lorde Codd ainda está aberto. Para ler seu conteúdo, digite os comandos que moldam a estrutura do banco.',
+      ferr: [
+        { ico: '💻', nome: 'Notebook do Lorde', uso: 'Lista as contas e permissões do SGBD.',
+          pista: 'Contas do SGBD — alfred: só SELECT · fatima: INSERT/UPDATE/DELETE · index: só SELECT · tdrop_admin: DBA, criada ontem. O sobrinho Nulo não possui conta alguma.' },
+        { ico: '📋', nome: 'Ordem de Serviço', uso: 'Documento que autoriza acessos e tarefas.',
+          pista: 'Ordem de ontem: “Autorizo T. Drop a fazer a manutenção da sala dos servidores.” — assinado, Lorde Codd.' }] },
+    { id: 6, nome: 'Cozinha', tema: 'SQL — Manipulação de Dados (DML)', ico: '🍳',
+      intro: 'Panelas ainda quentes. Quem mexeu nos ingredientes (e nos dados) durante a madrugada?',
+      ferr: [
+        { ico: '📹', nome: 'Fita de Segurança', uso: 'Imagens das câmeras do corredor.',
+          pista: 'A câmera do corredor flagrou, às 00h10, um vulto de macacão azul e chapéu de palha.' },
+        { ico: '⏱️', nome: 'Relógio de Bolso', uso: 'Confere horários exatos.',
+          pista: 'Madame Index estava na cozinha assando pães com a ajudante até as 2h. Álibi confirmado.' }] },
+    { id: 7, nome: 'Adega', tema: 'SQL — Consultas (SELECT, JOIN, agregações)', ico: '🍾',
+      intro: 'No subsolo ficam o vinho e o servidor de backup. A escuridão aqui é de verdade.',
+      ferr: [
+        { ico: '🔍', nome: 'Lupa', uso: 'Examina os menores detalhes da cena.',
+          pista: 'Com a lupa você vê terra adubada no piso da adega, onde fica o servidor de backup — desligado desde ontem à noite.' },
+        { ico: '🔬', nome: 'Microscópio', uso: 'Analisa fibras e resíduos.',
+          pista: 'Uma fibra azul-marinho, de macacão de trabalho, estava presa à porta do servidor.' }] },
+    { id: 8, nome: 'Sala dos Servidores', tema: 'Confronto final', ico: '🖥️', final: true,
+      intro: 'Reúna os fatos. Quem apagou a tabela — e com qual comando SQL?' }
+  ];
+
+  /* ---------- Suspeitos e desfecho ---------- */
+  const SUSPEITOS = [
+    { id: 'alfred', nome: 'Alfred Select', papel: 'Mordomo', ico: '🤵',
+      desc: 'Serve a família há trinta anos. Está sempre “lendo” tudo, mas jamais mexe em nada.' },
+    { id: 'fatima', nome: 'Dona Fátima Foreign', papel: 'Governanta e contadora', ico: '👩‍💼',
+      desc: 'Mantém contratos e livros-caixa em ordem. Vive “referenciando” os outros em todas as conversas.' },
+    { id: 'tobias', nome: 'Tobias Drop', papel: 'Jardineiro e faz-tudo', ico: '🧑‍🌾',
+      desc: 'Usa macacão azul e chapéu de palha. Dizem que “derruba” tudo o que não consegue consertar.' },
+    { id: 'index', nome: 'Madame Index', papel: 'Cozinheira', ico: '👩‍🍳',
+      desc: 'Encontra qualquer ingrediente na despensa em segundos. Odeia ser interrompida.' },
+    { id: 'nulo', nome: 'Nulo Null', papel: 'Sobrinho do Lorde', ico: '🧑‍🎤',
+      desc: 'Herdeiro de poucos amigos. Ninguém sabe onde ele estava na hora do crime — nem ele mesmo.' }
+  ];
+  const CULPADO = 'tobias';
+  const METODOS = [
+    { id: 'drop', cmd: 'DROP TABLE clientes;', ok: true },
+    { id: 'truncate', cmd: 'TRUNCATE TABLE clientes;' },
+    { id: 'delete', cmd: 'DELETE FROM clientes;' },
+    { id: 'alter', cmd: 'ALTER TABLE clientes DROP COLUMN nome;' }
+  ];
+  const EPILOGO = 'Tobias Drop confessou. Com a conta **tdrop_admin**, criada só para trocar a lâmpada do servidor, ele executou `DROP TABLE clientes;` acreditando que era “lixo antigo”. O backup estava desligado — e a tabela se foi para sempre. Lição de Banco de Dados: **privilégio mínimo** (cada conta só pode o que precisa) e **backup testado** (sem ele, um DROP é irreversível).';
+
+  /* ---------- Avatares (SVG) ---------- */
+  const AVATARES = [
+    { id: 'brumas',  nome: 'Inspetor Brumas',    skin: '#f1c9a5', hair: '#6b4a2f', hat: 'fedora',  hatC: '#4a4e57', coat: '#a68b5b', coat2: '#85703f', tie: '#7a1f33', acc: 'bigode' },
+    { id: 'cinzas',  nome: 'Detetive Cinzas',    skin: '#d9a67c', hair: '#23201f', hat: 'bowler',  hatC: '#2a2a33', coat: '#3b4a6b', coat2: '#2c3752', tie: '#c9a24b', acc: 'lupa' },
+    { id: 'vesper',  nome: 'Agente Vesper',      skin: '#8a5a3c', hair: '#1a1210', hat: 'beret',   hatC: '#8e1f36', coat: '#232836', coat2: '#171b26', tie: '#c9a24b', acc: 'oculos', longo: true },
+    { id: 'nanquim', nome: 'Dra. Nanquim',       skin: '#f4d3b8', hair: '#7b3b1e', hat: 'coque',   hatC: '#7b3b1e', coat: '#2f6b57', coat2: '#22503f', tie: '#eadfc2', acc: 'oculos' },
+    { id: 'nevoa',   nome: 'Investigador Névoa', skin: '#c68b62', hair: '#3a2a1c', hat: 'flatcap', hatC: '#6b5a3e', coat: '#59603f', coat2: '#434a2e', tie: '#a52a45', acc: 'barba' },
+    { id: 'aurora',  nome: 'Detetive Aurora',    skin: '#6b4430', hair: '#0e0b09', hat: 'cloche',  hatC: '#b08d3f', coat: '#5a2b5e', coat2: '#411d44', tie: '#f1d78a', acc: 'brinco', longo: true }
+  ];
+  const avatarSVG = (a, extra = '') => {
+    const o = '#1b1410';
+    let back = '', hairTop = '', hat = '', face = '', accs = '';
+    if (a.longo) back = `<path d="M31 32 C28 14 72 14 69 32 L72 60 C66 66 34 66 28 60Z" fill="${a.hair}"/>`;
+    hairTop = `<path d="M33.5 31 C32 14 68 14 66.5 31 C62 24 56 21 50 21 C44 21 38 24 33.5 31Z" fill="${a.hair}"/>`;
+    switch (a.hat) {
+      case 'fedora':
+        hat = `<ellipse cx="50" cy="24" rx="28" ry="6" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/><path d="M34 24 C33 8 43 5 50 8 C57 5 67 8 66 24Z" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/><path d="M34 21 L66 21 L66.4 24 L33.6 24Z" fill="${a.tie}"/>`; break;
+      case 'bowler':
+        hat = `<ellipse cx="50" cy="24" rx="23" ry="4.5" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/><path d="M35 24 C34 3 66 3 65 24Z" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/><path d="M35 21 L65 21 L65.2 24 L34.8 24Z" fill="${a.tie}"/>`; break;
+      case 'beret':
+        hat = `<ellipse cx="53" cy="17" rx="21" ry="9" fill="${a.hatC}" stroke="${o}" stroke-width=".8" transform="rotate(-9 53 17)"/><circle cx="54" cy="8.5" r="2" fill="${a.hatC}" stroke="${o}" stroke-width=".6"/>`; break;
+      case 'flatcap':
+        hat = `<path d="M32 25 C32 11 58 9 69 19 L70 25Z" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/><path d="M52 23 L74 25 C71 30 57 29 52 26Z" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/>`; break;
+      case 'cloche':
+        hat = `<path d="M31 31 C26 8 74 8 69 31 C62 25 38 25 31 31Z" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/><path d="M33 24 C45 20 55 20 67 24 L66.6 27 C55 23 45 23 33.4 27Z" fill="${a.tie}"/>`; break;
+      case 'coque':
+        hat = `<circle cx="50" cy="12.5" r="7.5" fill="${a.hair}" stroke="${o}" stroke-width=".6"/>`; break;
+    }
+    if (a.acc === 'oculos') accs += `<circle cx="43" cy="35" r="5.2" fill="rgba(200,230,255,.22)" stroke="#1b1410" stroke-width="1.2"/><circle cx="57" cy="35" r="5.2" fill="rgba(200,230,255,.22)" stroke="#1b1410" stroke-width="1.2"/><path d="M48.2 35 L51.8 35" stroke="#1b1410" stroke-width="1.2"/>`;
+    if (a.acc === 'bigode') accs += `<path d="M42 41 Q46.5 38 50 41 Q53.5 38 58 41 Q53.5 44.5 50 42.5 Q46.5 44.5 42 41Z" fill="${a.hair}"/>`;
+    if (a.acc === 'barba') accs += `<path d="M34.5 38 Q35 56 50 56 Q65 56 65.5 38 Q61 49 50 49 Q39 49 34.5 38Z" fill="${a.hair}"/><path d="M43 41.5 Q50 39 57 41.5 Q50 44.5 43 41.5Z" fill="${a.hair}"/>`;
+    if (a.acc === 'brinco') accs += `<circle cx="34" cy="43" r="1.9" fill="#f1d78a" stroke="#8a6d28" stroke-width=".5"/><circle cx="66" cy="43" r="1.9" fill="#f1d78a" stroke="#8a6d28" stroke-width=".5"/>`;
+    const lupa = a.acc === 'lupa' ? `<g><line x1="80" y1="104" x2="86" y2="92" stroke="#6b4a2f" stroke-width="3" stroke-linecap="round"/><circle cx="89" cy="83" r="9" fill="rgba(180,220,255,.28)" stroke="#c9a24b" stroke-width="2.4"/><path d="M84 80 Q86 77 90 77" stroke="#fff" stroke-opacity=".7" stroke-width="1.4" fill="none" stroke-linecap="round"/></g>` : '';
+    face = `
+      <ellipse cx="34.3" cy="37" rx="3" ry="4" fill="${a.skin}" stroke="${o}" stroke-width=".6"/><ellipse cx="65.7" cy="37" rx="3" ry="4" fill="${a.skin}" stroke="${o}" stroke-width=".6"/>
+      <ellipse cx="50" cy="35" rx="16" ry="19" fill="${a.skin}" stroke="${o}" stroke-width=".8"/>`;
+    const eyes = `<ellipse cx="43" cy="35" rx="1.8" ry="2.2" fill="${o}"/><ellipse cx="57" cy="35" rx="1.8" ry="2.2" fill="${o}"/>
+      <path d="M39.5 30.5 Q43 28.6 46.5 30.2M53.5 30.2 Q57 28.6 60.5 30.5" stroke="${a.hair}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M50 37 Q48.6 41 50.8 41.4" stroke="rgba(60,30,10,.45)" stroke-width="1" fill="none" stroke-linecap="round"/>
+      <path d="M45 46 Q50 49.2 55 46" stroke="#5a2a22" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" ${extra}>
+      <ellipse cx="50" cy="135" rx="27" ry="4.6" fill="rgba(0,0,0,.4)"/>
+      ${back}
+      <rect x="37" y="100" width="11" height="29" rx="4" fill="#1c1c26"/><rect x="52" y="100" width="11" height="29" rx="4" fill="#1c1c26"/>
+      <ellipse cx="41.5" cy="130" rx="9" ry="4.2" fill="#0d0d12"/><ellipse cx="58.5" cy="130" rx="9" ry="4.2" fill="#0d0d12"/>
+      <path d="M24 62 C24 54 34 50 50 50 C66 50 76 54 76 62 L81 114 L19 114Z" fill="${a.coat}" stroke="${o}" stroke-width=".9"/>
+      <path d="M19 106 L81 106 L81 114 L19 114Z" fill="${a.coat2}" opacity=".7"/>
+      <path d="M43 50 L50 68 L57 50Z" fill="#f2efe6" stroke="${o}" stroke-width=".5"/>
+      <path d="M48.4 56 L51.6 56 L53.2 73 L50 77 L46.8 73Z" fill="${a.tie}" stroke="${o}" stroke-width=".5"/>
+      <path d="M50 52 L36 54 L42 78 L50 68Z" fill="${a.coat2}" stroke="${o}" stroke-width=".7"/><path d="M50 52 L64 54 L58 78 L50 68Z" fill="${a.coat2}" stroke="${o}" stroke-width=".7"/>
+      <path d="M50 78 L50 114" stroke="${o}" stroke-width=".8" opacity=".7"/>
+      <circle cx="45.5" cy="88" r="1.8" fill="#c9a24b"/><circle cx="45.5" cy="99" r="1.8" fill="#c9a24b"/>
+      <path d="M24 60 L13 100 L23 103 L31 70Z" fill="${a.coat}" stroke="${o}" stroke-width=".9"/><path d="M76 60 L87 100 L77 103 L69 70Z" fill="${a.coat}" stroke="${o}" stroke-width=".9"/>
+      <circle cx="18" cy="104.5" r="5.2" fill="${a.skin}" stroke="${o}" stroke-width=".8"/><circle cx="82" cy="104.5" r="5.2" fill="${a.skin}" stroke="${o}" stroke-width=".8"/>
+      ${lupa}
+      <rect x="44.5" y="46" width="11" height="9" fill="${a.skin}"/>
+      ${face}${eyes}${hairTop}${accs}${hat}
+    </svg>`;
+  };
+
+  /* ---------- Banco de questões padrão (35) ---------- */
+  const Q = (id, sala, nivel, q, o, c, e) => ({ id, sala, nivel, q, o, c, e });
+  const QUESTOES_PADRAO = [
+    // Sala 1 — Conceitos
+    Q('s1q1', 1, 1, 'Qual é a diferença entre **dado** e **informação**?',
+      ['Dado é um fato bruto, sem contexto; informação é o dado processado, com significado.', 'Dado e informação são sinônimos em qualquer situação.', 'Informação é o fato bruto; dado é o resultado de uma análise.', 'Dado só existe em bancos de dados relacionais.'], 0,
+      'O número 38,5 é um dado. Interpretado como “temperatura do paciente: 38,5 °C (febre)”, torna-se informação.'),
+    Q('s1q2', 1, 1, 'O que é um **SGBD** (Sistema Gerenciador de Banco de Dados)?',
+      ['O conjunto de tabelas armazenadas em disco.', 'O software que permite criar, acessar, manter e proteger bancos de dados.', 'Uma linguagem de programação para criar sites.', 'O computador que hospeda os arquivos do sistema.'], 1,
+      'O banco de dados são os dados em si; o SGBD (MySQL, PostgreSQL, Oracle…) é o software que os gerencia.'),
+    Q('s1q3', 1, 2, 'Qual é uma vantagem de usar um SGBD em vez de planilhas e arquivos de texto espalhados?',
+      ['Elimina totalmente a necessidade de backup.', 'Controla acessos simultâneos, reduz redundância e inconsistência e centraliza a segurança.', 'Impede que qualquer usuário altere os dados.', 'Dispensa o planejamento e a modelagem dos dados.'], 1,
+      'O SGBD oferece controle de concorrência, integridade, segurança e menor redundância. Backup continua sendo necessário.'),
+    Q('s1q4', 1, 1, 'Qual profissional é responsável por instalar e configurar o SGBD, conceder permissões e realizar backups?',
+      ['Analista de requisitos', 'Administrador de Banco de Dados (DBA)', 'Usuário final', 'Designer de interface'], 1,
+      'O DBA cuida da administração do ambiente: instalação, desempenho, segurança, permissões e cópias de segurança.'),
+    Q('s1q5', 1, 1, 'Qual alternativa apresenta apenas exemplos de SGBDs?',
+      ['MySQL, PostgreSQL e Oracle', 'HTML, CSS e JavaScript', 'Word, Excel e PowerPoint', 'Python, Java e C'], 0,
+      'HTML/CSS/JS são tecnologias web; Word/Excel/PowerPoint são aplicativos de escritório; Python/Java/C são linguagens de programação.'),
+    // Sala 2 — MER
+    Q('s2q1', 2, 1, 'No Modelo Entidade-Relacionamento (MER), o que representa uma **entidade**?',
+      ['Um objeto ou conceito do mundo real sobre o qual queremos guardar dados (ex.: Cliente).', 'Uma característica de um objeto (ex.: nome).', 'A ligação entre duas tabelas por meio de chaves.', 'Um comando para consultar os dados.'], 0,
+      'Entidade é “a coisa”; atributos são suas características; relacionamentos ligam entidades.'),
+    Q('s2q2', 2, 2, 'Qual atributo é, tipicamente, **multivalorado**?',
+      ['CPF do cliente', 'Data de nascimento', 'Telefones do cliente (pode ter vários)', 'Código do cliente'], 2,
+      'Um mesmo cliente pode ter vários telefones. No modelo relacional, esse atributo costuma virar uma tabela própria.'),
+    Q('s2q3', 2, 1, 'Um cliente pode fazer vários pedidos, mas cada pedido pertence a um único cliente. A cardinalidade entre Cliente e Pedido é:',
+      ['1:1 (um para um)', '1:N (um para muitos)', 'N:N (muitos para muitos)', '0:0 (nenhum para nenhum)'], 1,
+      'Um cliente → muitos pedidos; cada pedido → um cliente. É o relacionamento 1:N mais comum.'),
+    Q('s2q4', 2, 2, 'Um aluno cursa várias disciplinas e cada disciplina possui vários alunos. Essa cardinalidade é:',
+      ['1:1', '1:N', 'N:N (muitos para muitos)', 'Não existe relacionamento'], 2,
+      'Relacionamentos N:N exigem uma tabela associativa (ex.: Matrícula) na implementação relacional.'),
+    Q('s2q5', 2, 1, 'O que é um **atributo identificador** de uma entidade?',
+      ['Aquele que mais aparece nas consultas.', 'Aquele cujo valor identifica unicamente cada ocorrência da entidade (ex.: CPF, matrícula).', 'Aquele que possui o maior tamanho em bytes.', 'Qualquer atributo do tipo texto.'], 1,
+      'O identificador distingue uma ocorrência das demais e dará origem à chave primária.'),
+    // Sala 3 — Modelo relacional
+    Q('s3q1', 3, 1, 'No modelo relacional, cada **linha** (tupla) de uma tabela representa:',
+      ['Uma coluna da tabela', 'Uma ocorrência (registro) da entidade', 'Um tipo de dado', 'Um índice'], 1,
+      'Linhas são registros (ocorrências); colunas são atributos.'),
+    Q('s3q2', 3, 1, 'A **chave primária** (PK) de uma tabela garante que:',
+      ['O valor pode se repetir desde que a linha seja diferente', 'Cada linha é identificada por um valor único e não nulo', 'A tabela só poderá ter uma linha', 'A coluna será sempre numérica'], 1,
+      'A PK é única e obrigatória (não aceita NULL). Pode ser de qualquer tipo, inclusive texto.'),
+    Q('s3q3', 3, 1, 'Para que serve uma **chave estrangeira** (FK)?',
+      ['Para criptografar os dados', 'Para referenciar a chave primária de outra tabela e criar o relacionamento', 'Para ordenar as linhas', 'Para impedir a criação de novas tabelas'], 1,
+      'A FK aponta para a PK de outra tabela, estabelecendo o vínculo e permitindo a integridade referencial.'),
+    Q('s3q4', 3, 2, 'Como um relacionamento **N:N** é implementado no modelo relacional?',
+      ['Colocando uma lista de IDs em uma única coluna', 'Criando uma tabela associativa com as chaves estrangeiras das duas tabelas', 'Duplicando as duas tabelas', 'Não é possível representar N:N'], 1,
+      'A tabela associativa (ex.: matricula com id_aluno e id_disciplina) transforma o N:N em dois relacionamentos 1:N.'),
+    Q('s3q5', 3, 2, 'Existe uma FK `pedido.id_cliente` referenciando `cliente.id`. O que ocorre ao inserir um pedido com `id_cliente = 999`, que não existe em `cliente`?',
+      ['O SGBD cria automaticamente o cliente 999', 'O SGBD rejeita a inserção (violação de integridade referencial)', 'O pedido é gravado com id_cliente nulo', 'A tabela cliente é apagada'], 1,
+      'A integridade referencial impede que uma FK aponte para um valor que não existe na tabela referenciada.'),
+    // Sala 4 — Normalização
+    Q('s4q1', 4, 1, 'Uma tabela está na **1ª Forma Normal (1FN)** quando:',
+      ['Todos os atributos são atômicos (sem valores multivalorados ou grupos repetidos)', 'Não possui chave primária', 'Todos os atributos são numéricos', 'Possui no máximo duas colunas'], 0,
+      '1FN: cada célula guarda um único valor indivisível.'),
+    Q('s4q2', 4, 1, 'A coluna `telefones` guarda “8888-1111, 9999-2222” em uma mesma célula. Qual forma normal está sendo violada?',
+      ['1FN', '2FN', '3FN', 'Nenhuma'], 0,
+      'Dois valores na mesma célula tornam o atributo não atômico — violação da 1FN.'),
+    Q('s4q3', 4, 2, 'A **2ª Forma Normal (2FN)** elimina:',
+      ['Dependências transitivas', 'Dependências parciais da chave primária composta', 'Tabelas com mais de 3 colunas', 'Chaves estrangeiras'], 1,
+      'Na 2FN, todo atributo não-chave deve depender da chave inteira, e não apenas de parte dela.'),
+    Q('s4q4', 4, 2, 'A **3ª Forma Normal (3FN)** elimina:',
+      ['Dependências parciais', 'Dependências transitivas (atributo não-chave dependendo de outro não-chave)', 'Chaves primárias', 'Relacionamentos 1:N'], 1,
+      'Ex.: em Funcionario(id, nome, cod_depto, nome_depto), nome_depto depende de cod_depto, não de id — deve ir para a tabela Departamento.'),
+    Q('s4q5', 4, 1, 'Qual é o principal objetivo da normalização?',
+      ['Reduzir redundância e evitar anomalias de inserção, atualização e exclusão', 'Aumentar o número de tabelas para dificultar acessos', 'Substituir o uso de chaves primárias', 'Criptografar os dados'], 0,
+      'Dados repetidos geram inconsistências; normalizar organiza a informação em tabelas coesas.'),
+    // Sala 5 — DDL
+    Q('s5q1', 5, 1, 'Qual comando SQL cria uma nova tabela?',
+      ['INSERT TABLE', 'CREATE TABLE', 'NEW TABLE', 'MAKE TABLE'], 1,
+      'CREATE TABLE define o nome, as colunas, os tipos e as restrições da tabela.'),
+    Q('s5q2', 5, 2, 'Qual comando adiciona a coluna `email` à tabela `clientes`?',
+      ['`UPDATE clientes ADD email VARCHAR(100);`', '`INSERT INTO clientes email;`', '`ALTER TABLE clientes ADD email VARCHAR(100);`', '`CREATE COLUMN email ON clientes;`'], 2,
+      'ALTER TABLE altera a estrutura de uma tabela existente (adicionar, modificar ou remover colunas).'),
+    Q('s5q3', 5, 1, 'O que faz o comando `DROP TABLE clientes;`?',
+      ['Apaga apenas as linhas da tabela, mantendo a estrutura', 'Remove a tabela por completo: estrutura e dados', 'Renomeia a tabela', 'Cria uma cópia de segurança da tabela'], 1,
+      'DROP TABLE é DDL e é irreversível sem backup. Normalmente exige privilégios de administrador.'),
+    Q('s5q4', 5, 2, 'Qual comando DDL esvazia a tabela (remove todas as linhas) preservando sua estrutura?',
+      ['DROP TABLE', 'TRUNCATE TABLE', 'ALTER TABLE', 'CREATE TABLE'], 1,
+      'TRUNCATE remove todas as linhas e mantém a tabela. DROP remove a tabela inteira.'),
+    Q('s5q5', 5, 1, 'A sigla **DDL** significa:',
+      ['Data Definition Language — define a estrutura (CREATE, ALTER, DROP)', 'Data Delivery Layer — entrega dados à aplicação', 'Database Design Logic — desenho lógico do banco', 'Dynamic Data Link — liga bancos diferentes'], 0,
+      'DDL = Linguagem de Definição de Dados. Já INSERT, UPDATE e DELETE pertencem à DML.'),
+    // Sala 6 — DML
+    Q('s6q1', 6, 1, 'Qual comando insere um novo cliente?',
+      ["`INSERT INTO clientes (nome, email) VALUES ('Ana', 'ana@email.com');`", "`ADD clientes (nome, email) = ('Ana', 'ana@email.com');`", "`CREATE clientes VALUES ('Ana', 'ana@email.com');`", "`UPDATE clientes SET nome = 'Ana';`"], 0,
+      'INSERT INTO tabela (colunas) VALUES (valores) adiciona uma nova linha.'),
+    Q('s6q2', 6, 2, 'O que acontece ao executar `UPDATE produtos SET preco = 0;` **sem** cláusula WHERE?',
+      ['Nada, pois falta o WHERE', 'Apenas o primeiro produto é alterado', 'O preço de todos os produtos passa a ser 0', 'A tabela produtos é apagada'], 2,
+      'Sem WHERE, o UPDATE atinge todas as linhas. Sempre confira o filtro antes de executar!'),
+    Q('s6q3', 6, 1, 'Qual comando remove somente o cliente de id 7?',
+      ['`DROP TABLE clientes WHERE id = 7;`', '`DELETE FROM clientes WHERE id = 7;`', '`TRUNCATE TABLE clientes;`', '`DELETE clientes;`'], 1,
+      'DELETE FROM … WHERE remove só as linhas que atendem à condição.'),
+    Q('s6q4', 6, 1, 'Qual comando altera o e-mail do cliente de id 3?',
+      ["`UPDATE clientes SET email = 'novo@email.com' WHERE id = 3;`", "`ALTER clientes SET email = 'novo@email.com' WHERE id = 3;`", "`INSERT INTO clientes email = 'novo@email.com';`", "`SELECT email = 'novo@email.com' FROM clientes;`"], 0,
+      'UPDATE tabela SET coluna = valor WHERE condição.'),
+    Q('s6q5', 6, 1, 'Qual grupo contém apenas comandos de manipulação de dados (DML)?',
+      ['CREATE, ALTER e DROP', 'INSERT, UPDATE e DELETE', 'GRANT, REVOKE e CREATE', 'TRUNCATE, DROP e ALTER'], 1,
+      'CREATE/ALTER/DROP/TRUNCATE são DDL; GRANT/REVOKE são DCL; INSERT/UPDATE/DELETE são DML.'),
+    // Sala 7 — Consultas
+    Q('s7q1', 7, 1, 'Qual consulta retorna apenas o nome e o e-mail de todos os clientes?',
+      ['`SELECT nome, email FROM clientes;`', '`SELECT * FROM nome, email;`', '`GET nome, email FROM clientes;`', '`FROM clientes SELECT ALL;`'], 0,
+      'SELECT colunas FROM tabela. O asterisco (*) traria todas as colunas.'),
+    Q('s7q2', 7, 1, 'Qual consulta lista os clientes da cidade de Recife?',
+      ["`SELECT * FROM clientes WHERE cidade = 'Recife';`", "`SELECT * FROM clientes HAVING 'Recife';`", "`SELECT cidade FROM clientes = 'Recife';`", "`FILTER clientes BY cidade = 'Recife';`"], 0,
+      'WHERE filtra as linhas antes do resultado ser exibido.'),
+    Q('s7q3', 7, 1, 'Qual consulta informa quantos pedidos existem?',
+      ['`SELECT SUM(*) FROM pedidos;`', '`SELECT COUNT(*) FROM pedidos;`', '`SELECT MAX(*) FROM pedidos;`', '`COUNT pedidos;`'], 1,
+      'COUNT(*) conta linhas. SUM soma valores de uma coluna; MAX retorna o maior valor.'),
+    Q('s7q4', 7, 2, 'O **INNER JOIN** entre duas tabelas retorna:',
+      ['Todas as linhas das duas tabelas, combinadas ou não', 'Somente as linhas que têm correspondência nas duas tabelas, segundo a condição de junção', 'Apenas as linhas da tabela da esquerda', 'O produto de todas as colunas, sem condições'], 1,
+      'INNER JOIN mantém só o que casa pela condição (ex.: pedido.id_cliente = cliente.id).'),
+    Q('s7q5', 7, 3, 'Qual consulta mostra o total de pedidos de cada cliente?',
+      ['`SELECT id_cliente, COUNT(*) FROM pedidos GROUP BY id_cliente;`', '`SELECT id_cliente, COUNT(*) FROM pedidos ORDER BY COUNT;`', '`SELECT COUNT(*) FROM pedidos WHERE id_cliente;`', '`SELECT DISTINCT id_cliente, pedidos;`'], 0,
+      'GROUP BY agrupa as linhas; a função agregada COUNT(*) é calculada por grupo.')
+  ];
+
+  /* ---------- Pacotes (missão e relatório) ---------- */
+  const validarQuestao = q => q && typeof q.q === 'string' && q.q.trim() && Array.isArray(q.o) && q.o.length === 4 && q.o.every(x => typeof x === 'string' && x.trim()) && Number.isInteger(q.c) && q.c >= 0 && q.c < 4 && q.sala >= 1 && q.sala <= 7;
+  const montarPacote = (config, questoes) => ({ tipo: 'dtp-missao', v: 1, criadoEm: new Date().toISOString(), config: Object.assign({}, CONFIG_PADRAO, config), questoes });
+  const lerPacote = txt => {
+    txt = (txt || '').trim();
+    let obj;
+    if (/^MIS1\./.test(txt)) obj = JSON.parse(b64d(txt.slice(5)));
+    else obj = JSON.parse(txt);
+    if (!obj || obj.tipo !== 'dtp-missao' || !Array.isArray(obj.questoes)) throw new Error('Arquivo não é uma missão válida.');
+    obj.questoes = obj.questoes.filter(validarQuestao);
+    if (!obj.questoes.length) throw new Error('A missão não contém questões válidas.');
+    obj.config = Object.assign({}, CONFIG_PADRAO, obj.config || {});
+    return obj;
+  };
+  const codigoPacote = pac => 'MIS1.' + b64e(JSON.stringify(pac));
+  const hashPacote = pac => hash(JSON.stringify([pac.questoes.map(q => [q.id, q.sala, q.c, q.q]), pac.config.porSala, pac.config.pontos]));
+  const lerRelatorio = txt => {
+    txt = (txt || '').trim();
+    const obj = /^RES1\./.test(txt) ? JSON.parse(b64d(txt.slice(5))) : JSON.parse(txt);
+    if (!obj || obj.t !== 'dtp-res') throw new Error('Não é um relatório válido.');
+    return obj;
+  };
+  const codigoRelatorio = rel => 'RES1.' + b64e(JSON.stringify(rel));
+
+  const fsOk = !!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen);
+  const fsAtivo = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  const telaCheia = () => { try { if (fsAtivo()) (document.exitFullscreen || document.webkitExitFullscreen).call(document); else (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen).call(document.documentElement); } catch (e) {} };
+  const ligarTelaCheia = () => {
+    const bs = [...document.querySelectorAll('[data-fs]')];
+    const atual = () => bs.forEach(b => { b.style.display = fsOk ? '' : 'none'; b.title = fsAtivo() ? 'Sair da tela inteira (F)' : 'Tela inteira (F)'; const i = b.querySelector('.fsi'); if (i) i.textContent = fsAtivo() ? '🗗' : '⛶'; });
+    bs.forEach(b => b.addEventListener('click', telaCheia)); atual();
+    document.addEventListener('fullscreenchange', atual); document.addEventListener('webkitfullscreenchange', atual);
+    addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test((e.target || {}).tagName || '')) telaCheia(); });
+  };
+  return { telaCheia, ligarTelaCheia, esc, fmt, b64e, b64d, uid, shuffle, fmtTempo, lsGet, lsSet, lsDel, hash, baixar, copiar, toast,
+    CONFIG_PADRAO, SALAS, SUSPEITOS, CULPADO, METODOS, EPILOGO, AVATARES, avatarSVG, QUESTOES_PADRAO,
+    validarQuestao, montarPacote, lerPacote, codigoPacote, hashPacote, lerRelatorio, codigoRelatorio };
+})();
+
+</script>
+<script>
+(() => {
+'use strict';
+const { esc, fmt, shuffle, fmtTempo, lsGet, lsSet, lsDel, uid, baixar, copiar, toast,
+  SALAS, SUSPEITOS, CULPADO, METODOS, EPILOGO, AVATARES, avatarSVG, QUESTOES_PADRAO } = DTP;
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+/* =====================================================================
+   MISSÃO (banco de questões + configuração)
+   ===================================================================== */
+let MISSAO = null;
+function prepararMissao(pac, fonte) {
+  const mapa = {}; pac.questoes.forEach(q => mapa[q.id] = q);
+  MISSAO = { pac, fonte, mapa, cfg: pac.config, hash: DTP.hashPacote(pac) };
+}
+async function carregarMissao() {
+  const imp = lsGet('dtp_pacote_aluno');
+  if (imp) { try { prepararMissao(DTP.lerPacote(JSON.stringify(imp)), 'missão importada'); return; } catch (e) {} }
+  if (location.protocol !== 'file:') { try { const r = await fetch('missao.json', { cache: 'no-store' }); if (r.ok) { prepararMissao(DTP.lerPacote(await r.text()), 'missao.json do professor'); return; } } catch (e) {} }
+  const b = lsGet('dtp_banco');
+  if (Array.isArray(b)) { const q = b.filter(DTP.validarQuestao); if (q.length) { prepararMissao(DTP.montarPacote(lsGet('dtp_config', {}), q), 'banco do professor (neste navegador)'); return; } }
+  prepararMissao(DTP.montarPacote({}, QUESTOES_PADRAO), 'missão padrão');
+}
+
+/* =====================================================================
+   ÁUDIO (sintetizado — sem arquivos externos)
+   ===================================================================== */
+let AC = null, mudo = !!lsGet('dtp_mudo', false), ambienteOn = false;
+function audio() { if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (AC && AC.state === 'suspended') AC.resume(); return AC; }
+function tom(f, d, tipo = 'sine', v = .07, t0 = 0, slide) {
+  if (mudo) return; const a = audio(); if (!a) return; const t = a.currentTime + t0;
+  const o = a.createOscillator(), g = a.createGain(); o.type = tipo; o.frequency.setValueAtTime(f, t);
+  if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + d);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + .02); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t + d + .05);
+}
+function ruido(d, v, freq = 800, t0 = 0) {
+  if (mudo) return; const a = audio(); if (!a) return; const n = Math.floor(a.sampleRate * d), b = a.createBuffer(1, n, a.sampleRate), x = b.getChannelData(0);
+  for (let i = 0; i < n; i++) x[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  const s = a.createBufferSource(); s.buffer = b; const f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = freq; const g = a.createGain(); g.gain.value = v;
+  s.connect(f).connect(g).connect(a.destination); s.start(a.currentTime + t0);
+}
+const SFX = {
+  ok: () => [523, 659, 784, 1047].forEach((f, i) => tom(f, .3, 'triangle', .08, i * .09)),
+  erro: () => { tom(220, .35, 'sawtooth', .05, 0, 110); tom(165, .4, 'sawtooth', .045, .13, 80); },
+  ferr: () => [392, 494, 587, 784, 988].forEach((f, i) => tom(f, .4, 'triangle', .07, i * .08)),
+  passo: () => ruido(.05, .05, 500),
+  clique: () => tom(660, .05, 'square', .025),
+  trovao: () => { ruido(1.8, .3, 260); ruido(1.2, .2, 150, .3); },
+  porta: () => { tom(90, .6, 'sawtooth', .05, 0, 50); ruido(.5, .12, 300, .1); },
+  vitoria: () => [523, 659, 784, 1047, 1319].forEach((f, i) => tom(f, .6, 'triangle', .08, i * .13)),
+  tranca: () => { tom(140, .12, 'square', .05); tom(110, .15, 'square', .05, .12); }
+};
+function iniciarAmbiente() {
+  if (ambienteOn || mudo) return; const a = audio(); if (!a) return; ambienteOn = true;
+  const n = a.sampleRate * 2, b = a.createBuffer(1, n, a.sampleRate), x = b.getChannelData(0); for (let i = 0; i < n; i++) x[i] = Math.random() * 2 - 1;
+  const s = a.createBufferSource(); s.buffer = b; s.loop = true; const f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1400; f.Q.value = .4;
+  const g = a.createGain(); g.gain.value = .022; s.connect(f).connect(g).connect(a.destination); s.start();
+  const o = a.createOscillator(), o2 = a.createOscillator(), g2 = a.createGain(); o.frequency.value = 55; o2.frequency.value = 82.6; o.type = 'sine'; o2.type = 'sine'; g2.gain.value = .014;
+  o.connect(g2); o2.connect(g2); g2.connect(a.destination); o.start(); o2.start();
+  AC._amb = g; AC._amb2 = g2;
+}
+function aplicarMudo() { if (AC && AC._amb) { AC._amb.gain.value = mudo ? 0 : .022; AC._amb2.gain.value = mudo ? 0 : .014; } else if (!mudo && jogoAtivo) iniciarAmbiente(); $('#b-som').textContent = mudo ? '🔇' : '🔊'; lsSet('dtp_mudo', mudo); }
+
+/* =====================================================================
+   TELAS
+   ===================================================================== */
+let jogoAtivo = false;
+function tela(id) { $$('.tela').forEach(t => t.classList.toggle('ativa', t.id === id)); jogoAtivo = id === 'tela-jogo'; if (jogoAtivo) { ult = performance.now(); ajustarCanvas(); } }
+const modalRoot = $('#modal-root');
+let modais = [];
+function abrirModal(html, { fechavel = true, classe = '', aoFechar = null } = {}) {
+  const bg = document.createElement('div'); bg.className = 'modal-bg'; bg.innerHTML = `<div class="modal ${classe}">${html}</div>`;
+  modalRoot.appendChild(bg); modais.push(bg); teclas.clear(); joy.u = joy.d = joy.l = joy.r = false;
+  bg._fechavel = fechavel;
+  bg.fechar = () => { if (!bg.isConnected) return; bg.remove(); modais = modais.filter(m => m !== bg); if (aoFechar) aoFechar(); };
+  if (fechavel) bg.addEventListener('mousedown', e => { if (e.target === bg) bg.fechar(); });
+  return bg;
+}
+const modalAberto = () => modais.length > 0;
+function fecharTodosModais() { [...modais].forEach(m => m.fechar()); }
+
+/* =====================================================================
+   TÍTULO / PERFIL / AVATAR
+   ===================================================================== */
+let avSel = AVATARES[0].id;
+let S = null;                    // estado do jogo
+
+function rotuloMissao() {
+  const n = MISSAO.pac.questoes.length;
+  $('#fonte-missao').innerHTML = `Missão: <b style="color:var(--ouro2)">${esc(MISSAO.cfg.titulo)}</b> · ${n} questões · fonte: ${esc(MISSAO.fonte)} · <a id="l-importar">trocar missão</a>`;
+  $('#l-importar').onclick = abrirImportar;
+  const sv = lsGet('dtp_save');
+  $('#b-continuar').style.display = (sv && sv.S && !sv.S.fim && sv.S.missao === MISSAO.hash) ? '' : 'none';
+}
+function montarAvatares() {
+  $('#opcoes-av').innerHTML = AVATARES.map(a => `<div class="av-card ${a.id === avSel ? 'sel' : ''}" data-id="${a.id}" tabindex="0" role="button" aria-label="${esc(a.nome)}">${avatarSVG(a)}<div class="n">${esc(a.nome)}</div></div>`).join('');
+  $$('.av-card').forEach(c => { c.onclick = () => { avSel = c.dataset.id; SFX.clique(); montarAvatares(); }; c.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); c.click(); } }; });
+  const a = AVATARES.find(x => x.id === avSel); $('#retrato').innerHTML = avatarSVG(a); $('#nome-av').textContent = a.nome;
+}
+function abrirComoJogar() {
+  const bg = abrirModal(`<div class="painel"><h3>Como jogar <button class="fechar" aria-label="Fechar">×</button></h3>
+    <div class="aviso" style="font-size:.95rem">
+      <p>Alguém apagou a tabela <b>CLIENTES</b> do servidor da mansão Codd. Você é o detetive e precisa descobrir <b>quem foi</b> e <b>com qual comando SQL</b>.</p>
+      <ul class="como kbdl">
+        <li>Ande pela mansão com as <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> ou <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> (no celular, use o direcional na tela).</li>
+        <li>Aproxime-se do símbolo dourado <b style="color:var(--ouro2)">◆</b> de cada sala e pressione <kbd>E</kbd> para investigar.</li>
+        <li>Cada sala propõe desafios de Banco de Dados. <b>Cada resposta correta</b> rende uma <b>ferramenta</b> — e a ferramenta revela uma <b>pista</b>.</li>
+        <li>Errar custa pontos, mas você pode tentar de novo com outro desafio. Quanto menos tentativas, mais pontos.</li>
+        <li>Consulte o <b>Caderno</b> (<kbd>C</kbd>) para reler as pistas e descartar suspeitos.</li>
+        <li>Quando todas as salas forem investigadas, a <b>Sala dos Servidores</b> será destrancada: faça sua acusação final.</li>
+      </ul></div></div>`);
+  bg.querySelector('.fechar').onclick = bg.fechar;
+}
+function abrirImportar() {
+  const bg = abrirModal(`<div class="painel"><h3>Trocar missão <button class="fechar" aria-label="Fechar">×</button></h3>
+    <p class="aviso">Cole o <b>código da missão</b> fornecido pelo professor (começa com <code>MIS1.</code>) ou carregue o arquivo <code>missao.json</code>.</p>
+    <textarea id="imp-txt" class="cx-c" style="min-height:110px;font-family:Consolas,monospace;font-size:.8rem" placeholder="MIS1.eyJ0aXBvIjoi…"></textarea>
+    <div class="linha-fl"><input type="file" id="imp-arq" accept=".json,application/json" style="font-family:var(--f-ui);font-size:.8rem;color:var(--mut)"></div>
+    <div class="linha-fl" style="justify-content:space-between"><button class="btn pequeno fantasma" id="imp-padrao">Voltar à missão padrão</button><button class="btn primario" id="imp-ok">Aplicar missão</button></div>
+    <div class="msg-acus" id="imp-msg"></div></div>`);
+  bg.querySelector('.fechar').onclick = bg.fechar;
+  bg.querySelector('#imp-arq').onchange = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { bg.querySelector('#imp-txt').value = r.result; }; r.readAsText(f); };
+  const aplicar = async (limpar) => {
+    try {
+      if (limpar) lsDel('dtp_pacote_aluno'); else { const p = DTP.lerPacote(bg.querySelector('#imp-txt').value); lsSet('dtp_pacote_aluno', p); }
+      await carregarMissao(); rotuloMissao(); bg.fechar(); toast('Missão carregada: ' + MISSAO.cfg.titulo + ' (' + MISSAO.pac.questoes.length + ' questões)');
+    } catch (e) { const m = bg.querySelector('#imp-msg'); m.className = 'msg-acus no v'; m.textContent = 'Não foi possível ler a missão: ' + e.message; }
+  };
+  bg.querySelector('#imp-ok').onclick = () => aplicar(false);
+  bg.querySelector('#imp-padrao').onclick = () => aplicar(true);
+}
+
+/* =====================================================================
+   ESTADO DO JOGO
+   ===================================================================== */
+const salasQ = () => [1, 2, 3, 4, 5, 6, 7];
+function novoEstado(perfil) {
+  const st = { v: 1, rid: uid(), missao: MISSAO.hash, perfil, inicio: Date.now(), tempo: 0, pontos: 0, x: 600, y: 412, salas: {}, ferr: [], log: [], tent: {}, acusacoes: 0, descartados: [], fim: null, finalAberto: false };
+  salasQ().forEach(id => {
+    const pool = shuffle(MISSAO.pac.questoes.filter(q => q.sala === id).map(q => q.id));
+    st.salas[id] = { pool, ptr: 0, ac: [], alvo: Math.min(Math.max(1, Math.min(2, MISSAO.cfg.porSala | 0 || 2)), pool.length) };
+  });
+  return st;
+}
+const concluida = id => id === 8 ? !!S.fim : S.salas[id].ac.length >= S.salas[id].alvo;
+const salasConcluidas = () => salasQ().filter(concluida).length;
+const todasConcluidas = () => salasQ().every(concluida);
+const finalAberto = () => S.finalAberto;
+function pontosMax() { return salasQ().reduce((a, id) => a + S.salas[id].alvo, 0) * MISSAO.cfg.pontos[0] + MISSAO.cfg.bonusAcusacao[0]; }
+function qAtualId(id) {
+  const st = S.salas[id], n = st.pool.length;
+  for (let i = 0; i < n; i++) { const q = st.pool[(st.ptr + i) % n]; if (!st.ac.includes(q)) { st.ptr = (st.ptr + i) % n; return q; } }
+  return null;
+}
+const avancarPergunta = id => { const st = S.salas[id]; st.ptr = (st.ptr + 1) % st.pool.length; };
+function raioLuz() { return S.ferr.some(f => f.sala === 1 && f.idx === 0) ? 255 : 165; }
+let ultSalvo = 0;
+function salvar(force) { if (!S || S.fim) return; const t = Date.now(); if (!force && t - ultSalvo < 4000) return; ultSalvo = t; lsSet('dtp_save', { S, ts: t }); }
+
+/* =====================================================================
+   GEOMETRIA DA MANSÃO
+   ===================================================================== */
+const W = 1200, H = 760, SC = 1.5;
+const HALL = [40, 290, 1120, 180];
+const GEO = {
+  1: { r: [40, 40, 260, 220], dc: 170, topo: true, mk: [170, 196], piso: { t: 'madeira', a: '#4a3322', b: '#533a27' } },
+  2: { r: [330, 40, 260, 220], dc: 460, topo: true, mk: [460, 212], piso: { t: 'madeira', a: '#4a2d27', b: '#55352c' } },
+  3: { r: [620, 40, 260, 220], dc: 750, topo: true, mk: [748, 206], piso: { t: 'tapete', a: '#352846' } },
+  4: { r: [910, 40, 250, 220], dc: 1035, topo: true, mk: [1035, 176], piso: { t: 'pedra', a: '#2e4636' } },
+  5: { r: [40, 500, 260, 220], dc: 170, topo: false, mk: [150, 640], piso: { t: 'madeira', a: '#3d2e22', b: '#463529' } },
+  6: { r: [330, 500, 260, 220], dc: 460, topo: false, mk: [460, 656], piso: { t: 'xadrez', a: '#a09b8e', b: '#7d796e', s: 26 } },
+  7: { r: [620, 500, 260, 220], dc: 750, topo: false, mk: [750, 626], piso: { t: 'pedra', a: '#37363f' } },
+  8: { r: [910, 500, 250, 220], dc: 1035, topo: false, mk: [1035, 662], piso: { t: 'metal', a: '#1c2333' } }
+};
+const MOB = [
+  // Biblioteca
+  { t: 'estante', x: 40, y: 40, w: 260, h: 38, s: 1 }, { t: 'estante', x: 40, y: 78, w: 26, h: 96, s: 1 }, { t: 'estante', x: 274, y: 78, w: 26, h: 96, s: 1 },
+  { t: 'tapete', x: 92, y: 98, w: 160, h: 112, c: '#6b1f2e' }, { t: 'mesa', x: 125, y: 116, w: 90, h: 46, s: 1, c: '#5e4128' },
+  { t: 'cadeira', x: 138, y: 166, w: 18, h: 16 }, { t: 'cadeira', x: 184, y: 166, w: 18, h: 16 }, { t: 'globo', x: 278, y: 190, w: 0, h: 0 },
+  // Sala de Jantar
+  { t: 'lareira', x: 410, y: 40, w: 100, h: 38, s: 1 }, { t: 'tapete', x: 362, y: 92, w: 196, h: 118, c: '#2b3a5a' },
+  { t: 'mesa', x: 388, y: 112, w: 144, h: 60, s: 1, jantar: 1, c: '#6b4a2c' },
+  ...[404, 436, 468, 500].map(x => ({ t: 'cadeira', x, y: 97, w: 16, h: 14 })), ...[404, 436, 468, 500].map(x => ({ t: 'cadeira', x, y: 174, w: 16, h: 14 })),
+  { t: 'estante', x: 330, y: 100, w: 24, h: 100, s: 1 }, { t: 'vaso', x: 566, y: 56, w: 26, h: 26, s: 1 }, { t: 'vaso', x: 566, y: 224, w: 22, h: 24 },
+  // Salão de Música
+  { t: 'piano', x: 655, y: 58, w: 106, h: 78, s: 1 }, { t: 'cadeira', x: 696, y: 142, w: 26, h: 16 },
+  { t: 'sofa', x: 826, y: 84, w: 46, h: 98, s: 1 }, { t: 'tapete', x: 648, y: 156, w: 176, h: 76, c: '#5a2b5e' },
+  { t: 'vaso', x: 632, y: 226, w: 20, h: 24 }, { t: 'vaso', x: 846, y: 226, w: 20, h: 24 },
+  // Estufa
+  { t: 'canteiro', x: 935, y: 66, w: 74, h: 44, s: 1 }, { t: 'canteiro', x: 1061, y: 66, w: 74, h: 44, s: 1 },
+  { t: 'canteiro', x: 935, y: 148, w: 58, h: 44, s: 1 }, { t: 'canteiro', x: 1077, y: 148, w: 58, h: 44, s: 1 },
+  { t: 'fonte', x: 1015, y: 74, w: 40, h: 40, s: 1 }, { t: 'vaso', x: 924, y: 226, w: 22, h: 24 }, { t: 'vaso', x: 1124, y: 226, w: 22, h: 24 },
+  // Escritório
+  { t: 'estante', x: 40, y: 682, w: 260, h: 38, s: 1 }, { t: 'estante', x: 40, y: 538, w: 26, h: 140, s: 1 },
+  { t: 'tapete', x: 82, y: 594, w: 120, h: 80, c: '#2a4a3a' }, { t: 'escrivaninha', x: 205, y: 554, w: 90, h: 52, s: 1 }, { t: 'cadeira', x: 232, y: 610, w: 22, h: 18 },
+  // Cozinha
+  { t: 'bancada', x: 330, y: 684, w: 260, h: 36, s: 1 }, { t: 'fogao', x: 330, y: 534, w: 36, h: 100, s: 1 }, { t: 'ilha', x: 410, y: 572, w: 100, h: 50, s: 1 },
+  { t: 'geladeira', x: 548, y: 522, w: 40, h: 62, s: 1 },
+  // Adega
+  { t: 'barril', x: 630, y: 530, w: 44, h: 44, s: 1 }, { t: 'barril', x: 630, y: 592, w: 44, h: 44, s: 1 }, { t: 'barril', x: 826, y: 530, w: 44, h: 44, s: 1 }, { t: 'barril', x: 826, y: 592, w: 44, h: 44, s: 1 },
+  { t: 'adega', x: 620, y: 684, w: 260, h: 36, s: 1 }, { t: 'caixote', x: 676, y: 656, w: 28, h: 22 }, { t: 'caixote', x: 800, y: 654, w: 30, h: 24 },
+  // Servidores
+  { t: 'servidor', x: 925, y: 528, w: 46, h: 152, s: 1 }, { t: 'servidor', x: 1099, y: 528, w: 46, h: 152, s: 1 }, { t: 'console', x: 996, y: 586, w: 78, h: 38, s: 1 },
+  // Grande Salão
+  { t: 'tapete', x: 60, y: 362, w: 1080, h: 56, c: '#5a1626', faixa: 1 }, { t: 'escada', x: 520, y: 292, w: 160, h: 54, s: 1 },
+  { t: 'armadura', x: 58, y: 298, w: 28, h: 48, s: 1 }, { t: 'armadura', x: 1114, y: 298, w: 28, h: 48, s: 1 }, { t: 'relogio', x: 878, y: 294, w: 30, h: 54, s: 1 },
+  { t: 'vaso', x: 290, y: 300, w: 26, h: 28, s: 1 }, { t: 'banco', x: 235, y: 428, w: 110, h: 26, s: 1 }, { t: 'banco', x: 845, y: 428, w: 110, h: 26, s: 1 }
+];
+const OBST = MOB.filter(m => m.s).map(m => ({ x: m.x, y: m.y, w: m.w, h: m.h }));
+const PORTA8 = { x: 1000, y: 480, w: 70, h: 26 };
+const WALK = [];
+Object.values(GEO).forEach(g => {
+  const [x, y, w, h] = g.r; WALK.push([x, y, w, h]);
+  WALK.push(g.topo ? [g.dc - 35, y + h - 6, 70, 40] : [g.dc - 35, y - 36, 70, 40]);
+});
+WALK.push(HALL);
+const LUZES = [];
+Object.values(GEO).forEach(g => LUZES.push({ x: g.dc, y: g.topo ? 296 : 466, r: 70, a: .55 }));
+LUZES.push({ x: 460, y: 78, r: 120, a: .8 }, { x: 330, y: 380, r: 150, a: .45 }, { x: 870, y: 380, r: 150, a: .45 }, { x: 600, y: 380, r: 120, a: .4 });
+LUZES.push({ x: 1035, y: 600, r: 100, a: .55 });
+
+function dentro(px, py) { for (const r of WALK) if (px >= r[0] && px <= r[0] + r[2] && py >= r[1] && py <= r[1] + r[3]) return true; return false; }
+function livre(x, y) {
+  const pts = [[x - 9, y], [x + 9, y], [x - 9, y - 8], [x + 9, y - 8]];
+  for (const [px, py] of pts) if (!dentro(px, py)) return false;
+  const bloqueios = finalAberto() ? OBST : OBST.concat([PORTA8]);
+  for (const o of bloqueios) if (x + 9 > o.x && x - 9 < o.x + o.w && y > o.y && y - 8 < o.y + o.h) return false;
+  return true;
+}
+
+/* =====================================================================
+   DESENHO ESTÁTICO DA MANSÃO
+   ===================================================================== */
+function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+function shade(hex, amt) { const n = parseInt(hex.slice(1), 16); const c = v => Math.max(0, Math.min(255, v)); return `rgb(${c((n >> 16) + amt)},${c(((n >> 8) & 255) + amt)},${c((n & 255) + amt)})`; }
+function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function caixa(g, x, y, w, h, c, o = {}) {
+  const alto = o.alto ?? 6, r = o.r ?? 3;
+  g.fillStyle = 'rgba(0,0,0,.38)'; rr(g, x + 3, y + 4, w, h, r); g.fill();
+  g.fillStyle = shade(c, -34); rr(g, x, y, w, h, r); g.fill();
+  g.fillStyle = c; rr(g, x, y, w, Math.max(4, h - alto), r); g.fill();
+  g.strokeStyle = 'rgba(0,0,0,.55)'; g.lineWidth = 1; rr(g, x, y, w, h, r); g.stroke();
+  g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(x + 2, y + 1, w - 4, 2);
+}
+function piso(g, r, p, seed) {
+  const [x, y, w, h] = r; g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); const R = rng(seed);
+  g.fillStyle = p.a; g.fillRect(x, y, w, h);
+  if (p.t === 'madeira') {
+    for (let yy = y, i = 0; yy < y + h; yy += 16, i++) {
+      g.fillStyle = i % 2 ? p.b : p.a; g.fillRect(x, yy, w, 16); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(x, yy, w, 1);
+      for (let xx = x + R() * 70; xx < x + w; xx += 70 + R() * 80) g.fillRect(xx, yy, 1, 16);
+      g.fillStyle = 'rgba(255,255,255,.035)'; g.fillRect(x, yy + 2, w, 2);
+    }
+  } else if (p.t === 'xadrez') {
+    const s = p.s || 40;
+    for (let yy = 0; yy * s < h; yy++) for (let xx = 0; xx * s < w; xx++) { g.fillStyle = (xx + yy) % 2 ? p.b : p.a; g.fillRect(x + xx * s, y + yy * s, s, s); }
+    g.fillStyle = 'rgba(255,255,255,.05)'; for (let i = 0; i < 40; i++) g.fillRect(x + R() * w, y + R() * h, 2, 1);
+  } else if (p.t === 'tapete') {
+    g.strokeStyle = 'rgba(255,255,255,.05)'; g.lineWidth = 1;
+    for (let i = -h; i < w; i += 18) { g.beginPath(); g.moveTo(x + i, y); g.lineTo(x + i + h, y + h); g.stroke(); g.beginPath(); g.moveTo(x + i + h, y); g.lineTo(x + i, y + h); g.stroke(); }
+    g.strokeStyle = 'rgba(201,162,75,.28)'; g.lineWidth = 3; g.strokeRect(x + 14, y + 14, w - 28, h - 28);
+  } else if (p.t === 'pedra') {
+    for (let yy = y; yy < y + h; yy += 26) {
+      g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(x, yy, w, 2);
+      for (let xx = x + R() * 40; xx < x + w; xx += 40 + R() * 50) g.fillRect(xx, yy, 2, 26);
+      for (let k = 0; k < 6; k++) { g.fillStyle = `rgba(255,255,255,${.02 + R() * .04})`; g.fillRect(x + R() * w, yy + R() * 24, 14 + R() * 20, 8); }
+    }
+  } else if (p.t === 'metal') {
+    g.strokeStyle = 'rgba(120,170,255,.1)'; g.lineWidth = 1;
+    for (let xx = x; xx < x + w; xx += 26) { g.beginPath(); g.moveTo(xx, y); g.lineTo(xx, y + h); g.stroke(); }
+    for (let yy = y; yy < y + h; yy += 26) { g.beginPath(); g.moveTo(x, yy); g.lineTo(x + w, yy); g.stroke(); }
+    g.fillStyle = 'rgba(160,200,255,.12)'; for (let xx = x + 13; xx < x + w; xx += 26) for (let yy = y + 13; yy < y + h; yy += 26) g.fillRect(xx, yy, 2, 2);
+  }
+  const sh = g.createLinearGradient(0, y, 0, y + h); sh.addColorStop(0, 'rgba(0,0,0,.45)'); sh.addColorStop(.18, 'rgba(0,0,0,0)'); sh.addColorStop(.85, 'rgba(0,0,0,0)'); sh.addColorStop(1, 'rgba(0,0,0,.3)');
+  g.fillStyle = sh; g.fillRect(x, y, w, h);
+  g.strokeStyle = 'rgba(0,0,0,.6)'; g.lineWidth = 14; g.strokeRect(x, y, w, h);
+  g.restore();
+}
+const DRAW = {
+  estante(g, it) {
+    caixa(g, it.x, it.y, it.w, it.h, '#4a3321', { alto: 8 }); const R = rng(it.x * 31 + it.y * 7);
+    const cores = ['#7a1f33', '#2f4f6b', '#3f6b3a', '#8a6d28', '#5a3b6b', '#a0522d', '#2b2118', '#6b6b6b', '#b08d3f'];
+    const linhas = Math.max(1, Math.floor((it.h - 8) / 18));
+    for (let l = 0; l < linhas; l++) {
+      const yy = it.y + 4 + l * 18; let xx = it.x + 4;
+      while (xx < it.x + it.w - 7) { const bw = 3 + R() * 5, bh = 10 + R() * 6; g.fillStyle = cores[(R() * cores.length) | 0]; g.fillRect(xx, yy + 15 - bh, bw, bh); xx += bw + .7; }
+      g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(it.x + 3, yy + 15, it.w - 6, 3);
+    }
+  },
+  mesa(g, it) {
+    caixa(g, it.x, it.y, it.w, it.h, it.c || '#6b4a2c', { alto: 8 });
+    if (it.jantar) {
+      g.fillStyle = 'rgba(236,226,200,.92)'; rr(g, it.x + 6, it.y + 4, it.w - 12, it.h - 14, 3); g.fill();
+      for (let i = 0; i < 5; i++) { const px = it.x + 20 + i * (it.w - 40) / 4;[it.y + 14, it.y + it.h - 22].forEach(by => { g.fillStyle = '#fff'; g.beginPath(); g.arc(px, by, 6, 0, 7); g.fill(); g.strokeStyle = '#b9a77a'; g.stroke(); }); }
+      g.fillStyle = '#f6c453'; [0.3, 0.7].forEach(k => { g.beginPath(); g.arc(it.x + it.w * k, it.y + it.h / 2 - 5, 3, 0, 7); g.fill(); });
+    } else { g.fillStyle = 'rgba(235,225,195,.85)'; g.fillRect(it.x + 14, it.y + 8, 22, 16); g.fillStyle = '#7a1f33'; g.fillRect(it.x + 52, it.y + 10, 14, 18); }
+  },
+  cadeira(g, it) { g.fillStyle = 'rgba(0,0,0,.3)'; rr(g, it.x + 2, it.y + 3, it.w, it.h, 4); g.fill(); g.fillStyle = '#4a2d1f'; rr(g, it.x, it.y, it.w, it.h, 4); g.fill(); g.fillStyle = '#6b3d2a'; rr(g, it.x + 2, it.y + 2, it.w - 4, it.h - 5, 3); g.fill(); },
+  tapete(g, it) {
+    g.fillStyle = it.c; rr(g, it.x, it.y, it.w, it.h, 6); g.fill();
+    g.strokeStyle = '#c9a24b'; g.lineWidth = 2; rr(g, it.x + 5, it.y + 5, it.w - 10, it.h - 10, 4); g.stroke();
+    g.strokeStyle = 'rgba(201,162,75,.45)'; g.lineWidth = 1; rr(g, it.x + 10, it.y + 10, it.w - 20, it.h - 20, 3); g.stroke();
+    if (!it.faixa) { g.fillStyle = 'rgba(201,162,75,.2)'; g.beginPath(); const cx = it.x + it.w / 2, cy = it.y + it.h / 2; g.moveTo(cx, cy - 14); g.lineTo(cx + 22, cy); g.lineTo(cx, cy + 14); g.lineTo(cx - 22, cy); g.fill(); }
+    else { g.fillStyle = 'rgba(201,162,75,.22)'; for (let x = it.x + 40; x < it.x + it.w - 30; x += 70) { g.beginPath(); g.moveTo(x, it.y + 28); g.lineTo(x + 12, it.y + 18); g.lineTo(x + 24, it.y + 28); g.lineTo(x + 12, it.y + 38); g.fill(); } }
+  },
+  globo(g, it) { g.fillStyle = '#2b3a5a'; g.beginPath(); g.arc(it.x, it.y, 12, 0, 7); g.fill(); g.strokeStyle = '#c9a24b'; g.lineWidth = 2; g.stroke(); g.fillStyle = '#4f7a46'; g.beginPath(); g.arc(it.x - 3, it.y - 2, 5, 0, 7); g.fill(); },
+  lareira(g, it) {
+    caixa(g, it.x, it.y, it.w, it.h, '#5c5560', { alto: 4 });
+    g.fillStyle = '#0b0809'; rr(g, it.x + 18, it.y + 8, it.w - 36, it.h - 8, 3); g.fill();
+    const gr = g.createRadialGradient(it.x + it.w / 2, it.y + it.h, 2, it.x + it.w / 2, it.y + it.h, 34); gr.addColorStop(0, '#ffd27a'); gr.addColorStop(.5, '#e0662a'); gr.addColorStop(1, 'rgba(80,10,0,0)');
+    g.fillStyle = gr; g.fillRect(it.x + 18, it.y + 8, it.w - 36, it.h - 8);
+  },
+  piano(g, it) {
+    caixa(g, it.x, it.y, it.w, it.h, '#17151c', { alto: 10, r: 8 });
+    g.fillStyle = 'rgba(255,255,255,.1)'; rr(g, it.x + 6, it.y + 6, it.w - 12, it.h - 30, 6); g.fill();
+    g.fillStyle = '#efe9da'; g.fillRect(it.x + 8, it.y + it.h - 20, it.w - 16, 12);
+    g.fillStyle = '#111'; for (let i = 0; i < 12; i++) g.fillRect(it.x + 12 + i * 7.8, it.y + it.h - 20, 4, 7);
+    g.strokeStyle = 'rgba(0,0,0,.5)'; for (let i = 0; i < 13; i++) { g.beginPath(); g.moveTo(it.x + 8 + i * 7.8, it.y + it.h - 20); g.lineTo(it.x + 8 + i * 7.8, it.y + it.h - 8); g.stroke(); }
+  },
+  sofa(g, it) { caixa(g, it.x, it.y, it.w, it.h, '#7a1f33', { alto: 4, r: 8 }); g.strokeStyle = 'rgba(0,0,0,.4)'; g.lineWidth = 1.5; for (let k = 1; k < 3; k++) { g.beginPath(); g.moveTo(it.x + 8, it.y + k * it.h / 3); g.lineTo(it.x + it.w - 2, it.y + k * it.h / 3); g.stroke(); } g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(it.x + 2, it.y + 4, 8, it.h - 8); },
+  vaso(g, it) { g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(it.x + it.w / 2 + 2, it.y + it.h - 2, it.w / 2, 5, 0, 0, 7); g.fill(); g.fillStyle = '#8a5a3c'; rr(g, it.x + 4, it.y + it.h - 12, it.w - 8, 12, 3); g.fill(); const R = rng(it.x + it.y); for (let i = 0; i < 6; i++) { g.fillStyle = ['#2f6f3e', '#3f8f4f', '#5cb36a'][i % 3]; g.beginPath(); g.arc(it.x + it.w / 2 + (R() - .5) * 14, it.y + 8 + R() * 8, 6 + R() * 3, 0, 7); g.fill(); } },
+  canteiro(g, it) { caixa(g, it.x, it.y, it.w, it.h, '#4a3220', { alto: 10 }); g.fillStyle = '#2a1c12'; rr(g, it.x + 4, it.y + 4, it.w - 8, it.h - 16, 3); g.fill(); const R = rng(it.x * 3 + it.y); for (let i = 0; i < it.w / 9; i++) { g.fillStyle = ['#2f6f3e', '#3f8f4f', '#5cb36a', '#2a5f38'][i % 4]; g.beginPath(); g.arc(it.x + 8 + i * 9 + R() * 4, it.y + 10 + R() * 10, 6 + R() * 4, 0, 7); g.fill(); if (R() > .65) { g.fillStyle = ['#e46a8c', '#f1d78a', '#b06be0'][(R() * 3) | 0]; g.beginPath(); g.arc(it.x + 8 + i * 9, it.y + 8 + R() * 8, 2.6, 0, 7); g.fill(); } } },
+  fonte(g, it) { g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(it.x + 22, it.y + 40, 22, 6, 0, 0, 7); g.fill(); g.fillStyle = '#6c6a73'; g.beginPath(); g.ellipse(it.x + 20, it.y + 26, 20, 14, 0, 0, 7); g.fill(); g.fillStyle = '#4b88c4'; g.beginPath(); g.ellipse(it.x + 20, it.y + 24, 16, 10, 0, 0, 7); g.fill(); g.fillStyle = '#8f8d98'; g.fillRect(it.x + 17, it.y + 6, 6, 18); g.fillStyle = 'rgba(190,230,255,.7)'; g.beginPath(); g.arc(it.x + 20, it.y + 6, 4, 0, 7); g.fill(); },
+  escrivaninha(g, it) { caixa(g, it.x, it.y, it.w, it.h, '#5a3d25', { alto: 8 }); g.fillStyle = '#1d3a2a'; g.fillRect(it.x + 10, it.y + 8, 40, 26); g.fillStyle = '#e8dcc0'; g.fillRect(it.x + 14, it.y + 10, 22, 20); g.fillStyle = '#7a1f33'; g.fillRect(it.x + 60, it.y + 10, 12, 4); g.fillStyle = '#f6c453'; g.beginPath(); g.arc(it.x + 70, it.y + 26, 5, 0, 7); g.fill(); g.fillStyle = '#9fd0ff'; g.fillRect(it.x + 18, it.y + 14, 14, 3); },
+  bancada(g, it) { caixa(g, it.x, it.y, it.w, it.h, '#8a8f98', { alto: 10 }); g.fillStyle = 'rgba(0,0,0,.35)'; for (let x = it.x + 40; x < it.x + it.w - 10; x += 60) g.fillRect(x, it.y + it.h - 10, 2, 10); g.fillStyle = '#c4c8cf'; g.fillRect(it.x + 40, it.y + 6, 18, 8); g.fillStyle = '#7a1f33'; g.beginPath(); g.arc(it.x + 140, it.y + 12, 7, 0, 7); g.fill(); g.fillStyle = '#d8d2c0'; g.beginPath(); g.arc(it.x + 200, it.y + 12, 6, 0, 7); g.fill(); },
+  fogao(g, it) { caixa(g, it.x, it.y, it.w, it.h, '#2b2b32', { alto: 8 }); for (let k = 0; k < 4; k++) { const cx = it.x + 18, cy = it.y + 16 + k * 22; g.strokeStyle = '#6a6a74'; g.lineWidth = 2; g.beginPath(); g.arc(cx, cy, 7, 0, 7); g.stroke(); g.beginPath(); g.arc(cx, cy, 3, 0, 7); g.stroke(); } g.fillStyle = '#9a4b2b'; g.beginPath(); g.arc(it.x + 18, it.y + 16, 8, 0, 7); g.fill(); },
+  ilha(g, it) { caixa(g, it.x, it.y, it.w, it.h, '#9a7a52', { alto: 10 }); g.fillStyle = '#e6dcc2'; g.fillRect(it.x + 10, it.y + 8, 30, 20); g.fillStyle = '#b53a3a'; g.beginPath(); g.arc(it.x + 66, it.y + 18, 7, 0, 7); g.fill(); g.fillStyle = '#d6a832'; g.beginPath(); g.arc(it.x + 80, it.y + 22, 5, 0, 7); g.fill(); g.strokeStyle = '#c4c8cf'; g.lineWidth = 2; g.beginPath(); g.moveTo(it.x + 45, it.y + 10); g.lineTo(it.x + 55, it.y + 28); g.stroke(); },
+  geladeira(g, it) { caixa(g, it.x, it.y, it.w, it.h, '#b8bfc9', { alto: 6 }); g.strokeStyle = 'rgba(0,0,0,.4)'; g.beginPath(); g.moveTo(it.x + 2, it.y + 26); g.lineTo(it.x + it.w - 2, it.y + 26); g.stroke(); g.fillStyle = '#6a707a'; g.fillRect(it.x + it.w - 8, it.y + 8, 3, 12); g.fillRect(it.x + it.w - 8, it.y + 32, 3, 14); },
+  barril(g, it) { const cx = it.x + it.w / 2, cy = it.y + it.h / 2; g.fillStyle = 'rgba(0,0,0,.4)'; g.beginPath(); g.ellipse(cx + 3, cy + 4, it.w / 2, it.h / 2, 0, 0, 7); g.fill(); const gr = g.createRadialGradient(cx - 6, cy - 6, 3, cx, cy, it.w / 2); gr.addColorStop(0, '#9a6b3c'); gr.addColorStop(1, '#5a3a1e'); g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, it.w / 2, 0, 7); g.fill(); g.strokeStyle = '#2b1b0e'; g.lineWidth = 2; g.stroke(); g.strokeStyle = '#8a8d94'; g.lineWidth = 2.5; g.beginPath(); g.arc(cx, cy, it.w / 2 - 6, 0, 7); g.stroke(); g.beginPath(); g.arc(cx, cy, it.w / 2 - 14, 0, 7); g.stroke(); g.fillStyle = '#2b1b0e'; g.beginPath(); g.arc(cx, cy, 3, 0, 7); g.fill(); },
+  adega(g, it) { caixa(g, it.x, it.y, it.w, it.h, '#3a2616', { alto: 8 }); for (let r = 0; r < 2; r++) for (let x = it.x + 10; x < it.x + it.w - 8; x += 17) { g.fillStyle = ['#1f3a22', '#4a1620', '#2b3a1f'][(x / 17 + r) % 3 | 0]; g.beginPath(); g.arc(x, it.y + 9 + r * 12, 5, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.2)'; g.beginPath(); g.arc(x - 1.5, it.y + 7.5 + r * 12, 1.4, 0, 7); g.fill(); } },
+  caixote(g, it) { caixa(g, it.x, it.y, it.w, it.h, '#8a6a3c', { alto: 5 }); g.strokeStyle = 'rgba(0,0,0,.4)'; g.beginPath(); g.moveTo(it.x, it.y + it.h / 2); g.lineTo(it.x + it.w, it.y + it.h / 2); g.stroke(); },
+  servidor(g, it) {
+    caixa(g, it.x, it.y, it.w, it.h, '#161a24', { alto: 6 }); const R = rng(it.x + it.y);
+    for (let yy = it.y + 8; yy < it.y + it.h - 10; yy += 14) { g.fillStyle = '#0b0e14'; g.fillRect(it.x + 5, yy, it.w - 10, 10); for (let k = 0; k < 4; k++) { const c = ['#2be37a', '#2be37a', '#f6c453', '#e0574f'][(R() * 4) | 0]; g.fillStyle = c; g.fillRect(it.x + 8 + k * 6, yy + 3, 3, 3); } g.fillStyle = '#242a38'; g.fillRect(it.x + it.w - 20, yy + 3, 12, 4); }
+  },
+  console(g, it) { caixa(g, it.x, it.y, it.w, it.h, '#222a3a', { alto: 8 }); g.fillStyle = '#0a1a22'; g.fillRect(it.x + 8, it.y + 5, it.w - 16, 16); g.fillStyle = '#3ee0ff'; for (let i = 0; i < 4; i++) g.fillRect(it.x + 11, it.y + 7 + i * 3.5, 10 + (i * 13) % 34, 1.6); },
+  escada(g, it) { caixa(g, it.x, it.y, it.w, it.h, '#4a4255', { alto: 4 }); for (let i = 0; i < 5; i++) { g.fillStyle = `rgba(255,255,255,${.04 + i * .02})`; g.fillRect(it.x + 4, it.y + 6 + i * 9, it.w - 8, 3); } g.fillStyle = '#6b1f2e'; g.fillRect(it.x + it.w / 2 - 22, it.y + 2, 44, it.h - 4); g.strokeStyle = '#c9a24b'; g.strokeRect(it.x + it.w / 2 - 22, it.y + 2, 44, it.h - 4); },
+  armadura(g, it) { g.fillStyle = 'rgba(0,0,0,.4)'; g.beginPath(); g.ellipse(it.x + 15, it.y + 46, 14, 4, 0, 0, 7); g.fill(); g.fillStyle = '#8c929c'; g.fillRect(it.x + 8, it.y + 18, 14, 22); g.beginPath(); g.arc(it.x + 15, it.y + 11, 8, 0, 7); g.fill(); g.fillStyle = '#5b606a'; g.fillRect(it.x + 11, it.y + 9, 8, 3); g.fillStyle = '#8c929c'; g.fillRect(it.x + 8, it.y + 40, 5, 8); g.fillRect(it.x + 17, it.y + 40, 5, 8); g.fillStyle = '#b08d3f'; g.fillRect(it.x + 24, it.y + 8, 2, 38); g.beginPath(); g.moveTo(it.x + 22, it.y + 8); g.lineTo(it.x + 25, it.y + 1); g.lineTo(it.x + 28, it.y + 8); g.fill(); },
+  relogio(g, it) { caixa(g, it.x, it.y, it.w, it.h, '#4a2d1b', { alto: 4 }); g.fillStyle = '#efe6cc'; g.beginPath(); g.arc(it.x + 15, it.y + 14, 10, 0, 7); g.fill(); g.strokeStyle = '#2b1b0e'; g.lineWidth = 1.3; g.beginPath(); g.moveTo(it.x + 15, it.y + 14); g.lineTo(it.x + 15, it.y + 7); g.moveTo(it.x + 15, it.y + 14); g.lineTo(it.x + 20, it.y + 16); g.stroke(); g.fillStyle = '#c9a24b'; g.fillRect(it.x + 13, it.y + 30, 4, 16); },
+  banco(g, it) { caixa(g, it.x, it.y, it.w, it.h, '#6b3d2a', { alto: 8, r: 5 }); g.fillStyle = '#7a1f33'; rr(g, it.x + 4, it.y + 2, it.w - 8, it.h - 12, 4); g.fill(); }
+};
+let ESTATICO = null, VIGNETA = null;
+function construirEstatico() {
+  const c = document.createElement('canvas'); c.width = W * SC; c.height = H * SC; const g = c.getContext('2d'); g.scale(SC, SC);
+  const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#0b0913'); bg.addColorStop(1, '#06050a'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  g.fillStyle = '#2a2433'; g.fillRect(18, 18, 1164, 724);
+  g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 1; const R = rng(7);
+  for (let y = 18, i = 0; y < 742; y += 12, i++) { g.beginPath(); g.moveTo(18, y); g.lineTo(1182, y); g.stroke(); for (let x = 18 + (i % 2) * 20; x < 1182; x += 40) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 12); g.stroke(); } }
+  for (let i = 0; i < 300; i++) { g.fillStyle = `rgba(255,255,255,${R() * .03})`; g.fillRect(18 + R() * 1164, 18 + R() * 724, 12 + R() * 20, 5); }
+  g.strokeStyle = '#6b5a33'; g.lineWidth = 3; g.strokeRect(18, 18, 1164, 724); g.strokeStyle = 'rgba(0,0,0,.6)'; g.lineWidth = 2; g.strokeRect(22, 22, 1156, 716);
+  Object.entries(GEO).forEach(([id, ge]) => piso(g, ge.r, ge.piso, +id * 13));
+  piso(g, HALL, { t: 'xadrez', a: '#6f667c', b: '#4d465c', s: 46 }, 99);
+  // portas
+  Object.values(GEO).forEach(ge => {
+    const y0 = ge.topo ? ge.r[1] + ge.r[3] - 8 : ge.r[1] - 38;
+    g.fillStyle = '#3a2a1c'; g.fillRect(ge.dc - 35, y0, 70, 46);
+    for (let k = 0; k < 46; k += 8) { g.fillStyle = k % 16 ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.04)'; g.fillRect(ge.dc - 35, y0 + k, 70, 8); }
+    g.fillStyle = '#2b1a10'; g.fillRect(ge.dc - 42, y0, 7, 46); g.fillRect(ge.dc + 35, y0, 7, 46);
+    g.fillStyle = '#c9a24b'; g.fillRect(ge.dc - 42, y0 + (ge.topo ? 38 : 0), 84, 3);
+  });
+  MOB.forEach(it => { const d = DRAW[it.t]; if (d) d(g, it); });
+  // placas com nome
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  SALAS.forEach(s => {
+    const ge = GEO[s.id]; const y = ge.topo ? 311 : 454; const txt = s.nome.toUpperCase();
+    g.font = '700 11px Cinzel, Georgia, serif'; const w = g.measureText(txt).width + 30;
+    g.fillStyle = 'rgba(8,6,14,.88)'; rr(g, ge.dc - w / 2, y - 11, w, 22, 4); g.fill(); g.strokeStyle = '#c9a24b'; g.lineWidth = 1; g.stroke();
+    g.fillStyle = '#f1d78a'; g.fillText(txt, ge.dc, y + 1);
+  });
+  ESTATICO = c;
+  const v = document.createElement('canvas'); v.width = W * SC; v.height = H * SC; const vg = v.getContext('2d');
+  const gr = vg.createRadialGradient(v.width / 2, v.height / 2, v.height * .35, v.width / 2, v.height / 2, v.width * .62); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.7)'); vg.fillStyle = gr; vg.fillRect(0, 0, v.width, v.height);
+  VIGNETA = v;
+}
+
+/* =====================================================================
+   LOOP DO JOGO
+   ===================================================================== */
+const cv = $('#cv'), vctx = cv.getContext('2d');
+const mundo = document.createElement('canvas'); mundo.width = W * SC; mundo.height = H * SC; const ctx = mundo.getContext('2d');
+let camMode = false, vw = W, vh = H;
+function ajustarCanvas() {
+  const m = matchMedia('(pointer:coarse), (max-width:760px)').matches; $('#tela-jogo').classList.toggle('cam', m);
+  const pal = $('.palco'), r = pal.getBoundingClientRect(); camMode = m && r.width > 50 && r.height > 50;
+  if (camMode) {
+    const dpr = Math.min(2, window.devicePixelRatio || 1), cw = Math.round(r.width * dpr), ch = Math.round(r.height * dpr);
+    if (cv.width !== cw || cv.height !== ch) { cv.width = cw; cv.height = ch; }
+    vw = Math.min(W, Math.max(380, r.width / 1.2)); vh = vw * r.height / r.width; if (vh > H) { vh = H; vw = vh * r.width / r.height; }
+  } else { if (cv.width !== W * SC) { cv.width = W * SC; cv.height = H * SC; } vw = W; vh = H; }
+}
+addEventListener('resize', () => { if (jogoAtivo) ajustarCanvas(); });
+const escuro = document.createElement('canvas'); escuro.width = W * SC; escuro.height = H * SC; const ectx = escuro.getContext('2d');
+const mini = $('#mini'), mctx = mini.getContext('2d');
+const teclas = new Set(); const joy = { u: false, d: false, l: false, r: false };
+let ult = 0, tAnd = 0, faceEsq = false, andando = false, proxPasso = 0, proxRaio = 8, tMini = 0;
+let sprite = null;
+const poeira = Array.from({ length: 46 }, () => ({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * 8, vy: -3 - Math.random() * 6, r: .8 + Math.random() * 1.8, f: Math.random() * 6 }));
+let alvoAtual = null;
+
+function carregarSprite() {
+  const a = AVATARES.find(x => x.id === S.perfil.avatar) || AVATARES[0];
+  sprite = new Image(); sprite.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(avatarSVG(a));
+}
+function alvoProximo() {
+  let best = null, bd = 1e9;
+  for (const id of [1, 2, 3, 4, 5, 6, 7, 8]) {
+    if (id === 8 && !finalAberto()) { const d = Math.hypot(S.x - 1035, S.y - 478); if (d < 62 && d < bd) { best = { tipo: 'porta', id: 8 }; bd = d; } continue; }
+    const m = GEO[id].mk, d = Math.hypot(S.x - m[0], S.y - m[1]); if (d < 62 && d < bd) { best = { tipo: 'sala', id }; bd = d; }
+  }
+  return best;
+}
+function atualizar(dt) {
+  if (!document.hidden) S.tempo += dt;
+  if (!modalAberto()) {
+    let dx = 0, dy = 0;
+    if (teclas.has('arrowleft') || teclas.has('a') || joy.l) dx -= 1; if (teclas.has('arrowright') || teclas.has('d') || joy.r) dx += 1;
+    if (teclas.has('arrowup') || teclas.has('w') || joy.u) dy -= 1; if (teclas.has('arrowdown') || teclas.has('s') || joy.d) dy += 1;
+    andando = false;
+    if (dx || dy) {
+      const n = Math.hypot(dx, dy), v = 205 * dt; dx = dx / n * v; dy = dy / n * v;
+      if (livre(S.x + dx, S.y)) { S.x += dx; andando = true; } if (livre(S.x, S.y + dy)) { S.y += dy; andando = true; }
+      if (dx) faceEsq = dx < 0;
+    }
+    if (andando) { tAnd += dt; proxPasso -= dt; if (proxPasso <= 0) { SFX.passo(); proxPasso = .27; } }
+    alvoAtual = alvoProximo(); atualizarPrompt();
+  }
+  proxRaio -= dt; if (proxRaio <= 0) { proxRaio = 14 + Math.random() * 22; relampago(); }
+  poeira.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.f += dt; if (p.y < 0) { p.y = H; p.x = Math.random() * W; } if (p.x < 0) p.x = W; if (p.x > W) p.x = 0; });
+  $('#hud-tempo').textContent = fmtTempo(S.tempo);
+}
+function relampago() { const r = $('#raio'); r.classList.remove('flash'); void r.offsetWidth; r.classList.add('flash'); setTimeout(SFX.trovao, 350); }
+function atualizarPrompt() {
+  const p = $('#prompt'); let h = '';
+  if (alvoAtual) {
+    if (alvoAtual.tipo === 'porta') h = `🔒 Sala dos Servidores trancada — investigue as outras salas (${salasConcluidas()}/7)`;
+    else {
+      const s = SALAS[alvoAtual.id - 1];
+      if (alvoAtual.id === 8) h = `<kbd>E</kbd> Fazer a acusação final`;
+      else if (S.salas[alvoAtual.id].alvo === 0) h = `${s.ico} ${esc(s.nome)} — sem desafios nesta missão`;
+      else if (concluida(alvoAtual.id)) h = `✓ ${esc(s.nome)} já investigada`;
+      else h = `<kbd>E</kbd> Investigar: ${s.ico} ${esc(s.nome)} — <i>${esc(s.tema)}</i>`;
+    }
+  }
+  if (p._h !== h) { p._h = h; p.innerHTML = h; p.classList.toggle('v', !!h); }
+}
+function marcador(g, id, t) {
+  if (id === 8 && !finalAberto()) return; const m = GEO[id].mk; const feito = id === 8 ? false : concluida(id);
+  const vazio = id !== 8 && S.salas[id].alvo === 0;
+  g.save(); g.translate(m[0], m[1]);
+  g.fillStyle = feito || vazio ? 'rgba(76,175,122,.25)' : 'rgba(241,215,138,.24)'; g.beginPath(); g.ellipse(0, 0, 24 + 3 * Math.sin(t * 3), 10, 0, 0, 7); g.fill();
+  const fy = -28 + Math.sin(t * 2.4 + id) * 4;
+  const gr = g.createRadialGradient(0, fy, 2, 0, fy, 36); gr.addColorStop(0, feito || vazio ? 'rgba(120,230,160,.55)' : 'rgba(255,230,150,.65)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.beginPath(); g.arc(0, fy, 36, 0, 7); g.fill();
+  if (feito || vazio) { g.fillStyle = '#2e8a52'; g.beginPath(); g.arc(0, fy, 12, 0, 7); g.fill(); g.strokeStyle = '#d9f1dd'; g.lineWidth = 2.6; g.lineCap = 'round'; g.beginPath(); g.moveTo(-5, fy); g.lineTo(-1.5, fy + 4); g.lineTo(6, fy - 4); g.stroke(); }
+  else {
+    const dg = g.createLinearGradient(0, fy - 14, 0, fy + 14); dg.addColorStop(0, '#fff3c4'); dg.addColorStop(1, '#b8892f');
+    g.fillStyle = dg; g.strokeStyle = '#5a4210'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(0, fy - 15); g.lineTo(11, fy); g.lineTo(0, fy + 15); g.lineTo(-11, fy); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = '#4a1520'; g.font = '700 15px Cinzel, Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(id === 8 ? '⚖' : '?', 0, fy + 1);
+  }
+  g.restore();
+}
+function desenhar(t) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, mundo.width, mundo.height); ctx.drawImage(ESTATICO, 0, 0);
+  ctx.setTransform(SC, 0, 0, SC, 0, 0);
+  // porta trancada
+  if (!finalAberto()) {
+    ctx.fillStyle = '#1b1f2b'; ctx.fillRect(1000, 478, 70, 28); ctx.fillStyle = '#2e3446'; for (let x = 1004; x < 1068; x += 10) ctx.fillRect(x, 480, 6, 24);
+    ctx.strokeStyle = '#8a6d28'; ctx.lineWidth = 2; ctx.strokeRect(1000, 478, 70, 28);
+    ctx.fillStyle = '#c9a24b'; ctx.fillRect(1029, 486, 12, 12); ctx.strokeStyle = '#c9a24b'; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.arc(1035, 486, 4.5, Math.PI, 0); ctx.stroke();
+    const gl = ctx.createRadialGradient(1035, 492, 2, 1035, 492, 40); gl.addColorStop(0, `rgba(224,87,79,${.35 + .15 * Math.sin(t * 4)})`); gl.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gl; ctx.fillRect(990, 452, 90, 80);
+  }
+  [1, 2, 3, 4, 5, 6, 7, 8].forEach(id => marcador(ctx, id, t));
+  // jogador
+  const bob = andando ? -Math.abs(Math.sin(tAnd * 11)) * 3 : Math.sin(t * 2) * .8, tilt = andando ? Math.sin(tAnd * 11) * .05 : 0;
+  ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.beginPath(); ctx.ellipse(S.x, S.y - 1, 16, 5, 0, 0, 7); ctx.fill();
+  if (sprite && sprite.complete) {
+    ctx.save(); ctx.translate(S.x, S.y); ctx.rotate(tilt); if (faceEsq) ctx.scale(-1, 1);
+    ctx.drawImage(sprite, -26, -74 + bob, 52, 72.8); ctx.restore();
+  }
+  // poeira
+  poeira.forEach(p => { ctx.fillStyle = `rgba(255,236,190,${.1 + .12 * Math.sin(p.f * 2)})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); });
+  // escuridão com luz
+  ectx.setTransform(1, 0, 0, 1, 0, 0); ectx.globalCompositeOperation = 'source-over'; ectx.fillStyle = 'rgba(3,2,9,.86)'; ectx.fillRect(0, 0, escuro.width, escuro.height);
+  ectx.setTransform(SC, 0, 0, SC, 0, 0); ectx.globalCompositeOperation = 'destination-out';
+  const R = raioLuz() * (1 + .025 * Math.sin(t * 7) + .015 * Math.sin(t * 13.3));
+  const luz = (x, y, r, a) => { const gr = ectx.createRadialGradient(x, y, r * .08, x, y, r); gr.addColorStop(0, `rgba(0,0,0,${a})`); gr.addColorStop(.55, `rgba(0,0,0,${a * .7})`); gr.addColorStop(1, 'rgba(0,0,0,0)'); ectx.fillStyle = gr; ectx.beginPath(); ectx.arc(x, y, r, 0, 7); ectx.fill(); };
+  luz(S.x, S.y - 28, R, 1);
+  LUZES.forEach(l => luz(l.x, l.y, l.r * (1 + .03 * Math.sin(t * 6 + l.x)), l.a));
+  [1, 2, 3, 4, 5, 6, 7].forEach(id => { const m = GEO[id].mk; luz(m[0], m[1] - 20, 58, .75); });
+  if (finalAberto()) luz(GEO[8].mk[0], GEO[8].mk[1] - 20, 70, .8);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(escuro, 0, 0);
+  // brilhos aditivos
+  ctx.setTransform(SC, 0, 0, SC, 0, 0); ctx.globalCompositeOperation = 'lighter';
+  const tint = (x, y, r, c) => { const gr = ctx.createRadialGradient(x, y, 2, x, y, r); gr.addColorStop(0, c); gr.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); };
+  tint(S.x, S.y - 28, R * .7, `rgba(255,170,80,${.09 + .01 * Math.sin(t * 9)})`);
+  tint(460, 80, 90 + 4 * Math.sin(t * 8), 'rgba(255,120,40,.2)');
+  tint(1035, 610, 90, 'rgba(60,200,255,.07)');
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (camMode) {
+    const sx = Math.max(0, Math.min(W - vw, S.x - vw / 2)), sy = Math.max(0, Math.min(H - vh, S.y - 50 - vh / 2));
+    vctx.drawImage(mundo, sx * SC, sy * SC, vw * SC, vh * SC, 0, 0, cv.width, cv.height);
+  } else vctx.drawImage(mundo, 0, 0, cv.width, cv.height);
+  vctx.drawImage(VIGNETA, 0, 0, cv.width, cv.height);
+  if (t - tMini > .1) { tMini = t; desenharMini(); }
+}
+function desenharMini() {
+  const k = mini.width / W; mctx.setTransform(1, 0, 0, 1, 0, 0); mctx.clearRect(0, 0, mini.width, mini.height); mctx.setTransform(k, 0, 0, k, 0, 0);
+  mctx.fillStyle = '#1a1624'; mctx.fillRect(18, 18, 1164, 724);
+  mctx.fillStyle = '#3a3350'; mctx.fillRect(...HALL);
+  Object.entries(GEO).forEach(([id, g]) => {
+    const f = +id === 8 ? !finalAberto() : concluida(+id);
+    mctx.fillStyle = +id === 8 ? (finalAberto() ? '#1f4a63' : '#4a1f26') : (f ? '#245a3a' : '#5a4a22'); mctx.fillRect(...g.r);
+    mctx.fillStyle = '#f1d78a'; mctx.font = '700 64px serif'; mctx.textAlign = 'center'; mctx.textBaseline = 'middle'; mctx.fillText(SALAS[+id - 1].ico, g.r[0] + g.r[2] / 2, g.r[1] + g.r[3] / 2);
+  });
+  mctx.fillStyle = '#fff'; mctx.strokeStyle = '#c9a24b'; mctx.lineWidth = 8; mctx.beginPath(); mctx.arc(S.x, S.y - 6, 20, 0, 7); mctx.fill(); mctx.stroke();
+}
+function loop(ts) {
+  requestAnimationFrame(loop);
+  if (!jogoAtivo || !S) return;
+  const dt = Math.min(.05, (ts - ult) / 1000); ult = ts; atualizar(dt); desenhar(ts / 1000);
+}
+
+/* =====================================================================
+   ENTRADAS (teclado / toque)
+   ===================================================================== */
+addEventListener('keydown', e => {
+  if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+  const k = e.key.toLowerCase();
+  if (e.key === 'Escape') { if (modalAberto()) { const m = modais[modais.length - 1]; if (m._fechavel) m.fechar(); } else if (jogoAtivo) abrirMenu(); return; }
+  if (!jogoAtivo || !S) return;
+  if (modalAberto()) return;
+  if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k)) e.preventDefault();
+  teclas.add(k);
+  if (k === 'e' || k === 'enter' || k === ' ') interagir();
+  if (k === 'c') abrirCaderno();
+});
+addEventListener('keyup', e => teclas.delete(e.key.toLowerCase()));
+addEventListener('blur', () => teclas.clear());
+$$('#dpad button').forEach(b => {
+  const d = b.dataset.d, on = e => { e.preventDefault(); joy[d] = true; }, off = e => { e.preventDefault(); joy[d] = false; };
+  b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointerleave', off); b.addEventListener('pointercancel', off);
+});
+$('#btn-acao').addEventListener('click', interagir);
+setTimeout(() => { const d = $('#dica-ctrl'); if (d) d.style.opacity = '0'; }, 1e6);
+
+/* =====================================================================
+   INTERAÇÃO — desafios, ferramentas, caderno, acusação
+   ===================================================================== */
+function interagir() {
+  if (!S || modalAberto()) return; const a = alvoProximo(); if (!a) return;
+  if (a.tipo === 'porta') { SFX.tranca(); toast('🔒 Trancada! Investigue as outras salas primeiro (' + salasConcluidas() + '/7).', true); return; }
+  if (a.id === 8) return abrirAcusacao();
+  if (S.salas[a.id].alvo === 0) { toast('Esta sala não tem desafios nesta missão.'); return; }
+  if (concluida(a.id)) { toast('Você já investigou a ' + SALAS[a.id - 1].nome + '.'); return; }
+  mostrarPergunta(a.id);
+}
+function mostrarPergunta(sid) {
+  const sala = SALAS[sid - 1], st = S.salas[sid], qid = qAtualId(sid), q = MISSAO.mapa[qid];
+  const ordem = MISSAO.cfg.embaralhar ? shuffle([0, 1, 2, 3]) : [0, 1, 2, 3];
+  const tent = S.tent[qid] || 0; let sel = -1, feito = false;
+  const letras = 'ABCD';
+  const bg = abrirModal(`<div class="carta perg">
+    <div class="carta-topo"><span class="ico">${sala.ico}</span><div><h3>${esc(sala.nome)}</h3><small>${esc(sala.tema)}</small></div><span class="etapa">Desafio ${st.ac.length + 1} / ${st.alvo}</span></div>
+    <p class="narr">${esc(sala.intro)}</p>
+    <div class="enun">${fmt(q.q)}</div>
+    <div class="opcoes">${ordem.map((oi, i) => `<button class="opc" data-i="${i}" data-oi="${oi}"><b>${letras[i]}</b><span>${fmt(q.o[oi])}</span></button>`).join('')}</div>
+    <div class="feedback" id="fb"></div>
+    <div class="acoes"><button class="btn fantasma" id="q-sair">Sair da sala</button><button class="btn primario" id="q-ok" disabled>Responder</button></div>
+  </div>`, { fechavel: false });
+  const ops = [...bg.querySelectorAll('.opc')], bOk = bg.querySelector('#q-ok'), fb = bg.querySelector('#fb');
+  bg.querySelector('#q-sair').onclick = () => bg.fechar();
+  const selecionar = i => { if (feito) return; sel = i; ops.forEach((o, k) => o.classList.toggle('sel', k === i)); bOk.disabled = false; SFX.clique(); };
+  ops.forEach((o, i) => o.onclick = () => selecionar(i));
+  const teclaQ = e => { if (!bg.isConnected) { removeEventListener('keydown', teclaQ); return; } const k = e.key.toLowerCase(); const i = 'abcd'.indexOf(k); if (i >= 0 && k.length === 1 && !feito) selecionar(i); else if (e.key === 'Enter' && !bOk.disabled) { e.preventDefault(); bOk.click(); } };
+  addEventListener('keydown', teclaQ);
+  bOk.onclick = () => {
+    if (feito) return;
+    if (sel < 0) return;
+    feito = true; ops.forEach(o => o.disabled = true);
+    const certo = ordem[sel] === q.c; S.tent[qid] = (S.tent[qid] || 0) + 1; S.log.push([qid, sid, certo ? 1 : 0]);
+    const iCerta = ordem.indexOf(q.c);
+    if (certo) {
+      const pts = MISSAO.cfg.pontos[Math.min(st.errAtual || 0, 2)] ?? 30; st.errAtual = 0; S.pontos += pts; st.ac.push(qid);
+      ops[sel].classList.add('certa'); SFX.ok();
+      fb.className = 'feedback v ok'; fb.innerHTML = `<strong>✔ Resposta correta! +${pts} pontos</strong>${fmt(q.e || '')}`;
+      bOk.textContent = 'Receber ferramenta ▸'; bOk.disabled = false;
+      bOk.onclick = () => { removeEventListener('keydown', teclaQ); bg.fechar(); entregarFerramenta(sid, st.ac.length - 1); };
+    } else {
+      st.errAtual = (st.errAtual || 0) + 1; ops[sel].classList.add('errada'); SFX.erro();
+      const rev = MISSAO.cfg.revelarGabarito; if (rev) ops[iCerta].classList.add('certa');
+      fb.className = 'feedback v no'; fb.innerHTML = `<strong>✘ Não foi desta vez… (próximo acerto vale menos)</strong>${rev ? fmt(q.e || '') : 'Revise o conteúdo e tente outro desafio.'}`;
+      bOk.textContent = 'Tentar outro desafio ▸'; bOk.disabled = false;
+      bOk.onclick = () => { removeEventListener('keydown', teclaQ); bg.fechar(); avancarPergunta(sid); salvar(true); mostrarPergunta(sid); };
+    }
+    hud(); salvar(true);
+  };
+  bg.addEventListener('remove', () => removeEventListener('keydown', teclaQ));
+  const obs = new MutationObserver(() => { if (!bg.isConnected) { removeEventListener('keydown', teclaQ); obs.disconnect(); } }); obs.observe(modalRoot, { childList: true });
+}
+function entregarFerramenta(sid, idx) {
+  const sala = SALAS[sid - 1], f = sala.ferr[idx]; if (!f) { aposSala(sid); return; }
+  S.ferr.push({ sala: sid, idx }); SFX.ferr(); hud(true); salvar(true);
+  const bg = abrirModal(`<div class="carta perg premio">
+    <div class="tit">Ferramenta obtida</div><div class="big">${f.ico}</div><h3>${esc(f.nome)}</h3><div class="uso">${esc(f.uso)}</div>
+    <div class="pista"><small>Pista descoberta</small>${esc(f.pista)}</div>
+    <div class="acoes" style="margin-top:18px"><button class="btn primario" id="p-ok">Guardar no inventário</button></div></div>`, { fechavel: false });
+  bg.querySelector('#p-ok').onclick = () => { bg.fechar(); aposSala(sid); };
+}
+function aposSala(sid) {
+  if (concluida(sid)) toast('✓ ' + SALAS[sid - 1].nome + ' concluída!');
+  else { const st = S.salas[sid]; toast(`Mais ${st.alvo - st.ac.length} desafio(s) nesta sala.`); }
+  if (todasConcluidas() && !S.finalAberto) {
+    S.finalAberto = true; salvar(true); SFX.porta();
+    setTimeout(() => {
+      const bg = abrirModal(`<div class="carta perg premio"><div class="tit">A porta se abriu</div><div class="big">🗝️</div><h3>Sala dos Servidores</h3>
+        <p style="font-size:1.1rem">Todas as salas foram investigadas. Você ouve um estalo: a porta dos servidores foi destrancada.<br>Revise o <b>Caderno</b> e vá até lá fazer a sua acusação.</p>
+        <div class="acoes" style="margin-top:14px"><button class="btn" id="a-cad">Abrir caderno</button><button class="btn primario" id="a-ok">Ir à sala</button></div></div>`, { fechavel: false });
+      bg.querySelector('#a-ok').onclick = bg.fechar; bg.querySelector('#a-cad').onclick = () => { bg.fechar(); abrirCaderno(); };
+    }, 500);
+  }
+}
+function abrirCaderno(aba = 'pistas', voltar) {
+  const render = () => {
+    const pistas = S.ferr.length ? S.ferr.map(f => { const t = SALAS[f.sala - 1].ferr[f.idx]; return `<div class="item-p"><div class="i">${t.ico}</div><div><h4>${esc(t.nome)} <span style="color:var(--mut);font-weight:400;font-family:var(--f-ui);font-size:.72rem">· ${esc(SALAS[f.sala - 1].nome)}</span></h4><p>${esc(t.pista)}</p></div></div>`; }).join('')
+      : '<div class="vazio">Nenhuma pista ainda. Resolva os desafios das salas para conquistar ferramentas.</div>';
+    const sus = SUSPEITOS.map(s => `<div class="sus ${S.descartados.includes(s.id) ? 'desc' : ''}"><div class="f">${s.ico}</div><h4>${esc(s.nome)}</h4><div class="pp">${esc(s.papel)}</div><p>${esc(s.desc)}</p><label><input type="checkbox" data-id="${s.id}" ${S.descartados.includes(s.id) ? 'checked' : ''}> Descartar suspeito</label></div>`).join('');
+    return aba === 'pistas' ? `<div class="lista-p">${pistas}</div>` : `<div class="sus-grid">${sus}</div>`;
+  };
+  const bg = abrirModal(`<div class="painel"><h3>📓 Caderno do Detetive <button class="fechar" aria-label="Fechar">×</button></h3>
+    <div class="abas"><button class="aba ${aba === 'pistas' ? 'at' : ''}" data-a="pistas">Pistas (${S.ferr.length})</button><button class="aba ${aba === 'sus' ? 'at' : ''}" data-a="sus">Suspeitos</button></div>
+    <div id="cad-c">${render()}</div></div>`);
+  const ligar = () => bg.querySelectorAll('.sus input').forEach(i => i.onchange = () => { const id = i.dataset.id; S.descartados = i.checked ? [...new Set([...S.descartados, id])] : S.descartados.filter(x => x !== id); salvar(true); i.closest('.sus').classList.toggle('desc', i.checked); });
+  bg.querySelector('.fechar').onclick = bg.fechar;
+  bg.querySelectorAll('.aba').forEach(b => b.onclick = () => { aba = b.dataset.a; bg.querySelectorAll('.aba').forEach(x => x.classList.toggle('at', x === b)); bg.querySelector('#cad-c').innerHTML = render(); ligar(); SFX.clique(); });
+  ligar();
+}
+function abrirAcusacao() {
+  let su = null, me = null;
+  const bg = abrirModal(`<div class="painel" style="width:min(900px,94vw)"><h3>⚖ Acusação final <button class="fechar" aria-label="Fechar">×</button></h3>
+    <p class="aviso" style="margin-top:-4px">Nos terminais do servidor, a tabela <b>CLIENTES</b> não existe mais. Com base nas pistas do seu caderno, aponte o culpado e o comando usado.</p>
+    <div class="sec-t">1. Quem apagou a tabela?</div>
+    <div class="sus-grid">${SUSPEITOS.map(s => `<div class="sus escolha ${S.descartados.includes(s.id) ? 'desc' : ''}" data-id="${s.id}" tabindex="0" role="button"><div class="f">${s.ico}</div><h4>${esc(s.nome)}</h4><div class="pp">${esc(s.papel)}</div><p>${esc(s.desc)}</p></div>`).join('')}</div>
+    <div class="sec-t">2. Qual comando foi executado?</div>
+    <div class="metodos">${METODOS.map(m => `<button class="met" data-id="${m.id}">${esc(m.cmd)}</button>`).join('')}</div>
+    <div class="msg-acus" id="ac-msg"></div>
+    <div class="linha-fl" style="justify-content:space-between;margin-top:16px"><button class="btn" id="ac-cad">📓 Ver caderno</button><button class="btn primario" id="ac-ok" disabled>Acusar</button></div></div>`, { fechavel: true });
+  bg.querySelector('.fechar').onclick = bg.fechar;
+  bg.querySelector('#ac-cad').onclick = () => abrirCaderno('pistas');
+  const ok = bg.querySelector('#ac-ok'), msg = bg.querySelector('#ac-msg'); const refresh = () => { ok.disabled = !(su && me); };
+  bg.querySelectorAll('.escolha').forEach(c => { const f = () => { su = c.dataset.id; bg.querySelectorAll('.escolha').forEach(x => x.classList.toggle('sel', x === c)); SFX.clique(); refresh(); }; c.onclick = f; c.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); f(); } }; });
+  bg.querySelectorAll('.met').forEach(c => c.onclick = () => { me = c.dataset.id; bg.querySelectorAll('.met').forEach(x => x.classList.toggle('sel', x === c)); SFX.clique(); refresh(); });
+  ok.onclick = () => {
+    const sOk = su === CULPADO, mOk = METODOS.find(m => m.id === me).ok;
+    if (sOk && mOk) {
+      const idx = Math.min(S.acusacoes, 2), bonus = MISSAO.cfg.bonusAcusacao[idx] ?? 60; S.pontos += bonus; S.bonus = bonus; S.fim = Date.now(); lsDel('dtp_save');
+      bg.fechar(); finalizar();
+    } else {
+      S.acusacoes++; const pen = MISSAO.cfg.penalidadeAcusacao; S.pontos = Math.max(0, S.pontos - pen); hud(); salvar(true); SFX.erro();
+      msg.className = 'msg-acus no v';
+      msg.innerHTML = `<b>Acusação rejeitada (−${pen} pontos).</b> ` + (!sOk && !mOk ? 'Nem o suspeito nem o comando combinam com as provas.' : !sOk ? 'O comando parece certo, mas o suspeito não tinha esse acesso — ou tem um álibi.' : 'O suspeito é plausível, mas o comando não corresponde ao que o log mostra.') + ' Releia o caderno.';
+    }
+  };
+}
+
+/* =====================================================================
+   FINAL / RELATÓRIO
+   ===================================================================== */
+function estatisticas() {
+  const porQ = {}; S.log.forEach(([q, s, ok]) => { (porQ[q] = porQ[q] || { s, t: 0, ok: 0, primeira: null }); porQ[q].t++; if (porQ[q].primeira === null) porQ[q].primeira = ok; if (ok) porQ[q].ok = 1; });
+  const qs = Object.entries(porQ), acertos1 = qs.filter(([, v]) => v.primeira === 1).length, total = S.log.length;
+  const certas = S.log.filter(l => l[2]).length;
+  const porSala = {}; salasQ().forEach(id => porSala[id] = { acertos: 0, erros: 0, primeira: 0, total: 0 });
+  S.log.forEach(([q, s, ok]) => { if (ok) porSala[s].acertos++; else porSala[s].erros++; });
+  qs.forEach(([, v]) => { porSala[v.s].total++; if (v.primeira === 1) porSala[v.s].primeira++; });
+  return { porQ, acertos1, total, certas, erros: total - certas, porSala, qs: qs.length };
+}
+function relatorio() {
+  return { t: 'dtp-res', v: 1, rid: S.rid, missao: MISSAO.cfg.titulo, mh: MISSAO.hash, nome: S.perfil.nome, turma: S.perfil.turma, mat: S.perfil.mat, avatar: S.perfil.avatar,
+    inicio: S.inicio, fim: S.fim, tempo: Math.round(S.tempo), pontos: S.pontos, max: pontosMax(), acusErr: S.acusacoes, log: S.log };
+}
+function rankDe(p) { return p >= .9 ? ['🏆', 'Inspetor-Chefe dos Dados', 'Domínio excelente dos conteúdos!'] : p >= .7 ? ['🥇', 'Detetive Sênior', 'Ótimo desempenho — poucos pontos a ajustar.'] : p >= .45 ? ['🥈', 'Investigador', 'Bom caminho. Revise os tópicos abaixo.'] : ['🥉', 'Detetive Aprendiz', 'O caso foi resolvido, mas vale estudar os tópicos abaixo e tentar de novo.']; }
+function finalizar() {
+  SFX.vitoria(); confete();
+  const rel = relatorio(); const lista = lsGet('dtp_resultados', []).filter(r => r.rid !== rel.rid); lista.push(rel); lsSet('dtp_resultados', lista);
+  const est = estatisticas(), pct = rel.pontos / rel.max, [med, tit, sub] = rankDe(pct);
+  const errados = Object.entries(est.porQ).filter(([, v]) => v.t > 1 || !v.ok || v.primeira === 0).filter(([, v]) => v.primeira === 0);
+  const codigo = DTP.codigoRelatorio(rel);
+  const culpado = SUSPEITOS.find(s => s.id === CULPADO);
+  $('#fin-wrap').innerHTML = `
+    <div class="selo">CASO ENCERRADO</div><h2>${esc(MISSAO.cfg.titulo)}</h2>
+    <div class="perg epilogo"><b style="font-family:var(--f-titulo);color:#4a1520">${culpado.ico} O culpado: ${esc(culpado.nome)}.</b><br>${fmt(EPILOGO)}</div>
+    <div class="rank"><div class="medalha">${med}</div><div><div class="tt">${tit}</div><div class="st">${esc(S.perfil.nome)} · ${sub}</div></div></div>
+    <div class="cartoes">
+      <div class="cartao"><b>${rel.pontos}</b><span>pontos de ${rel.max}</span></div>
+      <div class="cartao"><b>${est.acertos1}/${est.qs}</b><span>acertos de primeira</span></div>
+      <div class="cartao"><b>${est.erros}</b><span>respostas erradas</span></div>
+      <div class="cartao"><b>${fmtTempo(rel.tempo)}</b><span>tempo total</span></div>
+    </div>
+    <div class="sec-t">Desempenho por sala</div>
+    ${salasQ().filter(id => S.salas[id].alvo).map(id => { const p = est.porSala[id], pc = p.total ? Math.round(p.primeira / p.total * 100) : 0; return `<div class="sala-linha"><span style="font-size:1.3rem">${SALAS[id - 1].ico}</span><div>${esc(SALAS[id - 1].nome)} <span style="color:var(--mut)">— ${esc(SALAS[id - 1].tema)}</span><div class="bar"><i style="width:${pc}%"></i></div></div><span>${p.primeira}/${p.total} de 1ª</span></div>`; }).join('')}
+    ${errados.length ? `<div class="sec-t">Para revisar (questões que você errou)</div>` + errados.map(([qid]) => { const q = MISSAO.mapa[qid]; if (!q) return ''; return `<div class="rev"><h4>${SALAS[q.sala - 1].ico} ${esc(SALAS[q.sala - 1].tema)}</h4><div class="qq">${fmt(q.q)}</div><div class="ee"><b>Resposta:</b> ${fmt(q.o[q.c])}<br>${fmt(q.e || '')}</div></div>`; }).join('') : '<div class="aviso" style="text-align:center;margin:10px 0">🎉 Você acertou todas as questões de primeira!</div>'}
+    <div class="sec-t">Relatório para o professor</div>
+    <p class="aviso">Seu resultado foi salvo neste navegador. Para entregar ao professor, envie o <b>arquivo</b> ou o <b>código</b> abaixo.</p>
+    <textarea class="cod-rel in" readonly id="cod-rel" onclick="this.select()">${codigo}</textarea>
+    <div class="fin-acoes"><button class="btn" id="f-copiar">📋 Copiar código</button><button class="btn" id="f-baixar">⬇ Baixar relatório (.json)</button><button class="btn primario" id="f-novo">↻ Jogar novamente</button><button class="btn fantasma" id="f-inicio">Início</button></div>`;
+  tela('tela-final'); $('#tela-final').scrollTop = 0;
+  $('#f-copiar').onclick = async () => toast(await copiar(codigo) ? 'Código copiado!' : 'Selecione e copie manualmente.', false);
+  $('#f-baixar').onclick = () => baixar(`relatorio_${(S.perfil.nome || 'aluno').replace(/[^\w]+/g, '_')}.json`, JSON.stringify(rel, null, 1));
+  $('#f-novo').onclick = () => { S = null; irPerfil(); };
+  $('#f-inicio').onclick = () => { S = null; irTitulo(); };
+}
+function confete() {
+  const cores = ['#f1d78a', '#c9a24b', '#a52a45', '#6a8be0', '#4caf7a', '#fff'];
+  for (let i = 0; i < 90; i++) { const d = document.createElement('div'); d.className = 'confete'; d.style.left = Math.random() * 100 + 'vw'; d.style.background = cores[i % cores.length]; d.style.animationDuration = (2.5 + Math.random() * 3) + 's'; d.style.animationDelay = Math.random() * .8 + 's'; d.style.transform = `rotate(${Math.random() * 360}deg)`; document.body.appendChild(d); setTimeout(() => d.remove(), 6500); }
+}
+
+/* =====================================================================
+   HUD / MENU / FLUXO
+   ===================================================================== */
+function hud(novo) {
+  $('#hud-pontos').textContent = S.pontos;
+  $('#prog').innerHTML = `Salas investigadas: <b>${salasConcluidas()}/7</b>`;
+  const slots = []; salasQ().forEach(id => { for (let i = 0; i < S.salas[id].alvo; i++) slots.push([id, i]); });
+  $('#inv').innerHTML = slots.map(([id, i]) => { const f = S.ferr.find(x => x.sala === id && x.idx === i), t = SALAS[id - 1].ferr[i]; const ultimo = novo && f && S.ferr[S.ferr.length - 1] === f; return f ? `<div class="slot cheio ${ultimo ? 'novo' : ''}" title="${esc(t.nome)}">${t.ico}</div>` : `<div class="slot" title="${esc(SALAS[id - 1].nome)}: ferramenta ainda não conquistada" style="opacity:.35">❔</div>`; }).join('');
+  $$('#inv .slot').forEach(s => s.onclick = () => abrirCaderno());
+}
+function abrirMenu() {
+  const bg = abrirModal(`<div class="painel" style="width:min(460px,94vw)"><h3>Menu <button class="fechar" aria-label="Fechar">×</button></h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn primario" id="m-cont">Continuar investigação</button>
+      <button class="btn" id="m-cad">📓 Caderno de pistas</button>
+      <button class="btn" id="m-como">Como jogar</button>
+      <button class="btn" id="m-som">${mudo ? '🔇 Ativar som' : '🔊 Desativar som'}</button>
+      <button class="btn fantasma" id="m-sair">Sair para o início (o progresso fica salvo)</button>
+      <button class="btn perigo pequeno" id="m-reiniciar">Recomeçar o caso do zero</button>
+    </div></div>`);
+  bg.querySelector('.fechar').onclick = bg.fechar; bg.querySelector('#m-cont').onclick = bg.fechar;
+  bg.querySelector('#m-cad').onclick = () => { bg.fechar(); abrirCaderno(); };
+  bg.querySelector('#m-como').onclick = abrirComoJogar;
+  bg.querySelector('#m-som').onclick = () => { mudo = !mudo; aplicarMudo(); bg.fechar(); };
+  bg.querySelector('#m-sair').onclick = () => { salvar(true); bg.fechar(); irTitulo(); };
+  bg.querySelector('#m-reiniciar').onclick = () => { if (confirm('Recomeçar apagará o progresso deste caso. Continuar?')) { bg.fechar(); lsDel('dtp_save'); const p = S.perfil; S = null; iniciarJogo(p); } };
+}
+function irTitulo() { fecharTodosModais(); rotuloMissao(); tela('tela-titulo'); }
+function irPerfil() {
+  const p = lsGet('dtp_perfil', {}); $('#f-nome').value = p.nome || ''; $('#f-turma').value = p.turma || MISSAO.cfg.turma || ''; $('#f-mat').value = p.mat || '';
+  if (p.avatar) avSel = p.avatar; montarAvatares(); tela('tela-avatar');
+}
+function historia(aoFim) {
+  const bg = abrirModal(`<div class="carta perg" style="width:min(680px,94vw)">
+    <div class="carta-topo"><span class="ico">✉️</span><div><h3>Telegrama urgente</h3><small>Mansão Codd · de madrugada</small></div></div>
+    <div style="font-family:var(--f-maq);font-size:1.02rem;line-height:1.55;font-weight:400">
+      <p>Caro(a) detetive <b>${esc(S.perfil.nome)}</b>,</p>
+      <p>Durante a festa de ontem, a tabela <b>CLIENTES</b> desapareceu do servidor da minha mansão — estrutura, dados, tudo. Nenhum backup foi encontrado.</p>
+      <p>Cinco pessoas estiveram aqui na hora do ocorrido. Preciso saber <b>quem foi</b> e <b>qual comando SQL</b> foi usado.</p>
+      <p>As salas estão escuras e cada porta guarda um enigma de Banco de Dados. Quem resolve o enigma, encontra uma ferramenta; quem reúne as ferramentas, encontra a verdade.</p>
+      <p style="text-align:right">— Lorde Edmund Codd</p></div>
+    <div class="acoes"><span></span><button class="btn primario" id="h-ok">Aceitar o caso</button></div></div>`, { fechavel: false });
+  bg.querySelector('#h-ok').onclick = () => { bg.fechar(); aoFim(); };
+}
+function iniciarJogo(perfil, retomar) {
+  if (!retomar) S = novoEstado(perfil);
+  carregarSprite(); if (!ESTATICO) construirEstatico();
+  $('#hud-nome').textContent = S.perfil.nome; $('#hud-sub').textContent = [S.perfil.turma, S.perfil.mat].filter(Boolean).join(' · ') || AVATARES.find(a => a.id === S.perfil.avatar).nome;
+  $('#hud-titulo').textContent = MISSAO.cfg.titulo; $('#hud-mini').innerHTML = avatarSVG(AVATARES.find(a => a.id === S.perfil.avatar));
+  $('#b-som').textContent = mudo ? '🔇' : '🔊';
+  tela('tela-jogo'); hud(); iniciarAmbiente();
+  if (!retomar) { salvar(true); historia(() => { toast(matchMedia('(pointer:coarse)').matches ? 'Use o direcional para andar e toque em Investigar nos símbolos dourados.' : 'Use as setas ou WASD para andar. Pressione E nos símbolos dourados.'); }); }
+}
+
+/* ---------- Eventos de tela ---------- */
+$('#b-iniciar').onclick = () => { audio(); SFX.clique(); irPerfil(); };
+$('#b-continuar').onclick = () => { audio(); const sv = lsGet('dtp_save'); if (sv && sv.S) { S = sv.S; iniciarJogo(S.perfil, true); } };
+$('#b-como').onclick = abrirComoJogar;
+$('#b-av-voltar').onclick = irTitulo;
+$('#b-av-ok').onclick = () => {
+  const nome = $('#f-nome').value.trim(); if (!nome) { toast('Digite seu nome para entrar na mansão.', true); $('#f-nome').focus(); return; }
+  const perfil = { nome, turma: $('#f-turma').value.trim(), mat: $('#f-mat').value.trim(), avatar: avSel }; lsSet('dtp_perfil', perfil);
+  const sv = lsGet('dtp_save'); if (sv && sv.S && !sv.S.fim && !confirm('Já existe um caso salvo. Iniciar um novo apagará o progresso anterior. Continuar?')) return;
+  lsDel('dtp_save'); iniciarJogo(perfil);
+};
+$('#b-caderno').onclick = () => { if (S && !modalAberto()) abrirCaderno(); };
+$('#b-menu').onclick = () => { if (S && !modalAberto()) abrirMenu(); };
+$('#b-som').onclick = () => { mudo = !mudo; aplicarMudo(); };
+addEventListener('beforeunload', () => { if (S && !S.fim) salvar(true); });
+setInterval(() => { if (S && jogoAtivo) salvar(); }, 5000);
+document.addEventListener('visibilitychange', () => { if (document.hidden && S && !S.fim) salvar(true); });
+
+/* ---------- Início ---------- */
+DTP.ligarTelaCheia();
+carregarMissao().then(() => { rotuloMissao(); requestAnimationFrame(loop); });
+window.__dtp = { get S() { return S; }, livre, GEO, alvoProximo, qAtualId, get MISSAO() { return MISSAO; } };
+})();
+
+</script>
+</body>
+</html>

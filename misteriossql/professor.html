@@ -1,1 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel do Professor — O Mistério da Tabela Perdida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cinzel+Decorative:wght@700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07060c;--bg2:#0e0c16;--panel:#16121f;--panel2:#1d1829;--panel3:#251f33;
+  --ouro:#c9a24b;--ouro2:#f1d78a;--ouro3:#8a6d28;
+  --vinho:#7a1f33;--vinho2:#a52a45;
+  --perg:#eadfc2;--perg2:#d9c9a0;--tinta:#2b2118;
+  --txt:#e8e2d4;--mut:#a39bb2;--linha:#3a3250;
+  --ok:#4caf7a;--err:#e0574f;--azul:#6a8be0;
+  --f-titulo:'Cinzel','Cinzel Decorative',Georgia,serif;
+  --f-corpo:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --f-maq:'Special Elite','Courier New',monospace;
+  --f-ui:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font-family:var(--f-corpo);font-size:19px;font-weight:600;line-height:1.4}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+h1,h2,h3,h4{font-family:var(--f-titulo);font-weight:700;margin:0;letter-spacing:.04em}
+a{color:var(--ouro2)}
+code{font-family:'Consolas','Courier New',monospace;font-size:.88em;background:rgba(201,162,75,.14);border:1px solid rgba(201,162,75,.28);padding:0 .35em;border-radius:4px;color:inherit;white-space:pre-wrap;word-break:break-word}
+pre{font-family:'Consolas','Courier New',monospace;font-size:.85em;background:rgba(0,0,0,.35);border:1px solid rgba(201,162,75,.3);padding:.7em .9em;border-radius:6px;overflow:auto;margin:.5em 0;white-space:pre-wrap}
 
+/* Botões */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;cursor:pointer;
+  font-family:var(--f-titulo);font-weight:700;font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;
+  padding:.8em 1.4em;border-radius:3px;border:1px solid var(--ouro);color:var(--ouro2);
+  background:linear-gradient(180deg,rgba(201,162,75,.16),rgba(201,162,75,.04));
+  transition:transform .15s,box-shadow .2s,background .2s,filter .2s;text-decoration:none;user-select:none}
+.btn:hover:not(:disabled){background:linear-gradient(180deg,rgba(241,215,138,.28),rgba(201,162,75,.1));box-shadow:0 0 18px rgba(201,162,75,.35);transform:translateY(-1px)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.primario{background:linear-gradient(180deg,#d9b55c,#9c7a2d);color:#1a1208;border-color:#f1d78a;text-shadow:0 1px 0 rgba(255,255,255,.3)}
+.btn.primario:hover:not(:disabled){background:linear-gradient(180deg,#f1d78a,#b38f3a);box-shadow:0 0 24px rgba(241,215,138,.5)}
+.btn.perigo{border-color:var(--vinho2);color:#ff9aa9;background:linear-gradient(180deg,rgba(165,42,69,.2),rgba(165,42,69,.05))}
+.btn.pequeno{font-size:.7rem;padding:.55em 1em}
+.btn.fantasma{border-color:var(--linha);color:var(--mut);background:transparent}
+
+/* Toast */
+#toasts{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:#1c1628;border:1px solid var(--ouro);color:var(--ouro2);padding:.6em 1.2em;border-radius:4px;font-family:var(--f-ui);font-size:.85rem;box-shadow:0 8px 30px rgba(0,0,0,.6);animation:toastIn .3s ease,toastOut .4s ease 2.6s forwards}
+.toast.err{border-color:var(--err);color:#ffb3ad}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(8px)}}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(3,2,8,.78);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;animation:fadeIn .25s ease}
+.modal-bg.topo{z-index:1100}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{max-height:calc(100vh - 32px);overflow:auto;animation:subir .3s ease}
+@keyframes subir{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+
+/* Pergaminho */
+.perg{background:
+  radial-gradient(ellipse at 20% 10%,rgba(255,255,255,.35),transparent 55%),
+  radial-gradient(ellipse at 90% 100%,rgba(120,80,30,.28),transparent 60%),
+  linear-gradient(180deg,var(--perg),var(--perg2));
+  color:var(--tinta);border:2px solid #7a5d2a;border-radius:6px;
+  box-shadow:0 0 0 4px #1a1208,0 0 0 5px var(--ouro3),0 30px 70px rgba(0,0,0,.75),inset 0 0 70px rgba(110,70,20,.35)}
+.perg h3,.perg h2{color:#4a1520}
+.perg code{background:rgba(122,31,51,.1);border-color:rgba(122,31,51,.35);color:#4a1520}
+.perg pre{background:rgba(43,33,24,.1);border-color:rgba(122,31,51,.35);color:var(--tinta)}
+
+/* Formulários (usados principalmente no módulo do professor) */
+label.campo{display:block;margin-bottom:14px;font-family:var(--f-ui);font-size:.82rem;color:var(--mut);font-weight:600;letter-spacing:.02em}
+label.campo>span{display:block;margin-bottom:5px}
+.in,input[type=text],input[type=number],textarea,select{width:100%;background:#0d0a14;border:1px solid var(--linha);border-radius:4px;padding:.6em .8em;color:var(--txt);font-family:var(--f-ui);font-size:.95rem;font-weight:400;outline:none;transition:border-color .2s,box-shadow .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--ouro);box-shadow:0 0 0 3px rgba(201,162,75,.18)}
+textarea{resize:vertical;min-height:80px;line-height:1.45}
+::selection{background:rgba(201,162,75,.4)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#0d0a14}::-webkit-scrollbar-thumb{background:#3a3250;border-radius:6px}::-webkit-scrollbar-thumb:hover{background:var(--ouro3)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+input[type=file]{font-family:var(--f-ui);font-size:.82rem;color:var(--mut)}
+input[type=file]::file-selector-button{font-family:var(--f-titulo);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--ouro2);background:linear-gradient(180deg,rgba(201,162,75,.16),rgba(201,162,75,.04));border:1px solid var(--ouro);border-radius:3px;padding:.6em 1em;margin-right:10px;cursor:pointer}
+input[type=file]::file-selector-button:hover{background:rgba(241,215,138,.25)}
+
+body{font-family:var(--f-ui);font-weight:400;font-size:15px;background:radial-gradient(ellipse at 50% -10%,#1d1630,#07060c 60%) fixed}
+.topo{display:flex;align-items:center;gap:16px;padding:14px 24px;border-bottom:1px solid var(--ouro3);background:linear-gradient(180deg,#14101f,#0b0913);position:sticky;top:0;z-index:50;flex-wrap:wrap}
+.marca{display:flex;align-items:center;gap:12px}
+.marca .logo{font-size:2rem;filter:drop-shadow(0 0 10px rgba(201,162,75,.5))}
+.marca h1{font-family:'Cinzel Decorative',var(--f-titulo);font-size:1.15rem;background:linear-gradient(180deg,#fff3c4,#c9a24b);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.06em}
+.marca small{display:block;color:var(--mut);font-family:var(--f-ui);font-size:.74rem;letter-spacing:.08em}
+nav.abas{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+nav.abas button{background:none;border:1px solid transparent;color:var(--mut);font-family:var(--f-titulo);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;padding:.7em 1.1em;cursor:pointer;border-radius:3px;transition:.2s;font-weight:700}
+nav.abas button:hover{color:var(--ouro2)}
+nav.abas button.at{color:var(--ouro2);border-color:var(--ouro3);background:rgba(201,162,75,.1)}
+nav.abas .n{display:inline-block;margin-left:.4em;background:var(--ouro);color:#1a1208;border-radius:9px;padding:0 .5em;font-size:.68rem;font-family:var(--f-ui)}
+main{max-width:1180px;margin:0 auto;padding:26px 22px 60px}
+h2.sec{font-family:var(--f-titulo);color:var(--ouro2);font-size:1.25rem;margin:0 0 4px}
+p.lead{color:var(--mut);margin:0 0 20px;line-height:1.5}
+.pan{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--linha);border-radius:8px;padding:18px 20px;margin-bottom:18px}
+.pan h3{font-family:var(--f-titulo);font-size:.82rem;letter-spacing:.16em;color:var(--ouro);text-transform:uppercase;margin-bottom:12px}
+.grid{display:grid;gap:14px}.g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.kpi{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--linha);border-radius:8px;padding:16px;text-align:center}
+.kpi b{display:block;font-family:var(--f-titulo);font-size:1.9rem;color:var(--ouro2)}.kpi span{color:var(--mut);font-size:.8rem}
+.passos{counter-reset:p;list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.passos li{counter-increment:p;display:flex;gap:14px;align-items:flex-start;line-height:1.5}
+.passos li::before{content:counter(p);flex:none;width:28px;height:28px;border-radius:50%;background:var(--ouro);color:#1a1208;font-family:var(--f-titulo);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.alerta{border:1px solid var(--ouro3);background:rgba(201,162,75,.08);border-radius:6px;padding:10px 14px;margin-bottom:8px;display:flex;gap:10px;line-height:1.45}
+.alerta.err{border-color:var(--err);background:rgba(224,87,79,.08)}.alerta.ok{border-color:var(--ok);background:rgba(76,175,122,.08)}
+.barra-acoes{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.barra-acoes .esp{flex:1}
+.q-layout{display:grid;grid-template-columns:250px 1fr;gap:18px;align-items:start}
+@media(max-width:860px){.q-layout{grid-template-columns:1fr}}
+.salas-lista{display:flex;flex-direction:column;gap:6px;position:sticky;top:88px}
+.sala-b{display:flex;align-items:center;gap:10px;text-align:left;background:var(--panel);border:1px solid var(--linha);border-radius:6px;padding:10px 12px;cursor:pointer;color:var(--txt);transition:.15s}
+.sala-b:hover{border-color:var(--ouro3)}.sala-b.at{border-color:var(--ouro);background:rgba(201,162,75,.1)}
+.sala-b .i{font-size:1.4rem}.sala-b .t{flex:1;line-height:1.25;font-size:.85rem}.sala-b .t small{display:block;color:var(--mut);font-size:.72rem}
+.sala-b .c{font-family:var(--f-titulo);background:#0d0a14;border:1px solid var(--linha);border-radius:12px;padding:.1em .7em;font-size:.8rem;color:var(--ouro2)}
+.sala-b .c.baixo{border-color:var(--err);color:#ffb3ad}
+.q-card{background:var(--panel);border:1px solid var(--linha);border-radius:8px;padding:14px 16px;margin-bottom:12px}
+.q-card:hover{border-color:var(--ouro3)}
+.q-card .cab{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.tag{font-size:.7rem;border:1px solid var(--linha);border-radius:10px;padding:.1em .7em;color:var(--mut);white-space:nowrap}
+.tag.n1{color:#8fe0b0;border-color:#2e7a52}.tag.n2{color:#f1d78a;border-color:var(--ouro3)}.tag.n3{color:#ffb3ad;border-color:#a5423b}
+.q-card .enun{font-size:1rem;line-height:1.5;margin-bottom:10px}
+.q-card ol{list-style:upper-alpha;margin:0 0 8px;padding-left:1.6em;display:grid;gap:3px;color:#cfc6dc}
+.q-card li.c{color:#8fe0b0;font-weight:600}.q-card li.c::marker{font-weight:700}
+.q-card .exp{border-top:1px dashed var(--linha);padding-top:8px;font-size:.86rem;color:var(--mut);line-height:1.45}
+.q-card .btns{display:flex;gap:6px;margin-left:auto}
+.vazio{color:var(--mut);text-align:center;padding:36px 12px;border:1px dashed var(--linha);border-radius:8px}
+.form-linha{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.alt{display:flex;gap:8px;align-items:center;margin-bottom:8px}.alt input[type=radio]{accent-color:var(--ouro);width:18px;height:18px;flex:none}
+.alt .L{font-family:var(--f-titulo);color:var(--ouro);width:18px;flex:none}
+.modal.form{width:min(720px,96vw);background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--ouro3);border-radius:8px;padding:22px 26px;box-shadow:0 30px 80px rgba(0,0,0,.7)}
+.modal.form h3{color:var(--ouro2);font-size:1.05rem;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.modal.form .fechar{background:none;border:none;color:var(--mut);font-size:1.6rem;cursor:pointer;line-height:1}
+.prev{background:#0d0a14;border:1px solid var(--linha);border-radius:4px;padding:8px 12px;font-size:.9rem;line-height:1.45;margin-top:-6px;margin-bottom:12px;color:#cfc6dc}
+.prev:empty{display:none}
+table.t{width:100%;border-collapse:collapse;font-size:.86rem}
+table.t th{font-family:var(--f-titulo);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ouro);text-align:left;padding:9px 10px;border-bottom:1px solid var(--ouro3);white-space:nowrap;cursor:pointer}
+table.t td{padding:9px 10px;border-bottom:1px solid var(--linha);vertical-align:middle}
+table.t tr:hover td{background:rgba(255,255,255,.03)}
+.tw{overflow-x:auto;border:1px solid var(--linha);border-radius:8px}
+.pill{display:inline-block;border-radius:10px;padding:.1em .7em;font-size:.78rem;font-weight:600}
+.pill.a{background:rgba(76,175,122,.18);color:#8fe0b0}.pill.m{background:rgba(201,162,75,.18);color:#f1d78a}.pill.b{background:rgba(224,87,79,.18);color:#ffb3ad}
+.barra{height:9px;background:#0d0a14;border:1px solid var(--linha);border-radius:5px;overflow:hidden;min-width:90px}.barra i{display:block;height:100%;background:linear-gradient(90deg,#8a6d28,#f1d78a)}
+.barra.r i{background:linear-gradient(90deg,#a52a45,#e0574f)}.barra.v i{background:linear-gradient(90deg,#2e8a52,#6fdc9c)}
+.linha-m{display:grid;grid-template-columns:210px 1fr 90px;gap:12px;align-items:center;margin-bottom:9px;font-size:.84rem}
+@media(max-width:700px){.linha-m{grid-template-columns:1fr}}
+.cx{display:flex;align-items:center;gap:8px;margin-bottom:10px}.cx input[type=checkbox]{accent-color:var(--ouro);width:18px;height:18px}
+.cx label{cursor:pointer;line-height:1.35}
+.cod{font-family:Consolas,monospace;font-size:.72rem;min-height:84px;word-break:break-all}
+.det{background:#0d0a14}
+.rodape{text-align:center;color:#6f6880;font-size:.74rem;padding:24px}.rodape b{color:var(--ouro2);font-weight:600}
+.muted{color:var(--mut)}.sm{font-size:.82rem}
+details.d summary{cursor:pointer;color:var(--ouro2);font-weight:600;padding:4px 0}
+details.d[open] summary{margin-bottom:8px}
+.ferr-tab td:first-child{font-size:1.1rem}
+kbd{background:#0d0a14;border:1px solid var(--linha);border-radius:3px;padding:0 .4em;font-family:Consolas,monospace;font-size:.85em}
+</style>
+</head>
+<body>
+<header class="topo">
+  <div class="marca"><span class="logo">🕵️</span><div><h1>Quartel-General</h1><small>PAINEL DO PROFESSOR · O MISTÉRIO DA TABELA PERDIDA</small></div></div>
+  <nav class="abas" id="nav"></nav>
+  <button class="btn pequeno fantasma" data-fs><span class="fsi">⛶</span> Tela inteira</button>
+</header>
+<main id="conteudo"></main>
+<div class="rodape">Módulo do Professor · criado por <b>Prof. Fred Lucena</b> · os dados ficam salvos neste navegador (localStorage)</div>
+<div id="modal-root"></div><div id="toasts"></div>
+
+<script>
+/* ===== O Mistério da Tabela Perdida — núcleo compartilhado (aluno + professor) ===== */
+const DTP = (() => {
+
+  /* ---------- Utilidades ---------- */
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  // Mini-formatação: `código`, ```bloco```, **negrito**, quebras de linha
+  const fmt = s => {
+    let t = esc(s);
+    t = t.replace(/```([\s\S]*?)```/g, (m, c) => '<pre>' + c.trim() + '</pre>');
+    t = t.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    t = t.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    return t.replace(/\n/g, '<br>');
+  };
+  const b64e = s => btoa(unescape(encodeURIComponent(s)));
+  const b64d = s => decodeURIComponent(escape(atob(s.replace(/\s+/g, ''))));
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const fmtTempo = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0'); };
+  const lsGet = (k, d = null) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
+  const lsDel = k => { try { localStorage.removeItem(k); } catch (e) {} };
+  const hash = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+  const baixar = (nome, texto, mime = 'application/json') => {
+    const b = new Blob([texto], { type: mime + ';charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = nome;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  };
+  const copiar = async txt => {
+    try { await navigator.clipboard.writeText(txt); return true; }
+    catch (e) { const t = document.createElement('textarea'); t.value = txt; t.style.position = 'fixed'; t.style.opacity = '0'; document.body.appendChild(t); t.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (_) {} t.remove(); return ok; }
+  };
+  const toast = (msg, err) => {
+    let r = document.getElementById('toasts'); if (!r) { r = document.createElement('div'); r.id = 'toasts'; document.body.appendChild(r); }
+    const d = document.createElement('div'); d.className = 'toast' + (err ? ' err' : ''); d.textContent = msg; r.appendChild(d); setTimeout(() => d.remove(), 3100);
+  };
+
+  /* ---------- Configuração padrão ---------- */
+  const CONFIG_PADRAO = {
+    titulo: 'O Mistério da Tabela Perdida',
+    turma: '',
+    porSala: 2,              // desafios por sala (1 ou 2)
+    embaralhar: true,        // embaralhar alternativas
+    revelarGabarito: true,   // mostrar a resposta certa e a explicação após errar
+    pontos: [100, 60, 30],   // pontos por 1ª, 2ª e demais tentativas
+    bonusAcusacao: [200, 120, 60],
+    penalidadeAcusacao: 50
+  };
+
+  /* ---------- Salas, ferramentas e pistas ---------- */
+  const SALAS = [
+    { id: 1, nome: 'Biblioteca', tema: 'Conceitos de Banco de Dados', ico: '📚',
+      intro: 'Estantes empoeiradas guardam o livro de registros do servidor. Para abri-lo, prove que domina os fundamentos.',
+      ferr: [
+        { ico: '🔦', nome: 'Lanterna de Mão', uso: 'Amplia o alcance da sua luz pela mansão escura.',
+          pista: 'Sob o feixe da lanterna, o livro de registros (log) do servidor: às 00h13 a tabela CLIENTES foi removida por inteiro — estrutura e dados sumiram, não apenas as linhas.' },
+        { ico: '📖', nome: 'Manual do SGBD', uso: 'Explica quem pode fazer o quê no sistema.',
+          pista: 'O manual afirma: remover tabelas exige privilégio de administrador (DBA). Contas comuns só consultam ou alteram registros.' }] },
+    { id: 2, nome: 'Sala de Jantar', tema: 'Modelagem Entidade-Relacionamento', ico: '🍷',
+      intro: 'A mesa ainda está posta. Os convidados da festa de ontem deixaram álibis… e muitas perguntas.',
+      ferr: [
+        { ico: '📜', nome: 'Lista de Convidados', uso: 'Registra quem esteve onde durante a festa.',
+          pista: 'Alfred Select serviu o jantar até 1h30, à vista de dezenas de convidados. Álibi confirmado.' },
+        { ico: '🧪', nome: 'Kit de Análise', uso: 'Confere horários e testemunhas.',
+          pista: 'Dona Fátima Foreign assinava contratos diante de duas testemunhas às 00h13. Álibi confirmado.' }] },
+    { id: 3, nome: 'Salão de Música', tema: 'Modelo Relacional e Chaves', ico: '🎹',
+      intro: 'Um piano de cauda desafina sozinho. Algo escondido entre as teclas liga uma tabela à outra.',
+      ferr: [
+        { ico: '🎧', nome: 'Gravador de Voz', uso: 'Reproduz conversas captadas na madrugada.',
+          pista: 'Uma voz grave no corredor dos servidores: “Só vim trocar a lâmpada… esse backup aí deve ser lixo, vou limpar tudo.”' },
+        { ico: '🗝️', nome: 'Chave de Manutenção', uso: 'Mostra quem tem acesso às portas restritas.',
+          pista: 'A porta dos servidores foi aberta com chave de manutenção, sem arrombamento. Só o Lorde e o faz-tudo da mansão possuem cópia.' }] },
+    { id: 4, nome: 'Estufa', tema: 'Normalização', ico: '🌿',
+      intro: 'Entre samambaias e orquídeas, tudo precisa estar no lugar certo — sem repetição e sem desperdício.',
+      ferr: [
+        { ico: '🥾', nome: 'Molde de Pegadas', uso: 'Revela rastros deixados no chão.',
+          pista: 'Pegadas de bota com terra adubada vão da estufa até a sala dos servidores.' },
+        { ico: '🧤', nome: 'Luvas de Látex', uso: 'Permite coletar digitais sem contaminar a prova.',
+          pista: 'Digitais sujas de terra foram encontradas no teclado do servidor.' }] },
+    { id: 5, nome: 'Escritório do Lorde', tema: 'SQL — Definição de Dados (DDL)', ico: '🖋️',
+      intro: 'O notebook do Lorde Codd ainda está aberto. Para ler seu conteúdo, digite os comandos que moldam a estrutura do banco.',
+      ferr: [
+        { ico: '💻', nome: 'Notebook do Lorde', uso: 'Lista as contas e permissões do SGBD.',
+          pista: 'Contas do SGBD — alfred: só SELECT · fatima: INSERT/UPDATE/DELETE · index: só SELECT · tdrop_admin: DBA, criada ontem. O sobrinho Nulo não possui conta alguma.' },
+        { ico: '📋', nome: 'Ordem de Serviço', uso: 'Documento que autoriza acessos e tarefas.',
+          pista: 'Ordem de ontem: “Autorizo T. Drop a fazer a manutenção da sala dos servidores.” — assinado, Lorde Codd.' }] },
+    { id: 6, nome: 'Cozinha', tema: 'SQL — Manipulação de Dados (DML)', ico: '🍳',
+      intro: 'Panelas ainda quentes. Quem mexeu nos ingredientes (e nos dados) durante a madrugada?',
+      ferr: [
+        { ico: '📹', nome: 'Fita de Segurança', uso: 'Imagens das câmeras do corredor.',
+          pista: 'A câmera do corredor flagrou, às 00h10, um vulto de macacão azul e chapéu de palha.' },
+        { ico: '⏱️', nome: 'Relógio de Bolso', uso: 'Confere horários exatos.',
+          pista: 'Madame Index estava na cozinha assando pães com a ajudante até as 2h. Álibi confirmado.' }] },
+    { id: 7, nome: 'Adega', tema: 'SQL — Consultas (SELECT, JOIN, agregações)', ico: '🍾',
+      intro: 'No subsolo ficam o vinho e o servidor de backup. A escuridão aqui é de verdade.',
+      ferr: [
+        { ico: '🔍', nome: 'Lupa', uso: 'Examina os menores detalhes da cena.',
+          pista: 'Com a lupa você vê terra adubada no piso da adega, onde fica o servidor de backup — desligado desde ontem à noite.' },
+        { ico: '🔬', nome: 'Microscópio', uso: 'Analisa fibras e resíduos.',
+          pista: 'Uma fibra azul-marinho, de macacão de trabalho, estava presa à porta do servidor.' }] },
+    { id: 8, nome: 'Sala dos Servidores', tema: 'Confronto final', ico: '🖥️', final: true,
+      intro: 'Reúna os fatos. Quem apagou a tabela — e com qual comando SQL?' }
+  ];
+
+  /* ---------- Suspeitos e desfecho ---------- */
+  const SUSPEITOS = [
+    { id: 'alfred', nome: 'Alfred Select', papel: 'Mordomo', ico: '🤵',
+      desc: 'Serve a família há trinta anos. Está sempre “lendo” tudo, mas jamais mexe em nada.' },
+    { id: 'fatima', nome: 'Dona Fátima Foreign', papel: 'Governanta e contadora', ico: '👩‍💼',
+      desc: 'Mantém contratos e livros-caixa em ordem. Vive “referenciando” os outros em todas as conversas.' },
+    { id: 'tobias', nome: 'Tobias Drop', papel: 'Jardineiro e faz-tudo', ico: '🧑‍🌾',
+      desc: 'Usa macacão azul e chapéu de palha. Dizem que “derruba” tudo o que não consegue consertar.' },
+    { id: 'index', nome: 'Madame Index', papel: 'Cozinheira', ico: '👩‍🍳',
+      desc: 'Encontra qualquer ingrediente na despensa em segundos. Odeia ser interrompida.' },
+    { id: 'nulo', nome: 'Nulo Null', papel: 'Sobrinho do Lorde', ico: '🧑‍🎤',
+      desc: 'Herdeiro de poucos amigos. Ninguém sabe onde ele estava na hora do crime — nem ele mesmo.' }
+  ];
+  const CULPADO = 'tobias';
+  const METODOS = [
+    { id: 'drop', cmd: 'DROP TABLE clientes;', ok: true },
+    { id: 'truncate', cmd: 'TRUNCATE TABLE clientes;' },
+    { id: 'delete', cmd: 'DELETE FROM clientes;' },
+    { id: 'alter', cmd: 'ALTER TABLE clientes DROP COLUMN nome;' }
+  ];
+  const EPILOGO = 'Tobias Drop confessou. Com a conta **tdrop_admin**, criada só para trocar a lâmpada do servidor, ele executou `DROP TABLE clientes;` acreditando que era “lixo antigo”. O backup estava desligado — e a tabela se foi para sempre. Lição de Banco de Dados: **privilégio mínimo** (cada conta só pode o que precisa) e **backup testado** (sem ele, um DROP é irreversível).';
+
+  /* ---------- Avatares (SVG) ---------- */
+  const AVATARES = [
+    { id: 'brumas',  nome: 'Inspetor Brumas',    skin: '#f1c9a5', hair: '#6b4a2f', hat: 'fedora',  hatC: '#4a4e57', coat: '#a68b5b', coat2: '#85703f', tie: '#7a1f33', acc: 'bigode' },
+    { id: 'cinzas',  nome: 'Detetive Cinzas',    skin: '#d9a67c', hair: '#23201f', hat: 'bowler',  hatC: '#2a2a33', coat: '#3b4a6b', coat2: '#2c3752', tie: '#c9a24b', acc: 'lupa' },
+    { id: 'vesper',  nome: 'Agente Vesper',      skin: '#8a5a3c', hair: '#1a1210', hat: 'beret',   hatC: '#8e1f36', coat: '#232836', coat2: '#171b26', tie: '#c9a24b', acc: 'oculos', longo: true },
+    { id: 'nanquim', nome: 'Dra. Nanquim',       skin: '#f4d3b8', hair: '#7b3b1e', hat: 'coque',   hatC: '#7b3b1e', coat: '#2f6b57', coat2: '#22503f', tie: '#eadfc2', acc: 'oculos' },
+    { id: 'nevoa',   nome: 'Investigador Névoa', skin: '#c68b62', hair: '#3a2a1c', hat: 'flatcap', hatC: '#6b5a3e', coat: '#59603f', coat2: '#434a2e', tie: '#a52a45', acc: 'barba' },
+    { id: 'aurora',  nome: 'Detetive Aurora',    skin: '#6b4430', hair: '#0e0b09', hat: 'cloche',  hatC: '#b08d3f', coat: '#5a2b5e', coat2: '#411d44', tie: '#f1d78a', acc: 'brinco', longo: true }
+  ];
+  const avatarSVG = (a, extra = '') => {
+    const o = '#1b1410';
+    let back = '', hairTop = '', hat = '', face = '', accs = '';
+    if (a.longo) back = `<path d="M31 32 C28 14 72 14 69 32 L72 60 C66 66 34 66 28 60Z" fill="${a.hair}"/>`;
+    hairTop = `<path d="M33.5 31 C32 14 68 14 66.5 31 C62 24 56 21 50 21 C44 21 38 24 33.5 31Z" fill="${a.hair}"/>`;
+    switch (a.hat) {
+      case 'fedora':
+        hat = `<ellipse cx="50" cy="24" rx="28" ry="6" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/><path d="M34 24 C33 8 43 5 50 8 C57 5 67 8 66 24Z" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/><path d="M34 21 L66 21 L66.4 24 L33.6 24Z" fill="${a.tie}"/>`; break;
+      case 'bowler':
+        hat = `<ellipse cx="50" cy="24" rx="23" ry="4.5" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/><path d="M35 24 C34 3 66 3 65 24Z" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/><path d="M35 21 L65 21 L65.2 24 L34.8 24Z" fill="${a.tie}"/>`; break;
+      case 'beret':
+        hat = `<ellipse cx="53" cy="17" rx="21" ry="9" fill="${a.hatC}" stroke="${o}" stroke-width=".8" transform="rotate(-9 53 17)"/><circle cx="54" cy="8.5" r="2" fill="${a.hatC}" stroke="${o}" stroke-width=".6"/>`; break;
+      case 'flatcap':
+        hat = `<path d="M32 25 C32 11 58 9 69 19 L70 25Z" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/><path d="M52 23 L74 25 C71 30 57 29 52 26Z" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/>`; break;
+      case 'cloche':
+        hat = `<path d="M31 31 C26 8 74 8 69 31 C62 25 38 25 31 31Z" fill="${a.hatC}" stroke="${o}" stroke-width=".8"/><path d="M33 24 C45 20 55 20 67 24 L66.6 27 C55 23 45 23 33.4 27Z" fill="${a.tie}"/>`; break;
+      case 'coque':
+        hat = `<circle cx="50" cy="12.5" r="7.5" fill="${a.hair}" stroke="${o}" stroke-width=".6"/>`; break;
+    }
+    if (a.acc === 'oculos') accs += `<circle cx="43" cy="35" r="5.2" fill="rgba(200,230,255,.22)" stroke="#1b1410" stroke-width="1.2"/><circle cx="57" cy="35" r="5.2" fill="rgba(200,230,255,.22)" stroke="#1b1410" stroke-width="1.2"/><path d="M48.2 35 L51.8 35" stroke="#1b1410" stroke-width="1.2"/>`;
+    if (a.acc === 'bigode') accs += `<path d="M42 41 Q46.5 38 50 41 Q53.5 38 58 41 Q53.5 44.5 50 42.5 Q46.5 44.5 42 41Z" fill="${a.hair}"/>`;
+    if (a.acc === 'barba') accs += `<path d="M34.5 38 Q35 56 50 56 Q65 56 65.5 38 Q61 49 50 49 Q39 49 34.5 38Z" fill="${a.hair}"/><path d="M43 41.5 Q50 39 57 41.5 Q50 44.5 43 41.5Z" fill="${a.hair}"/>`;
+    if (a.acc === 'brinco') accs += `<circle cx="34" cy="43" r="1.9" fill="#f1d78a" stroke="#8a6d28" stroke-width=".5"/><circle cx="66" cy="43" r="1.9" fill="#f1d78a" stroke="#8a6d28" stroke-width=".5"/>`;
+    const lupa = a.acc === 'lupa' ? `<g><line x1="80" y1="104" x2="86" y2="92" stroke="#6b4a2f" stroke-width="3" stroke-linecap="round"/><circle cx="89" cy="83" r="9" fill="rgba(180,220,255,.28)" stroke="#c9a24b" stroke-width="2.4"/><path d="M84 80 Q86 77 90 77" stroke="#fff" stroke-opacity=".7" stroke-width="1.4" fill="none" stroke-linecap="round"/></g>` : '';
+    face = `
+      <ellipse cx="34.3" cy="37" rx="3" ry="4" fill="${a.skin}" stroke="${o}" stroke-width=".6"/><ellipse cx="65.7" cy="37" rx="3" ry="4" fill="${a.skin}" stroke="${o}" stroke-width=".6"/>
+      <ellipse cx="50" cy="35" rx="16" ry="19" fill="${a.skin}" stroke="${o}" stroke-width=".8"/>`;
+    const eyes = `<ellipse cx="43" cy="35" rx="1.8" ry="2.2" fill="${o}"/><ellipse cx="57" cy="35" rx="1.8" ry="2.2" fill="${o}"/>
+      <path d="M39.5 30.5 Q43 28.6 46.5 30.2M53.5 30.2 Q57 28.6 60.5 30.5" stroke="${a.hair}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M50 37 Q48.6 41 50.8 41.4" stroke="rgba(60,30,10,.45)" stroke-width="1" fill="none" stroke-linecap="round"/>
+      <path d="M45 46 Q50 49.2 55 46" stroke="#5a2a22" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" ${extra}>
+      <ellipse cx="50" cy="135" rx="27" ry="4.6" fill="rgba(0,0,0,.4)"/>
+      ${back}
+      <rect x="37" y="100" width="11" height="29" rx="4" fill="#1c1c26"/><rect x="52" y="100" width="11" height="29" rx="4" fill="#1c1c26"/>
+      <ellipse cx="41.5" cy="130" rx="9" ry="4.2" fill="#0d0d12"/><ellipse cx="58.5" cy="130" rx="9" ry="4.2" fill="#0d0d12"/>
+      <path d="M24 62 C24 54 34 50 50 50 C66 50 76 54 76 62 L81 114 L19 114Z" fill="${a.coat}" stroke="${o}" stroke-width=".9"/>
+      <path d="M19 106 L81 106 L81 114 L19 114Z" fill="${a.coat2}" opacity=".7"/>
+      <path d="M43 50 L50 68 L57 50Z" fill="#f2efe6" stroke="${o}" stroke-width=".5"/>
+      <path d="M48.4 56 L51.6 56 L53.2 73 L50 77 L46.8 73Z" fill="${a.tie}" stroke="${o}" stroke-width=".5"/>
+      <path d="M50 52 L36 54 L42 78 L50 68Z" fill="${a.coat2}" stroke="${o}" stroke-width=".7"/><path d="M50 52 L64 54 L58 78 L50 68Z" fill="${a.coat2}" stroke="${o}" stroke-width=".7"/>
+      <path d="M50 78 L50 114" stroke="${o}" stroke-width=".8" opacity=".7"/>
+      <circle cx="45.5" cy="88" r="1.8" fill="#c9a24b"/><circle cx="45.5" cy="99" r="1.8" fill="#c9a24b"/>
+      <path d="M24 60 L13 100 L23 103 L31 70Z" fill="${a.coat}" stroke="${o}" stroke-width=".9"/><path d="M76 60 L87 100 L77 103 L69 70Z" fill="${a.coat}" stroke="${o}" stroke-width=".9"/>
+      <circle cx="18" cy="104.5" r="5.2" fill="${a.skin}" stroke="${o}" stroke-width=".8"/><circle cx="82" cy="104.5" r="5.2" fill="${a.skin}" stroke="${o}" stroke-width=".8"/>
+      ${lupa}
+      <rect x="44.5" y="46" width="11" height="9" fill="${a.skin}"/>
+      ${face}${eyes}${hairTop}${accs}${hat}
+    </svg>`;
+  };
+
+  /* ---------- Banco de questões padrão (35) ---------- */
+  const Q = (id, sala, nivel, q, o, c, e) => ({ id, sala, nivel, q, o, c, e });
+  const QUESTOES_PADRAO = [
+    // Sala 1 — Conceitos
+    Q('s1q1', 1, 1, 'Qual é a diferença entre **dado** e **informação**?',
+      ['Dado é um fato bruto, sem contexto; informação é o dado processado, com significado.', 'Dado e informação são sinônimos em qualquer situação.', 'Informação é o fato bruto; dado é o resultado de uma análise.', 'Dado só existe em bancos de dados relacionais.'], 0,
+      'O número 38,5 é um dado. Interpretado como “temperatura do paciente: 38,5 °C (febre)”, torna-se informação.'),
+    Q('s1q2', 1, 1, 'O que é um **SGBD** (Sistema Gerenciador de Banco de Dados)?',
+      ['O conjunto de tabelas armazenadas em disco.', 'O software que permite criar, acessar, manter e proteger bancos de dados.', 'Uma linguagem de programação para criar sites.', 'O computador que hospeda os arquivos do sistema.'], 1,
+      'O banco de dados são os dados em si; o SGBD (MySQL, PostgreSQL, Oracle…) é o software que os gerencia.'),
+    Q('s1q3', 1, 2, 'Qual é uma vantagem de usar um SGBD em vez de planilhas e arquivos de texto espalhados?',
+      ['Elimina totalmente a necessidade de backup.', 'Controla acessos simultâneos, reduz redundância e inconsistência e centraliza a segurança.', 'Impede que qualquer usuário altere os dados.', 'Dispensa o planejamento e a modelagem dos dados.'], 1,
+      'O SGBD oferece controle de concorrência, integridade, segurança e menor redundância. Backup continua sendo necessário.'),
+    Q('s1q4', 1, 1, 'Qual profissional é responsável por instalar e configurar o SGBD, conceder permissões e realizar backups?',
+      ['Analista de requisitos', 'Administrador de Banco de Dados (DBA)', 'Usuário final', 'Designer de interface'], 1,
+      'O DBA cuida da administração do ambiente: instalação, desempenho, segurança, permissões e cópias de segurança.'),
+    Q('s1q5', 1, 1, 'Qual alternativa apresenta apenas exemplos de SGBDs?',
+      ['MySQL, PostgreSQL e Oracle', 'HTML, CSS e JavaScript', 'Word, Excel e PowerPoint', 'Python, Java e C'], 0,
+      'HTML/CSS/JS são tecnologias web; Word/Excel/PowerPoint são aplicativos de escritório; Python/Java/C são linguagens de programação.'),
+    // Sala 2 — MER
+    Q('s2q1', 2, 1, 'No Modelo Entidade-Relacionamento (MER), o que representa uma **entidade**?',
+      ['Um objeto ou conceito do mundo real sobre o qual queremos guardar dados (ex.: Cliente).', 'Uma característica de um objeto (ex.: nome).', 'A ligação entre duas tabelas por meio de chaves.', 'Um comando para consultar os dados.'], 0,
+      'Entidade é “a coisa”; atributos são suas características; relacionamentos ligam entidades.'),
+    Q('s2q2', 2, 2, 'Qual atributo é, tipicamente, **multivalorado**?',
+      ['CPF do cliente', 'Data de nascimento', 'Telefones do cliente (pode ter vários)', 'Código do cliente'], 2,
+      'Um mesmo cliente pode ter vários telefones. No modelo relacional, esse atributo costuma virar uma tabela própria.'),
+    Q('s2q3', 2, 1, 'Um cliente pode fazer vários pedidos, mas cada pedido pertence a um único cliente. A cardinalidade entre Cliente e Pedido é:',
+      ['1:1 (um para um)', '1:N (um para muitos)', 'N:N (muitos para muitos)', '0:0 (nenhum para nenhum)'], 1,
+      'Um cliente → muitos pedidos; cada pedido → um cliente. É o relacionamento 1:N mais comum.'),
+    Q('s2q4', 2, 2, 'Um aluno cursa várias disciplinas e cada disciplina possui vários alunos. Essa cardinalidade é:',
+      ['1:1', '1:N', 'N:N (muitos para muitos)', 'Não existe relacionamento'], 2,
+      'Relacionamentos N:N exigem uma tabela associativa (ex.: Matrícula) na implementação relacional.'),
+    Q('s2q5', 2, 1, 'O que é um **atributo identificador** de uma entidade?',
+      ['Aquele que mais aparece nas consultas.', 'Aquele cujo valor identifica unicamente cada ocorrência da entidade (ex.: CPF, matrícula).', 'Aquele que possui o maior tamanho em bytes.', 'Qualquer atributo do tipo texto.'], 1,
+      'O identificador distingue uma ocorrência das demais e dará origem à chave primária.'),
+    // Sala 3 — Modelo relacional
+    Q('s3q1', 3, 1, 'No modelo relacional, cada **linha** (tupla) de uma tabela representa:',
+      ['Uma coluna da tabela', 'Uma ocorrência (registro) da entidade', 'Um tipo de dado', 'Um índice'], 1,
+      'Linhas são registros (ocorrências); colunas são atributos.'),
+    Q('s3q2', 3, 1, 'A **chave primária** (PK) de uma tabela garante que:',
+      ['O valor pode se repetir desde que a linha seja diferente', 'Cada linha é identificada por um valor único e não nulo', 'A tabela só poderá ter uma linha', 'A coluna será sempre numérica'], 1,
+      'A PK é única e obrigatória (não aceita NULL). Pode ser de qualquer tipo, inclusive texto.'),
+    Q('s3q3', 3, 1, 'Para que serve uma **chave estrangeira** (FK)?',
+      ['Para criptografar os dados', 'Para referenciar a chave primária de outra tabela e criar o relacionamento', 'Para ordenar as linhas', 'Para impedir a criação de novas tabelas'], 1,
+      'A FK aponta para a PK de outra tabela, estabelecendo o vínculo e permitindo a integridade referencial.'),
+    Q('s3q4', 3, 2, 'Como um relacionamento **N:N** é implementado no modelo relacional?',
+      ['Colocando uma lista de IDs em uma única coluna', 'Criando uma tabela associativa com as chaves estrangeiras das duas tabelas', 'Duplicando as duas tabelas', 'Não é possível representar N:N'], 1,
+      'A tabela associativa (ex.: matricula com id_aluno e id_disciplina) transforma o N:N em dois relacionamentos 1:N.'),
+    Q('s3q5', 3, 2, 'Existe uma FK `pedido.id_cliente` referenciando `cliente.id`. O que ocorre ao inserir um pedido com `id_cliente = 999`, que não existe em `cliente`?',
+      ['O SGBD cria automaticamente o cliente 999', 'O SGBD rejeita a inserção (violação de integridade referencial)', 'O pedido é gravado com id_cliente nulo', 'A tabela cliente é apagada'], 1,
+      'A integridade referencial impede que uma FK aponte para um valor que não existe na tabela referenciada.'),
+    // Sala 4 — Normalização
+    Q('s4q1', 4, 1, 'Uma tabela está na **1ª Forma Normal (1FN)** quando:',
+      ['Todos os atributos são atômicos (sem valores multivalorados ou grupos repetidos)', 'Não possui chave primária', 'Todos os atributos são numéricos', 'Possui no máximo duas colunas'], 0,
+      '1FN: cada célula guarda um único valor indivisível.'),
+    Q('s4q2', 4, 1, 'A coluna `telefones` guarda “8888-1111, 9999-2222” em uma mesma célula. Qual forma normal está sendo violada?',
+      ['1FN', '2FN', '3FN', 'Nenhuma'], 0,
+      'Dois valores na mesma célula tornam o atributo não atômico — violação da 1FN.'),
+    Q('s4q3', 4, 2, 'A **2ª Forma Normal (2FN)** elimina:',
+      ['Dependências transitivas', 'Dependências parciais da chave primária composta', 'Tabelas com mais de 3 colunas', 'Chaves estrangeiras'], 1,
+      'Na 2FN, todo atributo não-chave deve depender da chave inteira, e não apenas de parte dela.'),
+    Q('s4q4', 4, 2, 'A **3ª Forma Normal (3FN)** elimina:',
+      ['Dependências parciais', 'Dependências transitivas (atributo não-chave dependendo de outro não-chave)', 'Chaves primárias', 'Relacionamentos 1:N'], 1,
+      'Ex.: em Funcionario(id, nome, cod_depto, nome_depto), nome_depto depende de cod_depto, não de id — deve ir para a tabela Departamento.'),
+    Q('s4q5', 4, 1, 'Qual é o principal objetivo da normalização?',
+      ['Reduzir redundância e evitar anomalias de inserção, atualização e exclusão', 'Aumentar o número de tabelas para dificultar acessos', 'Substituir o uso de chaves primárias', 'Criptografar os dados'], 0,
+      'Dados repetidos geram inconsistências; normalizar organiza a informação em tabelas coesas.'),
+    // Sala 5 — DDL
+    Q('s5q1', 5, 1, 'Qual comando SQL cria uma nova tabela?',
+      ['INSERT TABLE', 'CREATE TABLE', 'NEW TABLE', 'MAKE TABLE'], 1,
+      'CREATE TABLE define o nome, as colunas, os tipos e as restrições da tabela.'),
+    Q('s5q2', 5, 2, 'Qual comando adiciona a coluna `email` à tabela `clientes`?',
+      ['`UPDATE clientes ADD email VARCHAR(100);`', '`INSERT INTO clientes email;`', '`ALTER TABLE clientes ADD email VARCHAR(100);`', '`CREATE COLUMN email ON clientes;`'], 2,
+      'ALTER TABLE altera a estrutura de uma tabela existente (adicionar, modificar ou remover colunas).'),
+    Q('s5q3', 5, 1, 'O que faz o comando `DROP TABLE clientes;`?',
+      ['Apaga apenas as linhas da tabela, mantendo a estrutura', 'Remove a tabela por completo: estrutura e dados', 'Renomeia a tabela', 'Cria uma cópia de segurança da tabela'], 1,
+      'DROP TABLE é DDL e é irreversível sem backup. Normalmente exige privilégios de administrador.'),
+    Q('s5q4', 5, 2, 'Qual comando DDL esvazia a tabela (remove todas as linhas) preservando sua estrutura?',
+      ['DROP TABLE', 'TRUNCATE TABLE', 'ALTER TABLE', 'CREATE TABLE'], 1,
+      'TRUNCATE remove todas as linhas e mantém a tabela. DROP remove a tabela inteira.'),
+    Q('s5q5', 5, 1, 'A sigla **DDL** significa:',
+      ['Data Definition Language — define a estrutura (CREATE, ALTER, DROP)', 'Data Delivery Layer — entrega dados à aplicação', 'Database Design Logic — desenho lógico do banco', 'Dynamic Data Link — liga bancos diferentes'], 0,
+      'DDL = Linguagem de Definição de Dados. Já INSERT, UPDATE e DELETE pertencem à DML.'),
+    // Sala 6 — DML
+    Q('s6q1', 6, 1, 'Qual comando insere um novo cliente?',
+      ["`INSERT INTO clientes (nome, email) VALUES ('Ana', 'ana@email.com');`", "`ADD clientes (nome, email) = ('Ana', 'ana@email.com');`", "`CREATE clientes VALUES ('Ana', 'ana@email.com');`", "`UPDATE clientes SET nome = 'Ana';`"], 0,
+      'INSERT INTO tabela (colunas) VALUES (valores) adiciona uma nova linha.'),
+    Q('s6q2', 6, 2, 'O que acontece ao executar `UPDATE produtos SET preco = 0;` **sem** cláusula WHERE?',
+      ['Nada, pois falta o WHERE', 'Apenas o primeiro produto é alterado', 'O preço de todos os produtos passa a ser 0', 'A tabela produtos é apagada'], 2,
+      'Sem WHERE, o UPDATE atinge todas as linhas. Sempre confira o filtro antes de executar!'),
+    Q('s6q3', 6, 1, 'Qual comando remove somente o cliente de id 7?',
+      ['`DROP TABLE clientes WHERE id = 7;`', '`DELETE FROM clientes WHERE id = 7;`', '`TRUNCATE TABLE clientes;`', '`DELETE clientes;`'], 1,
+      'DELETE FROM … WHERE remove só as linhas que atendem à condição.'),
+    Q('s6q4', 6, 1, 'Qual comando altera o e-mail do cliente de id 3?',
+      ["`UPDATE clientes SET email = 'novo@email.com' WHERE id = 3;`", "`ALTER clientes SET email = 'novo@email.com' WHERE id = 3;`", "`INSERT INTO clientes email = 'novo@email.com';`", "`SELECT email = 'novo@email.com' FROM clientes;`"], 0,
+      'UPDATE tabela SET coluna = valor WHERE condição.'),
+    Q('s6q5', 6, 1, 'Qual grupo contém apenas comandos de manipulação de dados (DML)?',
+      ['CREATE, ALTER e DROP', 'INSERT, UPDATE e DELETE', 'GRANT, REVOKE e CREATE', 'TRUNCATE, DROP e ALTER'], 1,
+      'CREATE/ALTER/DROP/TRUNCATE são DDL; GRANT/REVOKE são DCL; INSERT/UPDATE/DELETE são DML.'),
+    // Sala 7 — Consultas
+    Q('s7q1', 7, 1, 'Qual consulta retorna apenas o nome e o e-mail de todos os clientes?',
+      ['`SELECT nome, email FROM clientes;`', '`SELECT * FROM nome, email;`', '`GET nome, email FROM clientes;`', '`FROM clientes SELECT ALL;`'], 0,
+      'SELECT colunas FROM tabela. O asterisco (*) traria todas as colunas.'),
+    Q('s7q2', 7, 1, 'Qual consulta lista os clientes da cidade de Recife?',
+      ["`SELECT * FROM clientes WHERE cidade = 'Recife';`", "`SELECT * FROM clientes HAVING 'Recife';`", "`SELECT cidade FROM clientes = 'Recife';`", "`FILTER clientes BY cidade = 'Recife';`"], 0,
+      'WHERE filtra as linhas antes do resultado ser exibido.'),
+    Q('s7q3', 7, 1, 'Qual consulta informa quantos pedidos existem?',
+      ['`SELECT SUM(*) FROM pedidos;`', '`SELECT COUNT(*) FROM pedidos;`', '`SELECT MAX(*) FROM pedidos;`', '`COUNT pedidos;`'], 1,
+      'COUNT(*) conta linhas. SUM soma valores de uma coluna; MAX retorna o maior valor.'),
+    Q('s7q4', 7, 2, 'O **INNER JOIN** entre duas tabelas retorna:',
+      ['Todas as linhas das duas tabelas, combinadas ou não', 'Somente as linhas que têm correspondência nas duas tabelas, segundo a condição de junção', 'Apenas as linhas da tabela da esquerda', 'O produto de todas as colunas, sem condições'], 1,
+      'INNER JOIN mantém só o que casa pela condição (ex.: pedido.id_cliente = cliente.id).'),
+    Q('s7q5', 7, 3, 'Qual consulta mostra o total de pedidos de cada cliente?',
+      ['`SELECT id_cliente, COUNT(*) FROM pedidos GROUP BY id_cliente;`', '`SELECT id_cliente, COUNT(*) FROM pedidos ORDER BY COUNT;`', '`SELECT COUNT(*) FROM pedidos WHERE id_cliente;`', '`SELECT DISTINCT id_cliente, pedidos;`'], 0,
+      'GROUP BY agrupa as linhas; a função agregada COUNT(*) é calculada por grupo.')
+  ];
+
+  /* ---------- Pacotes (missão e relatório) ---------- */
+  const validarQuestao = q => q && typeof q.q === 'string' && q.q.trim() && Array.isArray(q.o) && q.o.length === 4 && q.o.every(x => typeof x === 'string' && x.trim()) && Number.isInteger(q.c) && q.c >= 0 && q.c < 4 && q.sala >= 1 && q.sala <= 7;
+  const montarPacote = (config, questoes) => ({ tipo: 'dtp-missao', v: 1, criadoEm: new Date().toISOString(), config: Object.assign({}, CONFIG_PADRAO, config), questoes });
+  const lerPacote = txt => {
+    txt = (txt || '').trim();
+    let obj;
+    if (/^MIS1\./.test(txt)) obj = JSON.parse(b64d(txt.slice(5)));
+    else obj = JSON.parse(txt);
+    if (!obj || obj.tipo !== 'dtp-missao' || !Array.isArray(obj.questoes)) throw new Error('Arquivo não é uma missão válida.');
+    obj.questoes = obj.questoes.filter(validarQuestao);
+    if (!obj.questoes.length) throw new Error('A missão não contém questões válidas.');
+    obj.config = Object.assign({}, CONFIG_PADRAO, obj.config || {});
+    return obj;
+  };
+  const codigoPacote = pac => 'MIS1.' + b64e(JSON.stringify(pac));
+  const hashPacote = pac => hash(JSON.stringify([pac.questoes.map(q => [q.id, q.sala, q.c, q.q]), pac.config.porSala, pac.config.pontos]));
+  const lerRelatorio = txt => {
+    txt = (txt || '').trim();
+    const obj = /^RES1\./.test(txt) ? JSON.parse(b64d(txt.slice(5))) : JSON.parse(txt);
+    if (!obj || obj.t !== 'dtp-res') throw new Error('Não é um relatório válido.');
+    return obj;
+  };
+  const codigoRelatorio = rel => 'RES1.' + b64e(JSON.stringify(rel));
+
+  const fsOk = !!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen);
+  const fsAtivo = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  const telaCheia = () => { try { if (fsAtivo()) (document.exitFullscreen || document.webkitExitFullscreen).call(document); else (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen).call(document.documentElement); } catch (e) {} };
+  const ligarTelaCheia = () => {
+    const bs = [...document.querySelectorAll('[data-fs]')];
+    const atual = () => bs.forEach(b => { b.style.display = fsOk ? '' : 'none'; b.title = fsAtivo() ? 'Sair da tela inteira (F)' : 'Tela inteira (F)'; const i = b.querySelector('.fsi'); if (i) i.textContent = fsAtivo() ? '🗗' : '⛶'; });
+    bs.forEach(b => b.addEventListener('click', telaCheia)); atual();
+    document.addEventListener('fullscreenchange', atual); document.addEventListener('webkitfullscreenchange', atual);
+    addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test((e.target || {}).tagName || '')) telaCheia(); });
+  };
+  return { telaCheia, ligarTelaCheia, esc, fmt, b64e, b64d, uid, shuffle, fmtTempo, lsGet, lsSet, lsDel, hash, baixar, copiar, toast,
+    CONFIG_PADRAO, SALAS, SUSPEITOS, CULPADO, METODOS, EPILOGO, AVATARES, avatarSVG, QUESTOES_PADRAO,
+    validarQuestao, montarPacote, lerPacote, codigoPacote, hashPacote, lerRelatorio, codigoRelatorio };
+})();
+
+</script>
+<script>
+(() => {
+'use strict';
+const { esc, fmt, uid, fmtTempo, lsGet, lsSet, lsDel, baixar, copiar, toast, SALAS, CONFIG_PADRAO, QUESTOES_PADRAO } = DTP;
+const $ = s => document.querySelector(s);
+const SALAS_Q = SALAS.filter(s => !s.final);
+
+/* ---------- Dados ---------- */
+let BANCO = lsGet('dtp_banco');
+if (!Array.isArray(BANCO) || !BANCO.length) { BANCO = JSON.parse(JSON.stringify(QUESTOES_PADRAO)); lsSet('dtp_banco', BANCO); }
+let CFG = Object.assign({}, CONFIG_PADRAO, lsGet('dtp_config', {}));
+let RES = lsGet('dtp_resultados', []);
+const salvarBanco = () => lsSet('dtp_banco', BANCO);
+const salvarCfg = () => lsSet('dtp_config', CFG);
+const salvarRes = () => lsSet('dtp_resultados', RES);
+let aba = 'inicio', salaSel = 1, busca = '', filtroTurma = '', filtroNome = '', ordem = { k: 'pontos', d: -1 };
+
+/* ---------- Modal simples ---------- */
+function modal(html, cls = 'form') {
+  const bg = document.createElement('div'); bg.className = 'modal-bg'; bg.innerHTML = `<div class="modal ${cls}">${html}</div>`;
+  document.getElementById('modal-root').appendChild(bg);
+  bg.fechar = () => bg.remove(); bg.addEventListener('mousedown', e => { if (e.target === bg) bg.fechar(); });
+  const f = bg.querySelector('.fechar'); if (f) f.onclick = bg.fechar; return bg;
+}
+addEventListener('keydown', e => { if (e.key === 'Escape') { const m = [...document.querySelectorAll('.modal-bg')].pop(); if (m) m.remove(); } });
+
+/* ---------- Estatísticas dos resultados ---------- */
+function statsRes(r) {
+  const first = {}, salaDe = {}; (r.log || []).forEach(([q, s, o]) => { if (!(q in first)) first[q] = o; salaDe[q] = s; });
+  const qs = Object.keys(first), a1 = qs.filter(q => first[q] === 1).length;
+  const porSala = {}; qs.forEach(q => { const s = salaDe[q]; porSala[s] = porSala[s] || { n: 0, a1: 0 }; porSala[s].n++; if (first[q] === 1) porSala[s].a1++; });
+  return { qs: qs.length, a1, erros: (r.log || []).filter(l => !l[2]).length, first, porSala };
+}
+const pctRes = r => r.max ? Math.round(r.pontos / r.max * 100) : 0;
+const classePct = p => p >= 75 ? 'a' : p >= 50 ? 'm' : 'b';
+const dataBR = ms => ms ? new Date(ms).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+const qPorId = id => BANCO.find(q => q.id === id);
+
+/* ---------- Navegação ---------- */
+function nav() {
+  const abas = [['inicio', 'Início'], ['questoes', 'Questões', BANCO.length], ['missao', 'Missão'], ['resultados', 'Resultados', RES.length]];
+  $('#nav').innerHTML = abas.map(([k, t, n]) => `<button data-k="${k}" class="${aba === k ? 'at' : ''}">${t}${n != null ? `<span class="n">${n}</span>` : ''}</button>`).join('');
+  $('#nav').querySelectorAll('button').forEach(b => b.onclick = () => { aba = b.dataset.k; render(); window.scrollTo(0, 0); });
+}
+function render() { nav(); ({ inicio: vInicio, questoes: vQuestoes, missao: vMissao, resultados: vResultados })[aba](); }
+const contagem = id => BANCO.filter(q => q.sala === id).length;
+
+/* =====================================================================
+   INÍCIO
+   ===================================================================== */
+function avisos() {
+  const a = [], por = CFG.porSala;
+  SALAS_Q.forEach(s => {
+    const n = contagem(s.id);
+    if (n === 0) a.push(['err', `<b>${esc(s.ico + ' ' + s.nome)}</b> não tem nenhuma questão: a sala ficará sem desafio e as ferramentas/pistas dela não serão conquistadas.`]);
+    else if (n < por) a.push(['', `<b>${esc(s.ico + ' ' + s.nome)}</b> tem ${n} questão(ões), menos que os ${por} desafios por sala configurados — a sala terá apenas ${n}.`]);
+    else if (n < por + 1) a.push(['', `<b>${esc(s.ico + ' ' + s.nome)}</b> tem só ${n} questão(ões). Se o aluno errar, não haverá outra questão para trocar (a mesma voltará). Recomendado: pelo menos ${por + 2}.`]);
+  });
+  return a;
+}
+function vInicio() {
+  const cobertas = SALAS_Q.filter(s => contagem(s.id) > 0).length, av = avisos();
+  const media = RES.length ? Math.round(RES.reduce((a, r) => a + pctRes(r), 0) / RES.length) : null;
+  $('#conteudo').innerHTML = `
+    <h2 class="sec">Bem-vindo, Professor</h2>
+    <p class="lead">Aqui você prepara a missão que seus alunos vão investigar e acompanha o desempenho da turma.</p>
+    <div class="grid g4" style="margin-bottom:18px">
+      <div class="kpi"><b>${BANCO.length}</b><span>questões no banco</span></div>
+      <div class="kpi"><b>${cobertas}/7</b><span>salas com questões</span></div>
+      <div class="kpi"><b>${RES.length}</b><span>resultados recebidos</span></div>
+      <div class="kpi"><b>${media == null ? '—' : media + '%'}</b><span>aproveitamento médio</span></div>
+    </div>
+    <div class="grid g2">
+      <div class="pan"><h3>Como usar</h3><ol class="passos">
+        <li><div><b>Prepare as questões.</b> Edite, apague ou crie questões na aba <i>Questões</i>. Cada sala da mansão corresponde a um tópico da disciplina.</div></li>
+        <li><div><b>Ajuste e publique.</b> Em <i>Missão</i>, configure pontuação e opções e gere o <code>missao.json</code> (ou um código curto).</div></li>
+        <li><div><b>Distribua.</b> Coloque <code>aluno.html</code> e <code>missao.json</code> na mesma pasta do site (ou envie o código aos alunos).</div></li>
+        <li><div><b>Receba os resultados.</b> Os alunos entregam um arquivo ou código de relatório; importe-os em <i>Resultados</i> e veja onde a turma errou mais.</div></li>
+      </ol>
+      <div class="barra-acoes" style="margin:16px 0 0"><a class="btn pequeno" href="aluno.html" target="_blank" rel="noopener">▶ Abrir módulo do aluno</a></div></div>
+      <div class="pan"><h3>Verificação da missão</h3>
+        ${av.length ? av.map(([c, t]) => `<div class="alerta ${c}"><span>${c === 'err' ? '⛔' : '⚠️'}</span><div>${t}</div></div>`).join('') : '<div class="alerta ok"><span>✅</span><div>Todas as salas têm questões suficientes para a configuração atual.</div></div>'}
+        <div class="muted sm" style="margin-top:10px">Configuração atual: ${CFG.porSala} desafio(s) por sala × 7 salas = ${CFG.porSala * 7} questões por aluno (cada aluno recebe sorteio diferente do banco).</div>
+      </div>
+    </div>`;
+}
+
+/* =====================================================================
+   QUESTÕES
+   ===================================================================== */
+function vQuestoes() {
+  const lista = BANCO.filter(q => (salaSel === 0 || q.sala === salaSel) && (!busca || (q.q + ' ' + q.o.join(' ') + ' ' + (q.e || '')).toLowerCase().includes(busca)));
+  $('#conteudo').innerHTML = `
+    <h2 class="sec">Banco de questões</h2>
+    <p class="lead">Cada sala da mansão sorteia suas questões a partir deste banco. Use <code>\`código\`</code> para destacar comandos SQL e <code>**negrito**</code> para ênfase.</p>
+    <div class="barra-acoes">
+      <button class="btn primario pequeno" id="b-nova">＋ Nova questão</button>
+      <input type="text" id="busca" placeholder="Buscar no banco…" value="${esc(busca)}" style="max-width:260px">
+      <span class="esp"></span>
+      <button class="btn pequeno" id="b-exp">⬇ Exportar banco</button>
+      <button class="btn pequeno" id="b-imp">⬆ Importar banco</button>
+      <button class="btn pequeno perigo" id="b-rest">Restaurar padrão</button>
+      <input type="file" id="f-imp" accept=".json" style="display:none">
+    </div>
+    <div class="q-layout">
+      <div class="salas-lista">
+        <button class="sala-b ${salaSel === 0 ? 'at' : ''}" data-s="0"><span class="i">🗂️</span><span class="t">Todas as salas</span><span class="c">${BANCO.length}</span></button>
+        ${SALAS_Q.map(s => { const n = contagem(s.id); return `<button class="sala-b ${salaSel === s.id ? 'at' : ''}" data-s="${s.id}"><span class="i">${s.ico}</span><span class="t">${esc(s.nome)}<small>${esc(s.tema)}</small></span><span class="c ${n < CFG.porSala + 1 ? 'baixo' : ''}">${n}</span></button>`; }).join('')}
+      </div>
+      <div id="q-lista">${lista.length ? lista.map(cartaoQ).join('') : `<div class="vazio">Nenhuma questão aqui ainda.<br><br><button class="btn pequeno" id="b-nova2">＋ Criar a primeira</button></div>`}</div>
+    </div>`;
+  document.querySelectorAll('.sala-b').forEach(b => b.onclick = () => { salaSel = +b.dataset.s; vQuestoes(); });
+  $('#b-nova').onclick = () => editarQ(null); const n2 = $('#b-nova2'); if (n2) n2.onclick = () => editarQ(null);
+  $('#busca').oninput = e => { busca = e.target.value.toLowerCase(); const pos = e.target.selectionStart; vQuestoes(); const i = $('#busca'); i.focus(); i.setSelectionRange(pos, pos); };
+  $('#b-exp').onclick = () => baixar('banco_questoes.json', JSON.stringify({ tipo: 'dtp-banco', v: 1, questoes: BANCO }, null, 1));
+  $('#b-imp').onclick = () => $('#f-imp').click();
+  $('#f-imp').onchange = e => importarBanco(e.target.files[0]);
+  $('#b-rest').onclick = () => { if (confirm('Substituir TODO o banco pelas 35 questões padrão? Suas questões serão perdidas (exporte antes, se quiser guardá-las).')) { BANCO = JSON.parse(JSON.stringify(QUESTOES_PADRAO)); salvarBanco(); toast('Banco padrão restaurado.'); render(); } };
+  document.querySelectorAll('[data-a]').forEach(b => b.onclick = () => {
+    const id = b.dataset.id, a = b.dataset.a;
+    if (a === 'ed') editarQ(id);
+    else if (a === 'dup') { const q = qPorId(id), c = JSON.parse(JSON.stringify(q)); c.id = uid(); BANCO.splice(BANCO.indexOf(q) + 1, 0, c); salvarBanco(); toast('Questão duplicada.'); vQuestoes(); nav(); }
+    else if (a === 'del') { if (confirm('Excluir esta questão?')) { BANCO = BANCO.filter(q => q.id !== id); salvarBanco(); vQuestoes(); nav(); toast('Questão excluída.'); } }
+  });
+}
+function cartaoQ(q) {
+  const s = SALAS[q.sala - 1], niv = { 1: 'Fácil', 2: 'Médio', 3: 'Difícil' }[q.nivel] || '—';
+  return `<div class="q-card"><div class="cab"><span class="tag">${s.ico} ${esc(s.nome)}</span><span class="tag n${q.nivel || 2}">${niv}</span>
+    <div class="btns"><button class="btn pequeno" data-a="ed" data-id="${esc(q.id)}">Editar</button><button class="btn pequeno fantasma" data-a="dup" data-id="${esc(q.id)}">Duplicar</button><button class="btn pequeno perigo" data-a="del" data-id="${esc(q.id)}">Excluir</button></div></div>
+    <div class="enun">${fmt(q.q)}</div><ol>${q.o.map((o, i) => `<li class="${i === q.c ? 'c' : ''}">${fmt(o)}${i === q.c ? ' ✓' : ''}</li>`).join('')}</ol>
+    ${q.e ? `<div class="exp"><b>Explicação:</b> ${fmt(q.e)}</div>` : ''}</div>`;
+}
+function editarQ(id) {
+  const q = id ? qPorId(id) : { id: uid(), sala: salaSel || 1, nivel: 2, q: '', o: ['', '', '', ''], c: 0, e: '' }; const novo = !id;
+  const bg = modal(`<h3>${novo ? 'Nova questão' : 'Editar questão'} <button class="fechar" aria-label="Fechar">×</button></h3>
+    <div class="form-linha"><label class="campo"><span>Sala (tópico)</span><select id="e-sala">${SALAS_Q.map(s => `<option value="${s.id}" ${s.id === q.sala ? 'selected' : ''}>${s.ico} ${esc(s.nome)} — ${esc(s.tema)}</option>`).join('')}</select></label>
+    <label class="campo"><span>Nível</span><select id="e-niv"><option value="1" ${q.nivel == 1 ? 'selected' : ''}>Fácil</option><option value="2" ${q.nivel == 2 ? 'selected' : ''}>Médio</option><option value="3" ${q.nivel == 3 ? 'selected' : ''}>Difícil</option></select></label></div>
+    <label class="campo"><span>Enunciado</span><textarea id="e-q" rows="3" placeholder="Ex.: Qual comando remove somente o cliente de id 7?">${esc(q.q)}</textarea></label>
+    <div class="prev" id="e-prev"></div>
+    <div class="campo" style="margin-bottom:6px"><span>Alternativas — marque a correta</span></div>
+    ${[0, 1, 2, 3].map(i => `<div class="alt"><input type="radio" name="e-c" value="${i}" ${q.c === i ? 'checked' : ''} title="Resposta correta"><span class="L">${'ABCD'[i]}</span><input type="text" class="e-o" value="${esc(q.o[i])}" placeholder="Alternativa ${'ABCD'[i]}"></div>`).join('')}
+    <label class="campo" style="margin-top:12px"><span>Explicação (mostrada ao aluno após responder)</span><textarea id="e-e" rows="2">${esc(q.e || '')}</textarea></label>
+    <div class="barra-acoes" style="justify-content:flex-end;margin:14px 0 0"><button class="btn fantasma pequeno" id="e-cancel">Cancelar</button><button class="btn primario pequeno" id="e-ok">Salvar questão</button></div>`);
+  const prev = () => { bg.querySelector('#e-prev').innerHTML = bg.querySelector('#e-q').value.trim() ? fmt(bg.querySelector('#e-q').value) : ''; };
+  bg.querySelector('#e-q').oninput = prev; prev();
+  bg.querySelector('#e-cancel').onclick = bg.fechar;
+  bg.querySelector('#e-ok').onclick = () => {
+    const o = [...bg.querySelectorAll('.e-o')].map(i => i.value.trim()), enun = bg.querySelector('#e-q').value.trim();
+    if (!enun) return toast('Escreva o enunciado.', true);
+    if (o.some(x => !x)) return toast('Preencha as quatro alternativas.', true);
+    if (new Set(o.map(x => x.toLowerCase())).size < 4) return toast('Há alternativas repetidas.', true);
+    const nq = { id: q.id, sala: +bg.querySelector('#e-sala').value, nivel: +bg.querySelector('#e-niv').value, q: enun, o, c: +bg.querySelector('input[name=e-c]:checked').value, e: bg.querySelector('#e-e').value.trim() };
+    if (novo) BANCO.push(nq); else BANCO[BANCO.findIndex(x => x.id === q.id)] = nq;
+    salvarBanco(); salaSel = nq.sala; bg.fechar(); toast('Questão salva.'); render();
+  };
+}
+function importarBanco(f) {
+  if (!f) return; const r = new FileReader();
+  r.onload = () => {
+    try {
+      const o = JSON.parse(r.result), arr = Array.isArray(o) ? o : (o.questoes || o.banco); if (!Array.isArray(arr)) throw new Error('formato inesperado');
+      const ok = arr.filter(DTP.validarQuestao).map(q => Object.assign({ nivel: 2, e: '' }, q)); if (!ok.length) throw new Error('nenhuma questão válida');
+      const substituir = confirm(`${ok.length} questões válidas encontradas.\n\nOK = SUBSTITUIR o banco atual\nCancelar = ADICIONAR ao banco atual`);
+      if (substituir) BANCO = ok; else { const ids = new Set(BANCO.map(q => q.id)); ok.forEach(q => { if (ids.has(q.id)) q.id = uid(); BANCO.push(q); }); }
+      salvarBanco(); toast('Banco importado.'); render();
+    } catch (e) { toast('Arquivo inválido: ' + e.message, true); }
+  }; r.readAsText(f); $('#f-imp').value = '';
+}
+
+/* =====================================================================
+   MISSÃO
+   ===================================================================== */
+function vMissao() {
+  const av = avisos().filter(a => a[0] === 'err');
+  $('#conteudo').innerHTML = `
+    <h2 class="sec">Configuração e publicação da missão</h2>
+    <p class="lead">As alterações são salvas automaticamente. Depois de ajustar, publique a missão para os alunos.</p>
+    <div class="grid g2">
+      <div class="pan"><h3>Configurações</h3>
+        <label class="campo"><span>Título da missão (aparece no jogo e no relatório)</span><input type="text" id="c-tit" value="${esc(CFG.titulo)}" maxlength="80"></label>
+        <label class="campo"><span>Turma / disciplina (preenche o campo Turma do aluno)</span><input type="text" id="c-turma" value="${esc(CFG.turma)}" maxlength="40" placeholder="Ex.: Introdução a Banco de Dados — ADS 1º período"></label>
+        <label class="campo"><span>Desafios por sala</span><select id="c-por"><option value="1" ${CFG.porSala == 1 ? 'selected' : ''}>1 desafio (partida curta, ~7 questões)</option><option value="2" ${CFG.porSala == 2 ? 'selected' : ''}>2 desafios (recomendado, ~14 questões)</option></select></label>
+        <div class="cx"><input type="checkbox" id="c-emb" ${CFG.embaralhar ? 'checked' : ''}><label for="c-emb">Embaralhar a ordem das alternativas</label></div>
+        <div class="cx"><input type="checkbox" id="c-gab" ${CFG.revelarGabarito ? 'checked' : ''}><label for="c-gab">Mostrar a resposta certa e a explicação após um erro</label></div>
+        <div class="form-linha" style="margin-top:6px">
+          <label class="campo"><span>Pontos — 1ª tentativa</span><input type="number" min="0" id="c-p0" value="${CFG.pontos[0]}"></label>
+          <label class="campo"><span>Pontos — 2ª tentativa</span><input type="number" min="0" id="c-p1" value="${CFG.pontos[1]}"></label>
+          <label class="campo"><span>Pontos — 3ª em diante</span><input type="number" min="0" id="c-p2" value="${CFG.pontos[2]}"></label>
+        </div>
+        <div class="form-linha">
+          <label class="campo"><span>Bônus acusação (1ª)</span><input type="number" min="0" id="c-b0" value="${CFG.bonusAcusacao[0]}"></label>
+          <label class="campo"><span>Bônus (2ª)</span><input type="number" min="0" id="c-b1" value="${CFG.bonusAcusacao[1]}"></label>
+          <label class="campo"><span>Bônus (3ª em diante)</span><input type="number" min="0" id="c-b2" value="${CFG.bonusAcusacao[2]}"></label>
+          <label class="campo"><span>Penalidade por acusação errada</span><input type="number" min="0" id="c-pen" value="${CFG.penalidadeAcusacao}"></label>
+        </div>
+        <button class="btn pequeno fantasma" id="c-padrao">Restaurar configurações padrão</button>
+      </div>
+      <div class="pan"><h3>Publicar</h3>
+        ${av.length ? av.map(([c, t]) => `<div class="alerta err"><span>⛔</span><div>${t}</div></div>`).join('') : `<div class="alerta ok"><span>✅</span><div>${BANCO.length} questões prontas para publicação.</div></div>`}
+        <div style="display:grid;gap:10px;margin:12px 0">
+          <button class="btn primario" id="p-json">⬇ Baixar missao.json</button>
+          <button class="btn" id="p-cod">📋 Copiar código da missão</button>
+          <a class="btn" href="aluno.html" target="_blank" rel="noopener">▶ Testar no módulo do aluno</a>
+        </div>
+        <details class="d"><summary>Como distribuir para os alunos</summary>
+          <div class="muted sm" style="line-height:1.6">
+            <b>Opção A — site (recomendada):</b> publique <code>aluno.html</code> e <code>missao.json</code> na mesma pasta (ex.: GitHub Pages). O jogo lê o <code>missao.json</code> automaticamente. Para atualizar as questões, substitua apenas o <code>missao.json</code>.<br>
+            <b>Opção B — código:</b> envie o código (começa com <code>MIS1.</code>); o aluno cola em <i>Trocar missão</i> na tela inicial do jogo.<br>
+            <b>Opção C — teste local:</b> abrindo <code>aluno.html</code> neste mesmo navegador, o jogo usa o banco daqui.<br>
+            <span style="color:#ffb3ad">Atenção:</span> as respostas corretas ficam no arquivo da missão, que é legível por quem inspecionar o código da página. Use o jogo como atividade formativa, não como prova de alto risco.
+          </div></details>
+      </div>
+    </div>
+    <div class="pan"><h3>Roteiro da investigação</h3>
+      <p class="muted sm" style="margin-top:-4px">Cada resposta correta rende uma ferramenta; cada ferramenta revela uma pista. Culpado: <b>Tobias Drop</b> · Comando: <b><code>DROP TABLE clientes;</code></b></p>
+      <div class="tw"><table class="t ferr-tab"><thead><tr><th>Sala</th><th>Tópico</th><th>1ª ferramenta</th><th>2ª ferramenta</th></tr></thead><tbody>
+        ${SALAS_Q.map(s => `<tr><td>${s.ico} ${esc(s.nome)}</td><td>${esc(s.tema)}</td>${s.ferr.map(f => `<td>${f.ico} <b>${esc(f.nome)}</b><br><span class="muted sm">${esc(f.pista)}</span></td>`).join('')}</tr>`).join('')}
+      </tbody></table></div></div>`;
+  const num = (id, def) => { const v = parseInt($(id).value, 10); return Number.isFinite(v) && v >= 0 ? v : def; };
+  const salva = () => {
+    CFG.titulo = $('#c-tit').value.trim() || CONFIG_PADRAO.titulo; CFG.turma = $('#c-turma').value.trim(); CFG.porSala = +$('#c-por').value; CFG.embaralhar = $('#c-emb').checked; CFG.revelarGabarito = $('#c-gab').checked;
+    CFG.pontos = [num('#c-p0', 100), num('#c-p1', 60), num('#c-p2', 30)]; CFG.bonusAcusacao = [num('#c-b0', 200), num('#c-b1', 120), num('#c-b2', 60)]; CFG.penalidadeAcusacao = num('#c-pen', 50); salvarCfg();
+  };
+  document.querySelectorAll('#conteudo input,#conteudo select').forEach(i => { if (i.id.startsWith('c-')) i.onchange = salva; });
+  $('#c-padrao').onclick = () => { CFG = Object.assign({}, CONFIG_PADRAO); salvarCfg(); vMissao(); toast('Configurações padrão restauradas.'); };
+  $('#p-json').onclick = () => { salva(); baixar('missao.json', JSON.stringify(DTP.montarPacote(CFG, BANCO), null, 1)); toast('missao.json baixado. Coloque-o na mesma pasta do aluno.html.'); };
+  $('#p-cod').onclick = async () => { salva(); const c = DTP.codigoPacote(DTP.montarPacote(CFG, BANCO)); toast(await copiar(c) ? `Código copiado (${Math.round(c.length / 1024)} KB).` : 'Não foi possível copiar.', false); };
+}
+
+/* =====================================================================
+   RESULTADOS
+   ===================================================================== */
+function agregados(lista) {
+  const porQ = {}, porS = {};
+  lista.forEach(r => { const st = statsRes(r); Object.entries(st.first).forEach(([q, ok]) => { porQ[q] = porQ[q] || { n: 0, a1: 0 }; porQ[q].n++; porQ[q].a1 += ok; });
+    Object.entries(st.porSala).forEach(([s, v]) => { porS[s] = porS[s] || { n: 0, a1: 0 }; porS[s].n += v.n; porS[s].a1 += v.a1; }); });
+  return { porQ, porS };
+}
+function filtrados() {
+  return RES.filter(r => (!filtroTurma || (r.turma || '') === filtroTurma) && (!filtroNome || (r.nome || '').toLowerCase().includes(filtroNome)))
+    .map(r => Object.assign({}, r, { _s: statsRes(r), _p: pctRes(r) }));
+}
+function vResultados() {
+  const turmas = [...new Set(RES.map(r => r.turma || '').filter(Boolean))].sort();
+  const L = filtrados(), ag = agregados(L);
+  const chave = { nome: r => (r.nome || '').toLowerCase(), turma: r => (r.turma || '').toLowerCase(), pontos: r => r._p, a1: r => r._s.qs ? r._s.a1 / r._s.qs : 0, erros: r => r._s.erros, tempo: r => r.tempo, data: r => r.fim || 0 }[ordem.k];
+  L.sort((a, b) => { const x = chave(a), y = chave(b); return (x > y ? 1 : x < y ? -1 : 0) * ordem.d; });
+  const media = L.length ? Math.round(L.reduce((a, r) => a + r._p, 0) / L.length) : null;
+  const a1m = L.length ? Math.round(L.reduce((a, r) => a + (r._s.qs ? r._s.a1 / r._s.qs : 0), 0) / L.length * 100) : null;
+  const tmed = L.length ? Math.round(L.reduce((a, r) => a + (r.tempo || 0), 0) / L.length) : null;
+  const dificeis = Object.entries(ag.porQ).map(([id, v]) => ({ id, ...v, taxa: v.a1 / v.n })).filter(x => x.n >= 1).sort((a, b) => a.taxa - b.taxa || b.n - a.n).slice(0, 8);
+  const th = (k, t) => `<th data-o="${k}">${t}${ordem.k === k ? (ordem.d > 0 ? ' ▲' : ' ▼') : ''}</th>`;
+  $('#conteudo').innerHTML = `
+    <h2 class="sec">Resultados da turma</h2>
+    <p class="lead">Importe os relatórios entregues pelos alunos (arquivo <code>.json</code> ou código <code>RES1.…</code>). Resultados de jogos feitos neste navegador entram automaticamente.</p>
+    <div class="pan"><h3>Importar relatórios</h3>
+      <textarea id="r-txt" class="cod" placeholder="Cole aqui um ou vários códigos RES1.… (um por linha)"></textarea>
+      <div class="barra-acoes" style="margin:10px 0 0"><input type="file" id="r-arq" accept=".json" multiple style="max-width:320px"><span class="esp"></span><button class="btn primario pequeno" id="r-imp">Importar</button></div></div>
+    ${RES.length ? `
+    <div class="grid g4" style="margin-bottom:18px">
+      <div class="kpi"><b>${L.length}</b><span>alunos${filtroTurma || filtroNome ? ' (filtrados)' : ''}</span></div>
+      <div class="kpi"><b>${media}%</b><span>aproveitamento médio</span></div>
+      <div class="kpi"><b>${a1m}%</b><span>acertos de 1ª tentativa</span></div>
+      <div class="kpi"><b>${fmtTempo(tmed || 0)}</b><span>tempo médio</span></div>
+    </div>
+    <div class="grid g2">
+      <div class="pan"><h3>Desempenho por tópico (acerto na 1ª tentativa)</h3>
+        ${SALAS_Q.map(s => { const v = ag.porS[s.id]; const p = v && v.n ? Math.round(v.a1 / v.n * 100) : null; return `<div class="linha-m"><div>${s.ico} ${esc(s.tema)}</div><div class="barra ${p == null ? '' : p < 50 ? 'r' : p >= 75 ? 'v' : ''}"><i style="width:${p || 0}%"></i></div><div>${p == null ? '—' : p + '%'} <span class="muted">(${v ? v.n : 0})</span></div></div>`; }).join('')}</div>
+      <div class="pan"><h3>Questões mais erradas</h3>
+        ${dificeis.length ? `<div class="tw"><table class="t"><thead><tr><th>Questão</th><th>1ª tent.</th><th>n</th></tr></thead><tbody>${dificeis.map(d => { const q = qPorId(d.id); const p = Math.round(d.taxa * 100); return `<tr><td>${q ? `<span class="muted sm">${SALAS[q.sala - 1].ico}</span> ${fmt(q.q.length > 110 ? q.q.slice(0, 110) + '…' : q.q)}` : '<i class="muted">(questão removida do banco)</i>'}</td><td><span class="pill ${classePct(p)}">${p}%</span></td><td>${d.n}</td></tr>`; }).join('')}</tbody></table></div>` : '<div class="vazio">Sem dados.</div>'}</div>
+    </div>
+    <div class="pan"><h3>Alunos</h3>
+      <div class="barra-acoes">
+        <input type="text" id="r-busca" placeholder="Buscar aluno…" value="${esc(filtroNome)}" style="max-width:240px">
+        <select id="r-turma" style="max-width:240px"><option value="">Todas as turmas</option>${turmas.map(t => `<option ${t === filtroTurma ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select>
+        <span class="esp"></span>
+        <button class="btn pequeno" id="r-csv">⬇ Exportar CSV (Excel)</button><button class="btn pequeno" id="r-json">⬇ JSON</button><button class="btn pequeno perigo" id="r-limpar">Limpar tudo</button>
+      </div>
+      <div class="tw"><table class="t"><thead><tr>${th('nome', 'Aluno')}${th('turma', 'Turma')}${th('pontos', 'Pontos')}${th('a1', '1ª tentativa')}${th('erros', 'Erros')}${th('tempo', 'Tempo')}${th('data', 'Data')}<th></th></tr></thead><tbody>
+      ${L.map(r => `<tr><td><b>${esc(r.nome || '—')}</b>${r.mat ? `<br><span class="muted sm">${esc(r.mat)}</span>` : ''}</td><td>${esc(r.turma || '—')}</td>
+        <td><span class="pill ${classePct(r._p)}">${r.pontos}/${r.max} · ${r._p}%</span></td><td>${r._s.a1}/${r._s.qs}</td><td>${r._s.erros}${r.acusErr ? ` <span class="muted sm">(+${r.acusErr} acus.)</span>` : ''}</td><td>${fmtTempo(r.tempo || 0)}</td><td class="sm muted">${dataBR(r.fim)}</td>
+        <td style="white-space:nowrap"><button class="btn pequeno" data-v="${esc(r.rid)}">Detalhes</button> <button class="btn pequeno perigo" data-x="${esc(r.rid)}">✕</button></td></tr>`).join('') || '<tr><td colspan="8" class="muted" style="text-align:center;padding:20px">Nenhum aluno com esses filtros.</td></tr>'}
+      </tbody></table></div></div>` : '<div class="vazio">Ainda não há resultados. Importe relatórios acima ou jogue uma partida de teste no módulo do aluno.</div>'}`;
+  $('#r-imp').onclick = importarResultados;
+  $('#r-arq').onchange = async e => { const fs = [...e.target.files]; const txt = (await Promise.all(fs.map(f => f.text()))).join('\n@@@\n'); $('#r-txt').value = (($('#r-txt').value ? $('#r-txt').value + '\n' : '') + txt); toast(fs.length + ' arquivo(s) carregado(s). Clique em Importar.'); };
+  if (!RES.length) return;
+  $('#r-busca').oninput = e => { filtroNome = e.target.value.toLowerCase(); const p = e.target.selectionStart; vResultados(); const i = $('#r-busca'); i.focus(); i.setSelectionRange(p, p); };
+  $('#r-turma').onchange = e => { filtroTurma = e.target.value; vResultados(); };
+  document.querySelectorAll('th[data-o]').forEach(h => h.onclick = () => { const k = h.dataset.o; ordem = { k, d: ordem.k === k ? -ordem.d : (k === 'nome' || k === 'turma' ? 1 : -1) }; vResultados(); });
+  document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => detalhes(b.dataset.v));
+  document.querySelectorAll('[data-x]').forEach(b => b.onclick = () => { if (confirm('Remover este resultado?')) { RES = RES.filter(r => r.rid !== b.dataset.x); salvarRes(); render(); } });
+  $('#r-csv').onclick = () => exportarCSV(L);
+  $('#r-json').onclick = () => baixar('resultados.json', JSON.stringify(RES, null, 1));
+  $('#r-limpar').onclick = () => { if (confirm('Apagar TODOS os resultados importados deste navegador?')) { RES = []; salvarRes(); render(); } };
+}
+function importarResultados() {
+  const txt = $('#r-txt').value.trim(); if (!txt) return toast('Cole um código ou carregue arquivos primeiro.', true);
+  const partes = []; txt.split('@@@').forEach(bloco => { bloco = bloco.trim(); if (!bloco) return; if (bloco.startsWith('{') || bloco.startsWith('[')) partes.push(bloco); else bloco.split(/\s*\n\s*/).forEach(l => { if (l.trim()) partes.push(l.trim()); }); });
+  let novos = 0, atual = 0, erros = 0;
+  partes.forEach(p => {
+    try {
+      let lote; if (p.startsWith('[')) lote = JSON.parse(p); else lote = [DTP.lerRelatorio(p)];
+      lote.forEach(r => { if (!r || r.t !== 'dtp-res' || !Array.isArray(r.log)) { erros++; return; } const i = RES.findIndex(x => x.rid === r.rid); if (i >= 0) { RES[i] = r; atual++; } else { RES.push(r); novos++; } });
+    } catch (e) { erros++; }
+  });
+  salvarRes(); toast(`${novos} novo(s), ${atual} atualizado(s)${erros ? `, ${erros} inválido(s)` : ''}.`, !!erros && !novos && !atual); render();
+}
+function detalhes(rid) {
+  const r = RES.find(x => x.rid === rid); if (!r) return; const st = statsRes(r);
+  const erradas = Object.entries(st.first).filter(([, ok]) => !ok).map(([q]) => q);
+  const tent = {}; r.log.forEach(([q, s, o]) => { tent[q] = (tent[q] || 0) + 1; });
+  modal(`<h3>${esc(r.nome)} <button class="fechar" aria-label="Fechar">×</button></h3>
+    <p class="muted sm">${esc(r.turma || '')} ${r.mat ? '· matrícula ' + esc(r.mat) : ''} · ${esc(r.missao || '')} · ${dataBR(r.fim)} · tempo ${fmtTempo(r.tempo || 0)} · acusações erradas: ${r.acusErr || 0}</p>
+    <div class="grid g4" style="margin:12px 0"><div class="kpi"><b>${r.pontos}</b><span>de ${r.max} pontos</span></div><div class="kpi"><b>${st.a1}/${st.qs}</b><span>acertos de 1ª</span></div><div class="kpi"><b>${st.erros}</b><span>respostas erradas</span></div></div>
+    <h3 style="font-size:.74rem;color:var(--ouro);letter-spacing:.14em;margin:14px 0 8px">POR TÓPICO</h3>
+    ${SALAS_Q.filter(s => st.porSala[s.id]).map(s => { const v = st.porSala[s.id], p = Math.round(v.a1 / v.n * 100); return `<div class="linha-m"><div>${s.ico} ${esc(s.tema)}</div><div class="barra ${p < 50 ? 'r' : p >= 75 ? 'v' : ''}"><i style="width:${p}%"></i></div><div>${v.a1}/${v.n}</div></div>`; }).join('')}
+    <h3 style="font-size:.74rem;color:var(--ouro);letter-spacing:.14em;margin:14px 0 8px">QUESTÕES ERRADAS NA 1ª TENTATIVA</h3>
+    ${erradas.length ? erradas.map(id => { const q = qPorId(id); return `<div class="q-card" style="padding:10px 14px">${q ? `<div class="enun" style="margin:0 0 6px">${fmt(q.q)}</div><div class="muted sm">Resposta certa: <b style="color:#8fe0b0">${fmt(q.o[q.c])}</b> · tentativas: ${tent[id]}</div>` : `<i class="muted">Questão ${esc(id)} (removida do banco)</i>`}</div>`; }).join('') : '<div class="alerta ok"><span>🎉</span><div>Acertou tudo de primeira.</div></div>'}`, 'form');
+}
+function exportarCSV(L) {
+  const cab = ['Nome', 'Turma', 'Matrícula', 'Pontos', 'Máximo', 'Aproveitamento %', 'Questões respondidas', 'Acertos 1ª tentativa', 'Respostas erradas', 'Acusações erradas', 'Tempo (mm:ss)', 'Data', ...SALAS_Q.map(s => `Sala ${s.id} ${s.nome} (1ª/total)`)];
+  const lin = L.map(r => [r.nome, r.turma, r.mat, r.pontos, r.max, r._p, r._s.qs, r._s.a1, r._s.erros, r.acusErr || 0, fmtTempo(r.tempo || 0), dataBR(r.fim), ...SALAS_Q.map(s => { const v = r._s.porSala[s.id]; return v ? `${v.a1}/${v.n}` : ''; })]);
+  const csv = [cab, ...lin].map(l => l.map(c => { c = String(c ?? ''); return /[";\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(';')).join('\r\n');
+  baixar('resultados_turma.csv', '﻿' + csv, 'text/csv'); toast('CSV exportado (abra no Excel).');
+}
+
+/* ---------- Início ---------- */
+DTP.ligarTelaCheia();
+render();
+window.__prof = { get BANCO() { return BANCO; }, get RES() { return RES; } };
+})();
+
+</script>
+</body>
+</html>
