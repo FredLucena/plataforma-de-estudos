@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fred Lucena | DER Fácil, Master Quiz, Batalha do Saber, Explorador e Horário de Prova</title>
-<meta name="description" content="Ferramentas para a sala de aula criadas por Fred Lucena: DER Fácil, Master Quiz, Batalha do Saber, Explorador e Horário de Prova.">
+<title>Fred Lucena | DER Fácil, Master Quiz, Batalha do Saber, Mistérios SQL, Explorador e Horário de Prova</title>
+<meta name="description" content="Ferramentas para a sala de aula criadas por Fred Lucena: DER Fácil, Master Quiz, Batalha do Saber, Mistérios SQL, Explorador e Horário de Prova.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
@@ -18,6 +18,7 @@
   --graph:#22252B;
   --crimson:#A3262F;
   --battle:#2B45C9;
+  --mystery:#7A4B14;
   --folder:#F2B632;
   --red:#E5484D;
   --blue:#3E63DD;
@@ -53,6 +54,7 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,5.2vw,3.7re
 .menu .m-der i{background:var(--teal);border-radius:50% 0 50% 0}
 .menu .m-quiz i{background:var(--violet);clip-path:polygon(50% 0,100% 100%,0 100%)}
 .menu .m-battle i{background:var(--battle);clip-path:polygon(0 100%,0 20%,20% 20%,20% 0,40% 0,40% 20%,60% 20%,60% 0,80% 0,80% 20%,100% 20%,100% 100%)}
+.menu .m-mist i{background:var(--mystery);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
 .menu .m-exp i{background:var(--folder);border-radius:3px 3px 3px 3px}
 .menu .m-clock i{border:4px solid var(--crimson);border-radius:50%}
 .menu small{margin-left:auto;font-family:var(--body);font-weight:500;font-size:.9rem;color:var(--soft);letter-spacing:0;text-align:right}
@@ -62,6 +64,7 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,5.2vw,3.7re
 .band.der{background:var(--teal)}
 .band.quiz{background:var(--violet)}
 .band.battle{background:var(--battle)}
+.band.mist{background:var(--mystery)}
 .band.exp{background:var(--graph)}
 .band.clock{background:var(--crimson)}
 .inner{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
@@ -106,6 +109,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
       <a href="#der-facil">DER Fácil</a>
       <a href="#master-quiz">Master Quiz</a>
       <a href="#batalha-do-saber">Batalha do Saber</a>
+      <a href="#misterios-sql">Mistérios SQL</a>
       <a href="#explorador">Explorador</a>
       <a href="#relogio">Horário de Prova</a>
     </nav>
@@ -121,6 +125,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
         <li><a class="m-der" href="#der-facil"><i aria-hidden="true"></i>DER Fácil<small>Modelagem de dados</small></a></li>
         <li><a class="m-quiz" href="#master-quiz"><i aria-hidden="true"></i>Master Quiz<small>Quiz ao vivo, para professor e aluno</small></a></li>
         <li><a class="m-battle" href="#batalha-do-saber"><i aria-hidden="true"></i>Batalha do Saber<small>Quiz em trilha, para professor e aluno</small></a></li>
+        <li><a class="m-mist" href="#misterios-sql"><i aria-hidden="true"></i>Mistérios SQL<small>Jogo de investigação, para professor e aluno</small></a></li>
         <li><a class="m-exp" href="#explorador"><i aria-hidden="true"></i>Explorador<small>Arquivos compartilhados</small></a></li>
         <li><a class="m-clock" href="#relogio"><i aria-hidden="true"></i>Horário de Prova<small>Hora em tela inteira</small></a></li>
       </ul>
@@ -269,7 +274,76 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   </div>
 </section>
 
-<section class="band exp flip" id="explorador" aria-labelledby="h-exp">
+<section class="band mist flip" id="misterios-sql" aria-labelledby="h-mist">
+  <div class="wrap inner">
+    <div class="copy">
+      <h2 id="h-mist">Mistérios SQL</h2>
+      <p class="tag">Um caso de banco de dados para investigar.</p>
+      <p class="d">Jogo de investigação para aprender Banco de Dados. O primeiro caso é "O Mistério da Tabela Perdida": na mansão Codd, uma tabela sumiu durante a noite, e o aluno precisa descobrir quem a apagou.</p>
+      <ul>
+        <li>O aluno escolhe um detetive, anda pela mansão e anota as pistas no caderno</li>
+        <li>Os desafios cobrem conceitos de banco de dados e SQL de definição e de manipulação de dados</li>
+        <li>Quanto menos tentativas, mais pontos: 100 na primeira, 60 na segunda e 30 nas demais</li>
+        <li>O aluno baixa um relatório e entrega ao professor, que importa os relatórios da turma e exporta em CSV para o Excel</li>
+        <li>O professor pode editar as questões do jogo</li>
+      </ul>
+      <div class="btns">
+        <a class="btn" href="https://fredlucena.com.br/misteriossql/professor.html">Versão do professor</a>
+        <a class="btn alt" href="https://fredlucena.com.br/misteriossql/aluno.html">Versão do aluno</a>
+      </div>
+    </div>
+    <div class="art">
+      <svg viewBox="0 0 440 280" role="img" aria-label="Planta de uma mansão vista de cima, com salas, um corredor, um detetive com lupa e a consulta SELECT * FROM pistas">
+        <rect x="8" y="8" width="424" height="264" rx="14" fill="#F3E6CF"/>
+        <rect x="24" y="116" width="396" height="32" fill="#E4D2B0" stroke="#3B2410" stroke-width="3"/>
+        <g fill="#FFF7E6" stroke="#3B2410" stroke-width="3">
+          <rect x="24" y="24" width="124" height="92"/>
+          <rect x="160" y="24" width="124" height="92"/>
+          <rect x="296" y="24" width="124" height="92"/>
+          <rect x="24" y="148" width="124" height="74"/>
+          <rect x="160" y="148" width="124" height="74"/>
+          <rect x="296" y="148" width="124" height="74"/>
+        </g>
+        <g fill="#E4D2B0">
+          <rect x="74" y="112" width="24" height="8"/>
+          <rect x="210" y="112" width="24" height="8"/>
+          <rect x="346" y="112" width="24" height="8"/>
+          <rect x="74" y="144" width="24" height="8"/>
+          <rect x="210" y="144" width="24" height="8"/>
+          <rect x="346" y="144" width="24" height="8"/>
+        </g>
+        <g font-size="13" font-weight="700" fill="#3B2410" text-anchor="middle">
+          <text x="86" y="74">Sala de Jantar</text>
+          <text x="222" y="74">Salão de Música</text>
+          <text x="358" y="68">Escritório</text>
+          <text x="358" y="84">do Lorde</text>
+          <text x="358" y="182">Sala dos</text>
+          <text x="358" y="198">Servidores</text>
+        </g>
+        <g font-size="38" font-weight="800" fill="#3B2410" fill-opacity=".35" text-anchor="middle">
+          <text x="86" y="198">?</text>
+          <text x="222" y="198">?</text>
+        </g>
+        <g fill="#3B2410" fill-opacity=".55">
+          <circle cx="50" cy="128" r="3"/><circle cx="74" cy="136" r="3"/>
+          <circle cx="98" cy="128" r="3"/><circle cx="122" cy="136" r="3"/>
+          <circle cx="146" cy="128" r="3"/><circle cx="170" cy="136" r="3"/>
+          <circle cx="194" cy="128" r="3"/><circle cx="218" cy="136" r="3"/>
+          <circle cx="242" cy="128" r="3"/>
+        </g>
+        <circle cx="272" cy="132" r="12" fill="#2F6FED" stroke="#3B2410" stroke-width="3"/>
+        <ellipse cx="272" cy="124" rx="17" ry="4" fill="#3B2410"/>
+        <path d="M264 124 a8 7 0 0 1 16 0 Z" fill="#3B2410"/>
+        <circle cx="344" cy="132" r="10" fill="#fff" fill-opacity=".6" stroke="#3B2410" stroke-width="4"/>
+        <path d="M351 139 L364 148" stroke="#3B2410" stroke-width="5" stroke-linecap="round"/>
+        <rect x="24" y="234" width="396" height="28" rx="8" fill="#3B2410"/>
+        <text x="40" y="253" font-size="14" fill="#FFD23F" font-family="ui-monospace,Menlo,Consolas,monospace">SELECT * FROM pistas;</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="band exp" id="explorador" aria-labelledby="h-exp">
   <div class="wrap inner">
     <div class="copy">
       <h2 id="h-exp">Explorador</h2>
@@ -320,7 +394,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   </div>
 </section>
 
-<section class="band clock" id="relogio" aria-labelledby="h-clock">
+<section class="band clock flip" id="relogio" aria-labelledby="h-clock">
   <div class="wrap inner">
     <div class="copy">
       <h2 id="h-clock">Horário de Prova</h2>
