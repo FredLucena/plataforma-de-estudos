@@ -166,6 +166,10 @@ input[type=file]::file-selector-button:hover{background:rgba(241,215,138,.25)}
 .dica-ctrl{position:absolute;left:10px;top:10px;font-family:var(--f-ui);font-size:.7rem;color:#b8b0c8;background:rgba(5,4,10,.6);border:1px solid var(--linha);border-radius:3px;padding:.3em .6em;font-weight:400;transition:opacity 1s}
 #tela-jogo,#tela-jogo *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 .dpad button,#btn-acao,#cv{touch-action:none}
+.zoom-ctl{position:absolute;right:10px;top:86px;display:none;flex-direction:column;gap:6px;z-index:3}
+.zoom-ctl button{width:40px;height:40px;border-radius:8px;background:rgba(20,16,32,.8);border:1px solid var(--ouro3);color:var(--ouro2);font-size:1.3rem;line-height:1;touch-action:manipulation}
+.zoom-ctl button:active{background:rgba(201,162,75,.4)}
+#tela-jogo.cam .zoom-ctl{display:flex}
 .dpad{position:absolute;left:12px;bottom:12px;width:150px;height:150px;display:none;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:4px;z-index:3}
 .dpad button{background:rgba(20,16,32,.75);border:1px solid var(--ouro3);color:var(--ouro2);border-radius:8px;font-size:1.1rem;touch-action:none}
 .dpad button:active{background:rgba(201,162,75,.4)}
@@ -368,6 +372,7 @@ ul.como{padding-left:1.1em;line-height:1.55;margin:.4em 0}ul.como li{margin-bott
       <canvas id="cv"></canvas>
       <canvas id="mini" width="352" height="223"></canvas>
       <div class="dica-ctrl" id="dica-ctrl">Setas / WASD ou clique no ◆ para andar · <b>E</b> investigar · <b>C</b> caderno</div>
+      <div class="zoom-ctl" id="zoom-ctl"><button id="z-mais" aria-label="Aproximar">＋</button><button id="z-menos" aria-label="Afastar">－</button></div>
       <div id="prompt"></div>
       <div class="dpad" id="dpad"><button class="u" data-d="u">▲</button><button class="l" data-d="l">◀</button><button class="r" data-d="r">▶</button><button class="d" data-d="d">▼</button></div>
       <button class="btn primario" id="btn-acao">Investigar</button>
@@ -1201,14 +1206,16 @@ function construirEstatico() {
    ===================================================================== */
 const cv = $('#cv'), vctx = cv.getContext('2d');
 const mundo = document.createElement('canvas'); mundo.width = W * SC; mundo.height = H * SC; const ctx = mundo.getContext('2d');
-let camMode = false, vw = W, vh = H;
+let camMode = false, vw = W, vh = H, zoom = +lsGet('dtp_zoom', 1) || 1, baseVw = 380;
+const zoomMin = () => Math.max(.4, baseVw / W), zoomMax = 2.6;
+function setZoom(z) { zoom = Math.max(zoomMin(), Math.min(zoomMax, z)); lsSet('dtp_zoom', +zoom.toFixed(3)); ajustarCanvas(); }
 function ajustarCanvas() {
   const m = matchMedia('(pointer:coarse), (max-width:760px)').matches; $('#tela-jogo').classList.toggle('cam', m);
   const pal = $('.palco'), r = pal.getBoundingClientRect(); camMode = m && r.width > 50 && r.height > 50;
   if (camMode) {
     const dpr = Math.min(2, window.devicePixelRatio || 1), cw = Math.round(r.width * dpr), ch = Math.round(r.height * dpr);
     if (cv.width !== cw || cv.height !== ch) { cv.width = cw; cv.height = ch; }
-    vw = Math.min(W, Math.max(380, r.width / 1.2)); vh = vw * r.height / r.width; if (vh > H) { vh = H; vw = vh * r.width / r.height; }
+    baseVw = Math.min(W, Math.max(380, r.width / 1.2)); zoom = Math.max(zoomMin(), Math.min(zoomMax, zoom)); vw = Math.min(W, baseVw / zoom); vh = vw * r.height / r.width; if (vh > H) { vh = H; vw = vh * r.width / r.height; }
   } else { if (cv.width !== W * SC) { cv.width = W * SC; cv.height = H * SC; } vw = W; vh = H; }
 }
 addEventListener('resize', () => { if (jogoAtivo) ajustarCanvas(); });
@@ -1402,7 +1409,7 @@ function mundoDe(e) {
   const r = cv.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height;
   return camMode ? [camSx + fx * vw, camSy + fy * vh] : [fx * W, fy * H];
 }
-cv.addEventListener('pointerdown', e => {
+function cliqueMapa(e) {
   if (!S || modalAberto() || !jogoAtivo) return;
   const [wx, wy] = mundoDe(e); let melhor = null, bd = 1e9;
   for (const id of [1, 2, 3, 4, 5, 6, 7, 8]) {
@@ -1415,7 +1422,24 @@ cv.addEventListener('pointerdown', e => {
   if (!rt) { toast('Não consegui achar um caminho até lá.', true); return; }
   rota = rt; SFX.clique();
   if (!rt.length) { rota = null; interagir(); }
+}
+
+const ptrs = new Map(); let pinch = null, toque = null;
+cv.addEventListener('pointerdown', e => {
+  cv.setPointerCapture && cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (ptrs.size === 1) toque = { x: e.clientX, y: e.clientY, t: performance.now(), mov: false, e };
+  else if (ptrs.size === 2) { const [p1, p2] = [...ptrs.values()]; pinch = { d: Math.hypot(p1.x - p2.x, p1.y - p2.y) || 1, z: zoom }; if (toque) toque.mov = true; }
 });
+cv.addEventListener('pointermove', e => {
+  if (!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (toque && Math.hypot(e.clientX - toque.x, e.clientY - toque.y) > 12) toque.mov = true;
+  if (pinch && ptrs.size === 2 && camMode) { const [p1, p2] = [...ptrs.values()]; setZoom(pinch.z * Math.hypot(p1.x - p2.x, p1.y - p2.y) / pinch.d); }
+});
+const fimPtr = e => { const tinha = ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; if (tinha && ptrs.size === 0 && toque && !toque.mov && e.type === 'pointerup') cliqueMapa(toque.e); if (ptrs.size === 0) toque = null; };
+cv.addEventListener('pointerup', fimPtr); cv.addEventListener('pointercancel', fimPtr);
+cv.addEventListener('wheel', e => { if (!camMode) return; e.preventDefault(); setZoom(zoom * (e.deltaY < 0 ? 1.1 : .9)); }, { passive: false });
+$('#z-mais').addEventListener('click', () => setZoom(zoom * 1.25));
+$('#z-menos').addEventListener('click', () => setZoom(zoom / 1.25));
 
 /* =====================================================================
    INTERAÇÃO — desafios, ferramentas, caderno, acusação
