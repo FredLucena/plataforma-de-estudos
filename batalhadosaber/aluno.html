@@ -476,7 +476,7 @@ html.fs .actions{flex:none}
 html.fs,html.fs body{overflow:hidden; margin:0}
 
 /* aluno: botão e modo tela inteira */
-.fsbtn{position:fixed; right:max(12px,env(safe-area-inset-right,0px)); bottom:max(12px,env(safe-area-inset-bottom,0px)); z-index:40; width:46px; height:46px; display:grid; place-items:center; border:3px solid var(--line); border-radius:14px; background:var(--surface); color:var(--fg); box-shadow:3px 3px 0 var(--shadow); cursor:pointer; padding:0}
+.fsbtn{position:fixed; right:max(12px,env(safe-area-inset-right,0px)); top:max(12px,env(safe-area-inset-top,0px)); z-index:40; width:46px; height:46px; display:grid; place-items:center; border:3px solid var(--line); border-radius:14px; background:var(--surface); color:var(--fg); box-shadow:3px 3px 0 var(--shadow); cursor:pointer; padding:0}
 .fsbtn[hidden]{display:none}
 .fsbtn:active{transform:translate(2px,2px); box-shadow:1px 1px 0 var(--shadow)}
 html.fs,html.fs body{background:var(--bg); min-height:100%}
@@ -565,16 +565,16 @@ html.fs .app:not(.wide)>main>section>*{flex-shrink:0} html.fs .sbar{flex-directi
 .leg-l,.leg-r,.arm-l,.arm-r{transition:transform .2s}
 .pawn-wrap:not(.walking):not(.cheer) .pbody{animation:idle 2.6s ease-in-out infinite alternate}
 @keyframes idle{from{transform:translateY(0)}to{transform:translateY(calc(var(--u,6px) * -.3))}}
-.pawn-wrap.walking .pbody{animation:step .3s ease-in-out infinite alternate}
+.pawn-wrap.walking .pbody{animation:step .45s ease-in-out infinite alternate}
 @keyframes step{from{transform:translateY(0)}to{transform:translateY(calc(var(--u,6px) * -.7))}}
 .pawn-wrap.walking .leg-l,.pawn-wrap.walking .arm-r{animation:swingA .3s ease-in-out infinite alternate}
 .pawn-wrap.walking .leg-r,.pawn-wrap.walking .arm-l{animation:swingB .3s ease-in-out infinite alternate}
 @keyframes swingA{from{transform:rotate(-26deg)}to{transform:rotate(26deg)}}
 @keyframes swingB{from{transform:rotate(26deg)}to{transform:rotate(-26deg)}}
 /* chegou ao topo: pula muito (o primeiro) ou pula um pouco (os demais) */
-.pawn-wrap.cheer .pbody{animation:jumpBig .66s cubic-bezier(.25,.6,.4,1) infinite}
+.pawn-wrap.cheer .pbody{animation:jumpBig .6s cubic-bezier(.25,.6,.4,1) infinite}
 .pawn-wrap.cheer.small .pbody{animation:jumpSmall .8s ease-in-out infinite}
-@keyframes jumpBig{0%{transform:translateY(0) scale(1.06,.9)}18%{transform:translateY(0) scale(.96,1.05)}55%{transform:translateY(calc(var(--u,6px) * -11)) scale(.98,1.04)}100%{transform:translateY(0) scale(1.06,.9)}}
+@keyframes jumpBig{0%{transform:translateY(0) scale(1.06,.9)}18%{transform:translateY(0) scale(.96,1.05)}55%{transform:translateY(calc(var(--u,6px) * -4)) scale(.98,1.04)}100%{transform:translateY(0) scale(1.06,.9)}}
 @keyframes jumpSmall{0%,100%{transform:translateY(0)}50%{transform:translateY(calc(var(--u,6px) * -3))}}
 .pawn-wrap.cheer .arm-l{transform:rotate(155deg); animation:cheerL .33s ease-in-out infinite alternate}
 .pawn-wrap.cheer .arm-r{transform:rotate(-155deg); animation:cheerR .33s ease-in-out infinite alternate}
@@ -722,6 +722,181 @@ input.code-in,input.text-in{box-sizing:border-box; height:68px; line-height:1.2}
   .bigov.onrank .bigtxt b.stu{font-size:clamp(1.5rem,8cqw,3.2rem)}
 }
 #btnFullHero{justify-self:start; width:auto}
+
+.herorow{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap}
+.herorow p{flex:1 1 320px; margin:0}
+#btnFullHero{justify-self:auto; flex:none; margin-left:auto}
+
+/* mapa ampliado em tela toda */
+.board.zoomable{cursor:zoom-in}
+.stage.live.zoom{position:fixed; inset:0; z-index:3000; width:100vw; height:100vh; height:100dvh; max-width:none !important; aspect-ratio:auto; margin:0; border-radius:0; border:0; box-shadow:none; background:#2a1a0e}
+.stage.live.zoom .board{cursor:zoom-out}
+.stage.live.zoom::after{display:none}
+html.trailzoom{overflow:hidden}
+.zbtn{position:absolute; top:max(12px,env(safe-area-inset-top,0px)); right:max(12px,env(safe-area-inset-right,0px)); z-index:3100; width:46px; height:46px; border-radius:50%; border:3px solid var(--line,#14173a); background:var(--yellow,#ffd23f); color:var(--on,#14173a); font-weight:900; font-size:1.1rem; cursor:pointer; box-shadow:3px 3px 0 var(--shadow,#14173a)}
+
+.bigov.fixedrk{container-type:size; z-index:3200; border-radius:22px; overflow:hidden; box-shadow:6px 6px 0 var(--shadow,#14173a)}
+.bigov.fixedrk .bigcard{border-radius:inherit}
+
+/* nome do aluno acima da figura */
+.bigcard,.bigov.onrank .bigcard{flex-direction:column !important; justify-content:center; align-items:center; gap:0}
+.bigfig{width:100%; height:100%; flex:1 1 auto; min-height:0; align-items:center; justify-content:center; gap:clamp(6px,1.6cqh,14px)}
+.bigfig .stu{flex:none; font-size:clamp(1.6rem,5cqw,3.2rem); line-height:1.1; color:var(--blue,#3a5bff); text-align:center; max-width:100%; overflow-wrap:anywhere}
+.bigfig .chn{flex:none; font-size:clamp(1.1rem,3cqw,2rem); text-align:center}
+.bigfig .bigimg{flex:1 1 0; height:0; min-height:0; width:auto; max-width:100%; aspect-ratio:3/4}
+.bigov.onrank .bigfig .stu{font-size:clamp(1.4rem,8cqw,2.8rem)}
+.bigov.onrank .bigfig .chn{font-size:clamp(1.05rem,5.4cqw,1.8rem)}
+
+/* tela final do professor em tela cheia: ocupa toda a área */
+html.fs #s-final{gap:1.2vh}
+html.fs #s-final>.hero{flex:none; margin:0; display:flex; align-items:baseline; gap:2vw; flex-wrap:wrap}
+html.fs #s-final>.hero h1{font-size:clamp(1.6rem,4.6vh,3rem); margin:0}
+html.fs #s-final>.hero p{margin:0}
+html.fs #s-final>.podium{flex:none; margin:0; min-height:0; height:clamp(150px,27vh,300px); gap:1.6vw}
+html.fs #s-final .pod{max-width:min(24vw,260px)}
+html.fs #s-final .pod .av{--s:clamp(48px,7.5vh,92px) !important}
+html.fs #s-final .pod .nm{font-size:clamp(1rem,2.4vh,1.6rem)}
+html.fs #s-final .pod.p1 .stand{height:clamp(70px,12vh,150px)}
+html.fs #s-final .pod.p2 .stand{height:clamp(50px,8.5vh,105px)}
+html.fs #s-final .pod.p3 .stand{height:clamp(36px,6vh,75px)}
+html.fs #s-final>.split{flex:1 1 0; min-height:0; grid-template-columns:minmax(0,1.6fr) minmax(0,1fr); align-items:stretch}
+html.fs #s-final>.split>.rankbox{overflow:auto; min-height:0; align-content:start}
+html.fs #s-final #tslotF{min-height:0; height:100%}
+html.fs #s-final #tslotF>*{height:100%}
+html.fs #s-final>.actions{flex:none; margin:0}
+html.fs #s-final>.podium{height:auto; flex:none}
+html.fs #s-final .pod.p1 .stand{height:clamp(56px,10vh,130px)}
+html.fs #s-final .pod.p2 .stand{height:clamp(40px,7vh,90px)}
+html.fs #s-final .pod.p3 .stand{height:clamp(30px,5vh,64px)}
+html.fs #s-final .stage.live{min-height:0; height:100%}
+html.fs #s-final #tslotF{overflow:hidden}
+html.fs #s-final .pod .stand{font-size:clamp(1rem,2.8vh,1.8rem); padding-top:4px; box-sizing:border-box}
+html.fs #s-final .pod.p1 .stand{height:clamp(64px,12vh,150px)}
+html.fs #s-final .pod.p2 .stand{height:clamp(52px,9vh,110px)}
+html.fs #s-final .pod.p3 .stand{height:clamp(44px,7vh,80px)}
+
+/* tela inicial do professor em tela cheia: ocupa toda a área */
+html.fs #s-setup{gap:2vh}
+html.fs #s-setup>.hero{flex:none; margin:0}
+html.fs #s-setup>.setup-grid{flex:1 1 0; min-height:0; margin:0; grid-template-rows:minmax(0,1fr); align-items:stretch}
+html.fs #s-setup>.setup-grid>.card{min-height:0; overflow:auto; justify-content:space-evenly; gap:1.4vh}
+html.fs #s-setup>.setup-grid h2{font-size:clamp(1.4rem,3.4vh,2.4rem); margin:0}
+html.fs #s-setup .phase-pick{gap:clamp(8px,2vh,28px); flex:1; align-content:space-evenly}
+html.fs #s-setup .phase-pick .check{font-size:clamp(1rem,2.5vh,1.7rem)}
+html.fs #s-setup .check input{width:clamp(22px,3vh,34px); height:clamp(22px,3vh,34px)}
+html.fs #s-setup .field-row{font-size:clamp(1rem,2.5vh,1.7rem)}
+html.fs #s-setup .field-row select{font-size:inherit; padding:.5em .8em}
+html.fs #s-setup>.setup-grid>.card:nth-child(2) .check{font-size:clamp(1rem,2.5vh,1.7rem)}
+html.fs #s-setup>.setup-grid>.card .muted{font-size:clamp(.95rem,2.2vh,1.5rem); line-height:1.5}
+html.fs #s-setup>.start-row{flex:none; margin:0; padding:clamp(12px,2.4vh,30px) clamp(18px,2vw,40px)}
+html.fs #s-setup>.start-row .rules{font-size:clamp(1rem,2.5vh,1.7rem)}
+html.fs #s-setup>.start-row .btn-lg{font-size:clamp(1.1rem,2.8vh,1.9rem); padding:.7em 1.8em}
+html.fs #s-setup>.hero p{font-size:clamp(1rem,2.4vh,1.6rem)}
+html.fs #btnFullHero{font-size:clamp(1rem,2.4vh,1.5rem)}
+html.fs #s-setup .phase-pick{gap:clamp(4px,1.2vh,20px)}
+html.fs #s-setup .phase-pick .check{font-size:clamp(.95rem,2.2vh,1.6rem)}
+/* relatório e listas longas: rolam dentro da tela cheia */
+html.fs #s-report:not([hidden]){overflow-y:auto; overflow-x:hidden; display:block !important; padding-right:4px}
+html.fs .joinbox,html.fs .lobby>*{min-height:0}
+html.fs .lobby>section:last-child,html.fs .lobby>div:last-child{overflow:auto}
+
+/* tela final: mapa à esquerda; pódio sobre a classificação à direita */
+.finalright{display:flex; flex-direction:column; gap:14px; min-width:0}
+.finalright .podium{margin:0; min-height:0}
+html.fs #s-final>.split{grid-template-columns:minmax(0,1.9fr) minmax(0,1fr); gap:1.6vw}
+html.fs #s-final .finalright{min-height:0; height:100%}
+html.fs #s-final .finalright>.podium{flex:none; height:auto; min-height:0; gap:.8vw}
+html.fs #s-final .finalright .pod{max-width:33%; min-width:0}
+html.fs #s-final .finalright>.rankbox{flex:1 1 0; min-height:0; overflow:auto}
+html.fs #s-final>.hero{display:none}
+/* mapa sem moldura escura: o retângulo tem exatamente o tamanho do mapa */
+html.fs #s-final #tslotF{display:flex; align-items:center; justify-content:center; height:100%; overflow:hidden}
+html.fs #s-final #tslotF>.stage.live{flex:none; height:auto; min-height:0; width:min(100%,calc((100vh - 150px) * 1.8333)); aspect-ratio:1408 / 768; background:none; border-radius:14px}
+html.fs #s-final #tslotF .board{width:100% !important}
+html.fs #s-final #tslotF>*{width:100%; height:100%; display:flex; align-items:center; justify-content:center; min-height:0}
+html.fs #s-final #tslotF .stage.live{flex:none; height:auto; min-height:0; width:min(100%,calc((100vh - 150px) * 1.8333)); aspect-ratio:1408 / 768; background:none; border-radius:14px}
+
+.finalbar{justify-content:center; flex-wrap:wrap; gap:10px; flex:none}
+html.fs #s-final #tslotF .stage.live.zoom,html.fs #s-final #tslotF>.stage.live.zoom,html #s-final #tslotF .stage.live.zoom{position:fixed; inset:0; width:100vw; height:100vh; height:100dvh; max-width:none; aspect-ratio:auto; border-radius:0; display:block; z-index:3000}
+html #s-final #tslotF .stage.live.zoom .board{width:min(100vw,calc(100vh * 1.8333)) !important; margin:0 auto}
+
+.finalleft{display:flex; flex-direction:column; gap:10px; min-width:0; min-height:0}
+html.fs #s-final .finalleft{height:100%}
+html.fs #s-final .finalleft>#tslotF{flex:1 1 0; height:auto; min-height:0}
+html.fs #s-final #tslotF>.stage.live{width:min(100%,calc((100vh - 230px) * 1.8333))}
+html.fs #s-final #tslotF .stage.live{width:min(100%,calc((100vh - 230px) * 1.8333))}
+html.fs #s-final #tslotF .stage.live.zoom{width:100vw}
+html.fs #s-final .finalleft>#tslotF,html.fs #s-final .finalleft>#tslotF>*{align-items:flex-start}
+html.fs #s-final .finalbar{justify-content:flex-start}
+
+.finalright>.actions{margin:0; flex:none; justify-content:center}
+html.fs #s-final .finalright>.actions{margin-top:auto}
+html.fs #s-final .finalleft>#tslotF,html.fs #s-final .finalleft>#tslotF>*{align-items:flex-end}
+html.fs #s-final .finalleft>#tslotF{justify-content:flex-start}
+html.fs #s-final #tslotF>.stage.live,html.fs #s-final #tslotF .stage.live{width:min(100%,calc((100vh - 200px) * 1.8333))}
+html.fs #s-final .finalleft>#tslotF .stage.live.zoom{width:100vw}
+html.fs #s-final>.hero{display:none}
+html.fs #s-final .finalleft{justify-content:flex-end}
+html.fs #s-final .finalleft>#tslotF{flex:none; height:auto; width:100%}
+html.fs #s-final .finalleft>#tslotF>*{height:auto}
+html.fs #s-final .finalbar{padding-left:3%; gap:1.2vw}
+html.fs #s-final .finalbar .btn{font-size:clamp(.9rem,1.9vh,1.2rem)}
+html.fs #s-final .finalleft{padding-bottom:var(--fab,72px); box-sizing:border-box}
+html.fs [hidden]{display:none !important}
+html #s-final #tslotF .stage.live.zoom,html.fs #s-final #tslotF .stage.live.zoom{background:#2a1a0e; border:0; box-shadow:none; display:flex; align-items:center; justify-content:center; padding:0; margin:0}
+
+.bankbox{display:flex; flex-direction:column; gap:8px; padding-top:12px; border-top:2px dashed rgba(20,23,58,.2)}
+.bankbox .field-row{gap:8px; flex-wrap:wrap}
+
+/* ===== editor de perguntas ===== */
+#s-editor{display:flex; flex-direction:column; gap:14px; max-width:1000px; margin:0 auto; width:100%; padding-bottom:30px}
+#s-editor[hidden]{display:none}
+html.fs #s-editor:not([hidden]){overflow-y:auto; display:flex; flex-direction:column; max-width:1100px; flex:1 1 0}
+#s-editor input[type=text],#s-editor input[type=number],#s-editor textarea,#s-editor select{font:inherit; color:inherit; background:#fff; border:2.5px solid var(--line,#14173a); border-radius:12px; padding:8px 10px; min-width:0; box-sizing:border-box}
+#s-editor textarea{width:100%; resize:vertical}
+#s-editor .qcard{display:flex; flex-direction:column; gap:10px}
+#s-editor .qhead{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+#s-editor .qhead h4{margin:0; margin-right:auto; font-size:1.1rem}
+#s-editor .phrow{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,2fr) auto; gap:8px; margin-bottom:8px}
+#s-editor .arow,#s-editor .blrow,#s-editor .prow{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:6px}
+#s-editor .arow input[type=text],#s-editor .pl,#s-editor .pr{flex:1 1 160px}
+#s-editor .blrow .bo{flex:1 1 110px}
+#s-editor .trow{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+#s-editor .trow .eh{flex:1 1 220px}
+#s-editor .et{width:80px}
+#s-editor .chk{display:flex; gap:8px; align-items:center}
+#s-editor .errtxt{background:#ffe3e3; border:2.5px solid #c0392b; color:#7a1f14; border-radius:12px; padding:10px 14px}
+#s-editor .errtxt[hidden]{display:none}
+#s-editor .edact{position:sticky; bottom:0; background:var(--bg,#d6e8ff); padding:10px 0; margin:0; z-index:5}
+#s-editor .addrow{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+#s-editor pre{background:#fff; border:2px solid var(--line,#14173a); border-radius:12px; padding:10px; overflow:auto; font-size:.85rem}
+#s-editor .fmt{background:#fff; border:2px solid var(--line,#14173a); border-radius:12px; padding:8px 12px}
+@media(max-width:700px){#s-editor .phrow{grid-template-columns:1fr}}
+
+/* escudo medieval no castelo */
+.f-shield{transform-box:fill-box; transform-origin:0 0; animation:shsway 2.4s ease-in-out infinite alternate}
+.sh-body{fill:#c0392b}
+.sh-q1{fill:#e9d9a8}
+.sh-q2{fill:#e9d9a8}
+.sh-cross{fill:#f2c230; stroke:var(--line,#14173a); stroke-width:1.2; stroke-linejoin:round}
+.sh-rim{fill:none; stroke:var(--line,#14173a); stroke-width:3; stroke-linejoin:round}
+.sh-boss{fill:#ffd23f; stroke:var(--line,#14173a); stroke-width:2}
+.sh-hi{fill:#fff; fill-opacity:.28}
+@keyframes shsway{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+@media (prefers-reduced-motion:reduce){.f-shield{animation:none}}
+
+.znext{display:none}
+.stage.live.zoom .znext{display:inline-flex; position:absolute; right:max(18px,env(safe-area-inset-right,0px)); bottom:max(18px,env(safe-area-inset-bottom,0px)); z-index:3100}
+.confetti,.board.win .confetti{display:none !important}
+
+html.trailzoom .fsbtn{z-index:3200}
+html.trailzoom .stage.live.zoom .znext{right:max(76px,calc(env(safe-area-inset-right,0px) + 70px))}
+
+/* botão de tela cheia agora fica no canto superior direito: abre espaço ao lado */
+.topbar #topActions{margin-right:60px}
+.zbtn{right:max(70px,calc(env(safe-area-inset-right,0px) + 66px)) !important}
+.stage.live.zoom .znext{right:max(18px,env(safe-area-inset-right,0px)) !important; bottom:max(18px,env(safe-area-inset-bottom,0px)) !important}
+html.trailzoom .stage.live.zoom .znext{right:max(18px,env(safe-area-inset-right,0px)) !important}
 
 </style>
 </head>
@@ -913,7 +1088,7 @@ function trailMount(host,phases,total){
       '<path class="sg-mound" d="M3 68C5 58 13 55 20 55S35 58 37 68Z"/><path class="sg-gr" d="M9 64l-2-8 4 6M14 61l-1-8 3 7M26 61l2-8 1 8M31 64l3-7 0 7"/><ellipse class="sg-pebble" cx="12" cy="66" rx="3" ry="1.8"/><ellipse class="sg-pebble" cx="29" cy="66.5" rx="2.4" ry="1.5"/></svg></span>';
   }).join('');
   var tp=M.pts[last];
-  var flag='<span class="bb flag" style="left:'+X(1148)+';top:'+Y(182)+';z-index:'+Math.round(182)+'"><svg viewBox="0 0 54 78" aria-hidden="true"><ellipse class="t-sh" cx="14" cy="73" rx="14" ry="3.4"/><path class="sg-mound" d="M2 74C4 66 10 63 14 63S24 66 26 74Z"/><rect class="f-pole" x="12" y="4" width="4" height="62" rx="2"/><circle class="f-knob" cx="14" cy="4" r="4"/><path class="f-cloth" d="M16 8H50L40 21L50 34H16Z"/><path class="f-cloth-hi" d="M16 8H50L48 11H16Z"/><text x="31" y="26" text-anchor="middle" class="f-txt">★</text></svg></span>';
+  var flag='<span class="bb flag" style="left:'+X(1148)+';top:'+Y(182)+';z-index:'+Math.round(182)+'"><svg viewBox="0 0 54 78" aria-hidden="true"><ellipse class="t-sh" cx="14" cy="73" rx="14" ry="3.4"/><path class="sg-mound" d="M2 74C4 66 10 63 14 63S24 66 26 74Z"/><rect class="f-pole" x="12" y="4" width="4" height="62" rx="2"/><circle class="f-knob" cx="14" cy="4" r="4"/><g class="f-shield"><path class="sh-body" d="M17 9H51V28C51 38 43 44 34 49C25 44 17 38 17 28Z"/><path class="sh-q1" d="M20 12H34V28H20Z"/><path class="sh-q2" d="M34 28H48V28C48 36 41 41 34 45Z"/><path class="sh-q1" d="M34 28H48V28C48 35 41 40 34 44Z" opacity="0"/><path class="sh-cross" d="M32 12H36V46H32Z"/><path class="sh-cross" d="M20 24H48V28H20Z"/><path class="sh-rim" d="M17 9H51V28C51 38 43 44 34 49C25 44 17 38 17 28Z"/><circle class="sh-boss" cx="34" cy="26" r="4.2"/><path class="sh-hi" d="M19 11H34V15H19Z"/></g></svg></span>';
   var conf=''; for(i=0;i<18;i++){conf+='<i style="--dx:'+((hash(i+9)-.5)*80).toFixed(0)+'px;--dl:'+(hash(i)*1.6).toFixed(2)+'s;--c:'+['#ffd23f','#ff6b6b','#3ddbb0','#6aa8ff','#fff'][i%5]+'"></i>';}
   var confetti='<span class="confetti" style="left:'+X(tp.x)+';top:'+Y(tp.y-60)+'">'+conf+'</span>';
   host.innerHTML='<div class="stage live"><div class="board"><img class="map" alt="Mapa da trilha até o castelo" src="'+(window.MQ_MAP||'')+'">'+svg+signs+flag+confetti+'</div></div>';
@@ -922,24 +1097,44 @@ function trailMount(host,phases,total){
     var old=document.querySelector('.bigov'); if(old) old.remove();
     var a=AV[pw.av]||AV.a01, ov=document.createElement('div');
     ov.className='bigov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label',a.name+' — '+pw.name);
-    ov.innerHTML='<div class="bigcard"><button type="button" class="bigx" aria-label="Fechar">✕</button><div class="bigfig"><div class="bigimg" style="background:'+a.bg+'"><img src="'+(a.big||a.img)+'" alt="'+esc(a.name)+'" draggable="false"></div>'+
-      '<b class="chn">'+esc(a.name)+'</b></div><div class="bigtxt"><b class="stu">'+esc(pw.name)+'</b></div></div>';
-    var split=host.closest&&host.closest('.split'), rk=split&&split.querySelector('.rankbox'), keep=null;
+    ov.innerHTML='<div class="bigcard"><button type="button" class="bigx" aria-label="Fechar">✕</button><div class="bigfig"><b class="stu">'+esc(pw.name)+'</b><div class="bigimg" style="background:'+a.bg+'"><img src="'+(a.big||a.img)+'" alt="'+esc(a.name)+'" draggable="false"></div><b class="chn">'+esc(a.name)+'</b></div></div>';
+    var split=host.closest&&host.closest('.split'), rk=split?split.querySelector('.rankbox'):null, zm=!!(stage&&stage.classList.contains('zoom')), keep=null;
     function close(){document.removeEventListener('keydown',onKey,true); ov.remove(); if(keep){rk.style.height=keep[0]; rk.style.minHeight=keep[1]; rk.classList.remove('hasbig');}}
     function onKey(e){if(e.key==='Escape'){e.stopPropagation(); close();}}
     ov.addEventListener('click',function(e){if(e.target===ov||e.target.classList.contains('bigx')) close();});
     document.addEventListener('keydown',onKey,true);
-    if(rk){keep=[rk.style.height,rk.style.minHeight]; var h=rk.offsetHeight; rk.style.height=h+'px'; rk.style.minHeight=h+'px'; rk.classList.add('hasbig'); ov.classList.add('onrank'); rk.appendChild(ov);}
+    if(rk&&zm){var fr=split.querySelector('.finalright'); var rr=(fr||rk).getBoundingClientRect(); ov.classList.add('onrank','fixedrk');
+      ov.style.cssText='position:fixed;left:'+rr.left+'px;top:'+rr.top+'px;width:'+rr.width+'px;height:'+rr.height+'px;inset:auto;right:auto;bottom:auto;left:'+rr.left+'px;top:'+rr.top+'px'; stage.appendChild(ov);}
+    else if(rk){keep=[rk.style.height,rk.style.minHeight]; var h=rk.offsetHeight; rk.style.height=h+'px'; rk.style.minHeight=h+'px'; rk.classList.add('hasbig'); ov.classList.add('onrank'); rk.appendChild(ov);}
     else board.appendChild(ov);
     ov.querySelector('.bigx').focus();
   }
+  var stage=host.querySelector('.stage.live'), zbtn=null;
+  function zoomed(){return stage.classList.contains('zoom');}
+  function zoomOff(){
+    stage.classList.remove('zoom'); document.documentElement.classList.remove('trailzoom');
+    document.removeEventListener('keydown',zKey,true); if(zbtn){zbtn.remove(); zbtn=null;}
+    setTimeout(setUnit,30);
+  }
+  function zKey(e){if(e.key==='Escape'&&!board.querySelector('.bigov')&&!document.querySelector('.bigov')){e.stopPropagation(); zoomOff();}}
+  function zoomOn(){
+    stage.classList.add('zoom'); document.documentElement.classList.add('trailzoom');
+    zbtn=document.createElement('button'); zbtn.type='button'; zbtn.className='zbtn'; zbtn.setAttribute('aria-label','Fechar mapa ampliado'); zbtn.textContent='✕';
+    zbtn.addEventListener('click',function(e){e.stopPropagation(); zoomOff();}); stage.appendChild(zbtn);
+    document.addEventListener('keydown',zKey,true); setTimeout(setUnit,30);
+  }
+  board.setAttribute('title','Clique para ampliar o mapa'); board.classList.add('zoomable');
+  board.addEventListener('click',function(e){
+    if(e.target.closest&&e.target.closest('.pawn,.bigov,.zbtn')) return;
+    if(zoomed()) zoomOff(); else zoomOn();
+  });
   function setUnit(){if(board.offsetWidth) board.style.setProperty('--u',(board.offsetWidth/100)+'px');}
   if(window.ResizeObserver){new ResizeObserver(setUnit).observe(board);} setUnit();
   var pawns={}, topOrder=[], maxReach=0;
   function lenFor(score,den){var f=Math.max(0,Math.min(1,score/den)); return f*endL;}
   function place(pw,pos,slot){
     var idx=Math.max(0,Math.min(last,Math.round(pos/M.step))), q=M.pts[idx], x, y;
-    if(pw.top){x=q.x; y=q.y;}
+    if(pw.top){x=q.x; y=q.y+(pw.first?46:30);}
     else if(pos<14){x=146+((slot%4)-1.5)*30; y=630+(slot<4?-20:18);}
     else{var o=((slot%3)-1)*13; x=q.x+q.nx*o; y=q.y+q.ny*o+((slot%2)?6:0);}
     pw.pos=pos;
@@ -952,7 +1147,7 @@ function trailMount(host,phases,total){
     if(pw.raf){cancelAnimationFrame(pw.raf);pw.raf=0;}
     var from=pw.pos, dist=Math.abs(to-from);
     if(REDUCED||dist<2){place(pw,to,slot);cheer(pw);return;}
-    var dur=Math.min(3800,800+dist*1.6), t0=null;
+    var dur=Math.min(9500,2400+dist*4.2), t0=null;
     pw.el.classList.add('walking'); pw.el.classList.remove('cheer','small');
     function step(now){
       if(t0===null)t0=now;
@@ -967,6 +1162,7 @@ function trailMount(host,phases,total){
     return i1>1?ptsStr(0,i1):'';
   }
   return {
+    zoom:function(on){ if(on&&!zoomed()) zoomOn(); else if(!on&&zoomed()) zoomOff(); },
     update:function(list,opts){
       opts=opts||{};
       var top=list.slice(0,8), keep={}, mx=0;
