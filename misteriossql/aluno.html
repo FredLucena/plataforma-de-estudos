@@ -87,9 +87,9 @@ input[type=file]::file-selector-button:hover{background:rgba(241,215,138,.25)}
 .tela{position:fixed;inset:0;display:none;overflow:auto}
 .tela.ativa{display:block;animation:fadeIn .5s ease}
 
-.sel-caso{position:fixed;left:50%;top:62%;transform:translate(-50%,-50%);z-index:3;display:inline-flex;align-items:center;margin:0;font-family:var(--f-titulo);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ouro)}
+.sel-caso{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:3;display:inline-flex;align-items:center;margin:0;font-family:var(--f-titulo);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ouro)}
 .sel-caso select{width:auto;min-width:240px;background:rgba(10,8,18,.85);border:1px solid var(--ouro);color:var(--ouro2);font-family:var(--f-titulo);font-size:.8rem;letter-spacing:.06em;padding:.55em .9em;border-radius:3px;cursor:pointer}
-@media(max-width:700px){.rodape-t{bottom:54px}}
+@media(max-width:700px){.rodape-t{bottom:54px!important}.sel-caso{top:62px!important}.titulo-box{padding-top:15vh!important}}
 .fs-fix{position:fixed;top:12px;right:12px;z-index:20}
 /* ---------- Título ---------- */
 #tela-titulo{background:radial-gradient(ellipse at 78% 12%,#2a2547 0%,#120f22 38%,#07060c 80%);overflow:hidden}
@@ -109,9 +109,9 @@ input[type=file]::file-selector-button:hover{background:rgba(241,215,138,.25)}
 .sobre{font-family:var(--f-titulo);letter-spacing:.5em;font-size:.8rem;color:var(--mut);text-transform:uppercase}
 .titulo-box h1{font-family:'Cinzel Decorative',var(--f-titulo);font-size:clamp(2.1rem,6.2vw,4.4rem);line-height:1.1;margin:.3em 0 .1em;background:linear-gradient(180deg,#fff3c4 0%,#e0bb62 45%,#9c7a2d 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 18px rgba(0,0,0,.8));text-shadow:none}
 .subtit{font-size:1.25rem;color:#cfc6dc;font-style:italic;margin-bottom:2.2rem}
-.menu-titulo{position:fixed;left:50%;top:78%;transform:translate(-50%,-50%);z-index:3;display:flex;flex-direction:column;gap:12px;align-items:center}
+.menu-titulo{position:fixed;left:50%;top:70%;transform:translate(-50%,-50%);z-index:3;display:flex;flex-direction:column;gap:12px;align-items:center}
 .menu-titulo .btn{min-width:290px}
-.rodape-t{position:absolute;z-index:3;left:0;right:0;bottom:12px;text-align:center;font-family:var(--f-ui);font-size:.72rem;color:#8f87a0;font-weight:400;padding:0 12px}
+.rodape-t{position:absolute;z-index:3;left:0;right:0;bottom:12px;text-align:left;padding-left:16px!important;font-family:var(--f-ui);font-size:.72rem;color:#8f87a0;font-weight:400;padding:0 12px}
 .rodape-t b{color:var(--ouro2);font-weight:600}
 .fonte-missao{margin-top:22px;font-family:var(--f-ui);font-size:.75rem;color:#9d95ae;font-weight:400}
 .fonte-missao a{cursor:pointer;color:var(--ouro2);text-decoration:underline}
@@ -283,7 +283,7 @@ ul.como{padding-left:1.1em;line-height:1.55;margin:.4em 0}ul.como li{margin-bott
 <!-- ============ TÍTULO ============ -->
 <section id="tela-titulo" class="tela ativa">
   <button class="btn pequeno fantasma fs-fix" data-som style="right:auto;left:12px;font-size:1rem" aria-label="Som">🔊</button>
-  <button class="btn pequeno fantasma fs-fix" data-fs><span class="fsi">⛶</span> Tela inteira</button>
+  <button class="btn pequeno fantasma fs-fix" data-fs aria-label="Tela inteira" style="font-size:1rem"><span class="fsi">⛶</span></button>
   <div class="estrelas"></div><div class="lua"></div>
   <svg class="casarao" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
     <defs><linearGradient id="gcasa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c0a15"/><stop offset="1" stop-color="#050409"/></linearGradient></defs>
@@ -330,7 +330,7 @@ ul.como{padding-left:1.1em;line-height:1.55;margin:.4em 0}ul.como li{margin-bott
 <!-- ============ AVATAR ============ -->
 <section id="tela-avatar" class="tela">
   <button class="btn pequeno fantasma fs-fix" data-som style="right:auto;left:12px;font-size:1rem" aria-label="Som">🔊</button>
-  <button class="btn pequeno fantasma fs-fix" data-fs><span class="fsi">⛶</span> Tela inteira</button>
+  <button class="btn pequeno fantasma fs-fix" data-fs aria-label="Tela inteira" style="font-size:1rem"><span class="fsi">⛶</span></button>
   <div class="av-wrap">
     <h2>Escolha seu detetive</h2>
     <p class="lead">Quem vai percorrer os corredores da mansão Codd?</p>
@@ -359,7 +359,7 @@ ul.como{padding-left:1.1em;line-height:1.55;margin:.4em 0}ul.como li{margin-bott
     <div class="stat"><b id="hud-pontos">0</b>pontos</div>
     <div class="stat"><b id="hud-tempo">0:00</b>tempo</div>
     <button class="btn pequeno" id="b-caderno" title="Caderno de pistas (C)">📓<span class="lbl"> Caderno</span></button>
-    <button class="btn pequeno fantasma" data-fs><span class="fsi">⛶</span></button>
+    <button class="btn pequeno fantasma" data-fs aria-label="Tela inteira" style="font-size:1rem"><span class="fsi">⛶</span></button>
     <button class="btn pequeno fantasma" id="b-som" title="Som">🔊</button>
     <button class="btn pequeno fantasma" id="b-menu" title="Menu (Esc)">☰</button>
   </div>
