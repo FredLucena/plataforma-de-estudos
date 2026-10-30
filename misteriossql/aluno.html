@@ -164,6 +164,8 @@ input[type=file]::file-selector-button:hover{background:rgba(241,215,138,.25)}
 #prompt.v{opacity:1}
 #prompt kbd{font-family:var(--f-titulo);background:var(--ouro);color:#1a1208;border-radius:3px;padding:.05em .45em;margin-right:.4em;font-size:.8rem}
 .dica-ctrl{position:absolute;left:10px;top:10px;font-family:var(--f-ui);font-size:.7rem;color:#b8b0c8;background:rgba(5,4,10,.6);border:1px solid var(--linha);border-radius:3px;padding:.3em .6em;font-weight:400;transition:opacity 1s}
+#tela-jogo,#tela-jogo *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.dpad button,#btn-acao,#cv{touch-action:none}
 .dpad{position:absolute;left:12px;bottom:12px;width:150px;height:150px;display:none;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:4px;z-index:3}
 .dpad button{background:rgba(20,16,32,.75);border:1px solid var(--ouro3);color:var(--ouro2);border-radius:8px;font-size:1.1rem;touch-action:none}
 .dpad button:active{background:rgba(201,162,75,.4)}
@@ -1371,6 +1373,9 @@ $$('#dpad button').forEach(b => {
   b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointerleave', off); b.addEventListener('pointercancel', off);
 });
 $('#btn-acao').addEventListener('click', interagir);
+['#tela-jogo', '#dpad', '#btn-acao', '#cv'].forEach(q => $(q).addEventListener('contextmenu', e => e.preventDefault()));
+$('#tela-jogo').addEventListener('selectstart', e => e.preventDefault());
+$('#dpad').addEventListener('touchstart', e => e.preventDefault(), { passive: false });
 setTimeout(() => { const d = $('#dica-ctrl'); if (d) d.style.opacity = '0'; }, 1e6);
 
 
