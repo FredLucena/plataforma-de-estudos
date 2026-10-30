@@ -87,6 +87,9 @@ input[type=file]::file-selector-button:hover{background:rgba(241,215,138,.25)}
 .tela{position:fixed;inset:0;display:none;overflow:auto}
 .tela.ativa{display:block;animation:fadeIn .5s ease}
 
+.sel-caso{position:fixed;left:50%;top:62%;transform:translate(-50%,-50%);z-index:3;display:inline-flex;align-items:center;margin:0;font-family:var(--f-titulo);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ouro)}
+.sel-caso select{width:auto;min-width:240px;background:rgba(10,8,18,.85);border:1px solid var(--ouro);color:var(--ouro2);font-family:var(--f-titulo);font-size:.8rem;letter-spacing:.06em;padding:.55em .9em;border-radius:3px;cursor:pointer}
+@media(max-width:700px){.rodape-t{bottom:54px}}
 .fs-fix{position:fixed;top:12px;right:12px;z-index:20}
 /* ---------- Título ---------- */
 #tela-titulo{background:radial-gradient(ellipse at 78% 12%,#2a2547 0%,#120f22 38%,#07060c 80%);overflow:hidden}
@@ -102,11 +105,11 @@ input[type=file]::file-selector-button:hover{background:rgba(241,215,138,.25)}
 #raio{position:fixed;inset:0;background:#dfe8ff;opacity:0;pointer-events:none;z-index:900;mix-blend-mode:screen}
 #raio.flash{animation:raio .7s ease-out}
 @keyframes raio{0%{opacity:0}8%{opacity:.55}16%{opacity:.08}24%{opacity:.4}100%{opacity:0}}
-.titulo-box{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:7vh 20px 0;text-align:center}
+.titulo-box{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:11vh 20px 0;text-align:center}
 .sobre{font-family:var(--f-titulo);letter-spacing:.5em;font-size:.8rem;color:var(--mut);text-transform:uppercase}
 .titulo-box h1{font-family:'Cinzel Decorative',var(--f-titulo);font-size:clamp(2.1rem,6.2vw,4.4rem);line-height:1.1;margin:.3em 0 .1em;background:linear-gradient(180deg,#fff3c4 0%,#e0bb62 45%,#9c7a2d 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 18px rgba(0,0,0,.8));text-shadow:none}
 .subtit{font-size:1.25rem;color:#cfc6dc;font-style:italic;margin-bottom:2.2rem}
-.menu-titulo{display:flex;flex-direction:column;gap:12px;align-items:center}
+.menu-titulo{position:fixed;left:50%;top:78%;transform:translate(-50%,-50%);z-index:3;display:flex;flex-direction:column;gap:12px;align-items:center}
 .menu-titulo .btn{min-width:290px}
 .rodape-t{position:absolute;z-index:3;left:0;right:0;bottom:12px;text-align:center;font-family:var(--f-ui);font-size:.72rem;color:#8f87a0;font-weight:400;padding:0 12px}
 .rodape-t b{color:var(--ouro2);font-weight:600}
@@ -155,7 +158,7 @@ input[type=file]::file-selector-button:hover{background:rgba(241,215,138,.25)}
 @media(max-width:560px){.carta{padding:18px 16px 16px}.enun{font-size:1.14rem}.opc{font-size:1rem;padding:.55em .7em}.carta-topo h3{font-size:1.05rem}.painel{padding:16px}.premio .big{font-size:4rem}}
 .palco-area{height:calc(100% - 56px - 66px);display:flex;align-items:center;justify-content:center;padding:8px}
 .palco{position:relative;width:min(100%,calc((100vh - 56px - 66px - 16px) * 1.5789));aspect-ratio:1200/760;border:2px solid var(--ouro3);border-radius:4px;box-shadow:0 0 0 5px #0d0a14,0 0 0 6px var(--ouro3),0 20px 60px rgba(0,0,0,.8);background:#000}
-#cv{width:100%;height:100%;display:block;border-radius:2px;touch-action:none}
+#cv{width:100%;height:100%;display:block;border-radius:2px;touch-action:none;cursor:pointer}
 #mini{position:absolute;right:10px;top:10px;width:176px;height:auto;border:1px solid var(--ouro3);border-radius:3px;background:rgba(5,4,10,.8);opacity:.92}
 #prompt{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(10,8,18,.9);border:1px solid var(--ouro);color:var(--ouro2);padding:.55em 1.1em;border-radius:3px;font-family:var(--f-ui);font-size:.85rem;font-weight:500;pointer-events:none;opacity:0;transition:opacity .2s;max-width:92%;text-align:center;box-shadow:0 0 20px rgba(201,162,75,.25)}
 #prompt.v{opacity:1}
@@ -277,6 +280,7 @@ ul.como{padding-left:1.1em;line-height:1.55;margin:.4em 0}ul.como li{margin-bott
 
 <!-- ============ TÍTULO ============ -->
 <section id="tela-titulo" class="tela ativa">
+  <button class="btn pequeno fantasma fs-fix" data-som style="right:auto;left:12px;font-size:1rem" aria-label="Som">🔊</button>
   <button class="btn pequeno fantasma fs-fix" data-fs><span class="fsi">⛶</span> Tela inteira</button>
   <div class="estrelas"></div><div class="lua"></div>
   <svg class="casarao" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
@@ -309,21 +313,21 @@ ul.como{padding-left:1.1em;line-height:1.55;margin:.4em 0}ul.como li{margin-bott
   </svg>
   <div class="chuva"></div><div class="neblina"></div>
   <div class="titulo-box">
-    <div class="sobre">Um caso de Banco de Dados</div>
-    <h1>O Mistério<br>da Tabela Perdida</h1>
+    <h1 id="tit-h1">O Mistério da Tabela Perdida</h1>
     <div class="subtit">Na mansão Codd, uma tabela desapareceu na calada da noite…</div>
+    <label class="sel-caso"><select id="sel-caso" aria-label="Escolher o caso"></select></label>
     <div class="menu-titulo">
       <button class="btn primario" id="b-iniciar">🔎 Iniciar investigação</button>
-      <button class="btn" id="b-continuar" style="display:none">↻ Continuar caso salvo</button>
-      <button class="btn pequeno fantasma" id="b-como">Como jogar</button>
+      <button class="btn" id="b-continuar" style="display:none;margin-top:30px">↻ Continuar caso salvo</button>
     </div>
-    <div class="fonte-missao" id="fonte-missao"></div>
-  </div>
-  <div class="rodape-t">Módulo do Aluno · criado por <b>Prof. Fred Lucena</b> · Banco de Dados</div>
+      </div>
+  <button class="btn pequeno fantasma" id="b-como" style="position:fixed;right:14px;bottom:10px;z-index:4">Como jogar</button>
+  <div class="rodape-t">Módulo do Aluno · criado por <b>Prof. Fred Lucena</b> · Banco de Dados<span id="fonte-missao"></span></div>
 </section>
 
 <!-- ============ AVATAR ============ -->
 <section id="tela-avatar" class="tela">
+  <button class="btn pequeno fantasma fs-fix" data-som style="right:auto;left:12px;font-size:1rem" aria-label="Som">🔊</button>
   <button class="btn pequeno fantasma fs-fix" data-fs><span class="fsi">⛶</span> Tela inteira</button>
   <div class="av-wrap">
     <h2>Escolha seu detetive</h2>
@@ -361,7 +365,7 @@ ul.como{padding-left:1.1em;line-height:1.55;margin:.4em 0}ul.como li{margin-bott
     <div class="palco">
       <canvas id="cv"></canvas>
       <canvas id="mini" width="352" height="223"></canvas>
-      <div class="dica-ctrl" id="dica-ctrl">Setas / WASD para andar · <b>E</b> para investigar · <b>C</b> caderno</div>
+      <div class="dica-ctrl" id="dica-ctrl">Setas / WASD ou clique no ◆ para andar · <b>E</b> investigar · <b>C</b> caderno</div>
       <div id="prompt"></div>
       <div class="dpad" id="dpad"><button class="u" data-d="u">▲</button><button class="l" data-d="l">◀</button><button class="r" data-d="r">▶</button><button class="d" data-d="d">▼</button></div>
       <button class="btn primario" id="btn-acao">Investigar</button>
@@ -419,6 +423,7 @@ const DTP = (() => {
   const CONFIG_PADRAO = {
     titulo: 'O Mistério da Tabela Perdida',
     turma: '',
+    caso: 'tabela',          // id do caso (ver CASOS)
     porSala: 2,              // desafios por sala (1 ou 2)
     embaralhar: true,        // embaralhar alternativas
     revelarGabarito: true,   // mostrar a resposta certa e a explicação após errar
@@ -503,6 +508,65 @@ const DTP = (() => {
     { id: 'alter', cmd: 'ALTER TABLE clientes DROP COLUMN nome;' }
   ];
   const EPILOGO = 'Tobias Drop confessou. Com a conta **tdrop_admin**, criada só para trocar a lâmpada do servidor, ele executou `DROP TABLE clientes;` acreditando que era “lixo antigo”. O backup estava desligado — e a tabela se foi para sempre. Lição de Banco de Dados: **privilégio mínimo** (cada conta só pode o que precisa) e **backup testado** (sem ele, um DROP é irreversível).';
+
+
+  /* ---------- Casos (camada de enredo; o mapa e as questões são os mesmos) ---------- */
+  const CASOS = [
+    { id: 'tabela', titulo: 'O Mistério da Tabela Perdida', nome: 'Caso 1 — A Tabela Perdida', sub: 'Na mansão Codd, uma tabela desapareceu na calada da noite…',
+      carta: ['Durante a festa de ontem, a tabela **CLIENTES** desapareceu do servidor da minha mansão — estrutura, dados, tudo. Nenhum backup foi encontrado.',
+        'Cinco pessoas estiveram aqui na hora do ocorrido. Preciso saber **quem foi** e **qual comando SQL** foi usado.'],
+      cena: 'Nos terminais do servidor, a tabela **CLIENTES** não existe mais.', intro: 'Alguém apagou a tabela **CLIENTES** do servidor da mansão Codd.',
+      pergunta: 'Quem apagou a tabela?', culpado: 'tobias', suspeitos: SUSPEITOS, metodos: METODOS, epilogo: EPILOGO, pistas: null },
+    { id: 'preco', titulo: 'O Mistério do Preço Zero', nome: 'Caso 2 — O Preço Zero', sub: 'Na noite do leilão de vinhos, todos os preços da mansão Codd viraram zero…',
+      carta: ['Hoje, às 22h47, durante o leilão de vinhos, todos os preços da tabela **PRODUTOS** foram alterados para **zero**. Nada foi apagado — só mudou. O leilão foi cancelado e o prejuízo é enorme.',
+        'Cinco pessoas estavam na mansão. Preciso saber **quem executou** a alteração e **qual comando SQL** foi usado.'],
+      cena: 'Nos terminais, todos os registros da tabela **PRODUTOS** aparecem com preço **0**.', intro: 'Alguém zerou os preços da tabela **PRODUTOS** da mansão Codd.',
+      pergunta: 'Quem zerou os preços?', culpado: 'wesley',
+      suspeitos: [
+        { id: 'havilland', nome: 'Dr. Havilland Having', papel: 'Advogado do Lorde', ico: '👨‍⚖️', desc: 'Só aparece para “filtrar” o que interessa ao Lorde. Fala pouco, mas cada frase tem condição.' },
+        { id: 'primavera', nome: 'Srta. Primavera Key', papel: 'Secretária', ico: '👩‍💻', desc: 'Organiza agendas e convidados. Cada pessoa para ela é “única e identificada”.' },
+        { id: 'gustavo', nome: 'Gustavo Group', papel: 'Leiloeiro e sommelier', ico: '🧑‍🍳', desc: 'Agrupa os lotes por safra e adora uma contagem de garrafas.' },
+        { id: 'cascata', nome: 'Dona Cascata Cascade', papel: 'Viúva sócia da adega', ico: '👵', desc: 'Quando ela muda de ideia, tudo ao redor muda junto.' },
+        { id: 'wesley', nome: 'Wesley Where', papel: 'Estagiário temporário', ico: '🧑‍💻', desc: 'Camisa xadrez, crachá novo e um nervosismo constante. Primeira semana na mansão.' }],
+      metodos: [{ id: 'upd', cmd: 'UPDATE produtos SET preco = 0;', ok: true }, { id: 'del', cmd: 'DELETE FROM produtos;' }, { id: 'drop', cmd: 'DROP TABLE produtos;' }, { id: 'ins', cmd: 'INSERT INTO produtos (preco) VALUES (0);' }],
+      epilogo: 'Wesley Where confessou. Com a conta temporária **estagiario_wesley**, ele devia corrigir o preço de **um único** vinho, mas executou `UPDATE produtos SET preco = 0;` — **sem WHERE**. Todas as linhas foram atingidas. O banco foi restaurado do backup. Lição de Banco de Dados: use **WHERE** em todo UPDATE/DELETE, teste antes com um `SELECT` e trabalhe com **transações** (BEGIN / ROLLBACK).',
+      pistas: {
+        1: ['Sob a lanterna, o livro de registros: às 22h47, um único comando alterou TODAS as linhas da tabela PRODUTOS — todos os preços viraram 0. Nenhuma linha foi apagada.', 'O manual afirma: alterar registros exige permissão de UPDATE na tabela. Quem só tem SELECT apenas consulta.'],
+        2: ['Dr. Havilland Having jantava à mesa principal com o Lorde das 21h às 23h30. Álibi confirmado.', 'Dona Cascata Cascade tocava piano diante de todos no salão de música às 22h47. Álibi confirmado.'],
+        3: ['Uma voz jovem e nervosa: “Era só pra corrigir o preço do vinho da safra 98… por que mudou TUDO?”', 'O terminal do escritório só abre com crachá; o registro mostra um crachá temporário emitido há três dias.'],
+        4: ['Pegadas de tênis de lona, com lama da entrada, vão do jardim até o escritório. O pessoal antigo só usa botas.', 'Digitais jovens, sem calos, foram encontradas no teclado do terminal do escritório.'],
+        5: ['Permissões na tabela PRODUTOS — havilland: só SELECT · primavera: só SELECT · gustavo: só SELECT · estagiario_wesley: UPDATE (temporária). Dona Cascata não tem conta.', 'Ordem de serviço: “Wesley Where corrigirá o preço de UM vinho no sistema. Atenção: sempre usar WHERE.” — Lorde Codd.'],
+        6: ['A câmera do escritório flagrou, às 22h45, um jovem de camisa xadrez e crachá novo cruzando a porta.', 'Srta. Primavera Key e Gustavo Group conduziam o leilão no salão às 22h47, com 40 testemunhas. Álibi confirmado.'],
+        7: ['No histórico do terminal, o comando termina com ponto e vírgula logo após o valor: não há cláusula WHERE.', 'Gotas de refrigerante e migalhas de salgadinho no teclado: o estagiário lanchava ali.']
+      } }
+    ,
+    { id: 'acesso', titulo: 'O Mistério do Acesso Indevido', nome: 'Caso 3 — O Acesso Indevido', sub: 'Na madrugada da mansão Codd, alguém ganhou poderes que não deveria ter…',
+      carta: ['Às 03h12 desta madrugada, uma conta recebeu **todos os privilégios** sobre a tabela **CLIENTES**. Nada foi apagado ou alterado, mas dados sigilosos ficaram expostos a quem não devia vê-los.',
+        'Cinco pessoas estavam na mansão. Preciso saber **quem concedeu** o acesso e **qual comando SQL** foi usado.'],
+      cena: 'No terminal, a conta **visconde** aparece com **todos os privilégios** sobre a tabela **CLIENTES**.', intro: 'Alguém concedeu privilégios indevidos sobre a tabela **CLIENTES** da mansão Codd.',
+      pergunta: 'Quem concedeu o acesso?', culpado: 'cursor',
+      suspeitos: [
+        { id: 'trigger', nome: 'Capitão Trigger', papel: 'Chefe de segurança', ico: '💂', desc: 'Só entra em ação quando algo acontece. Faz a ronda da casa todas as madrugadas.' },
+        { id: 'commit', nome: 'Srta. Commit', papel: 'Secretária', ico: '👩‍💼', desc: 'Só considera um trabalho pronto depois de “confirmado” por escrito.' },
+        { id: 'rollback', nome: 'Sr. Rollback', papel: 'Contador', ico: '🧑‍🏫', desc: 'Vive desfazendo o que os outros fazem de errado nos livros-caixa.' },
+        { id: 'schema', nome: 'Madame Schema', papel: 'Arquiteta e decoradora', ico: '👩‍🎨', desc: 'Planeja a estrutura de cada cômodo antes de mexer em qualquer móvel.' },
+        { id: 'cursor', nome: 'Visconde Cursor', papel: 'Primo do Lorde', ico: '🥸', desc: 'De pijama de seda e pantufas, percorre a casa linha por linha, bisbilhotando tudo e atrás de doces.' }],
+      metodos: [{ id: 'grant', cmd: 'GRANT ALL PRIVILEGES ON clientes TO visconde;', ok: true }, { id: 'revoke', cmd: 'REVOKE ALL PRIVILEGES ON clientes FROM visconde;' }, { id: 'user', cmd: 'CREATE USER visconde;' }, { id: 'sel', cmd: 'SELECT * FROM clientes;' }],
+      epilogo: 'Visconde Cursor confessou. Encontrou a senha do Lorde colada sob o teclado da biblioteca e, às 03h12, executou `GRANT ALL PRIVILEGES ON clientes TO visconde;`. Disse que queria “só dar uma olhada” nos dados. Lição de Banco de Dados: **senha nunca se anota**; aplique **privilégio mínimo**, **audite** as concessões pelo log e use `REVOKE` para retirar acessos indevidos.',
+      pistas: {
+        1: ['Sob a lanterna, o livro de registros: às 03h12, o usuário “lorde” concedeu TODOS os privilégios sobre CLIENTES à conta “visconde”. Nada foi apagado nem alterado: foi uma concessão de acesso.', 'O manual afirma: só quem possui GRANT OPTION (administradores) concede privilégios. Contas comuns não conseguem dar permissão a ninguém.'],
+        2: ['Capitão Trigger fez a ronda do jardim das 2h às 4h, registrada por três guardas. Álibi confirmado.', 'O Lorde dormia no quarto principal; a câmera mostra que ele não saiu de lá. Quem usou a conta “lorde” não era ele.'],
+        3: ['Um sussurro no corredor: “Achei a senha colada embaixo do teclado… ninguém vai notar uma permissãozinha a mais.”', 'A porta da biblioteca foi aberta às 03h05 com a chave reserva, e só a família e a segurança sabem onde ela fica.'],
+        4: ['Marcas de pantufas de pelúcia vão da escada de serviço até a biblioteca.', 'Digitais com açúcar de confeiteiro foram encontradas no teclado do terminal da biblioteca.'],
+        5: ['Contas e privilégios — lorde: DBA (GRANT OPTION) · trigger: DBA (GRANT OPTION) · commit: INSERT/UPDATE em CLIENTES · rollback: só SELECT · visconde: só SELECT em PRODUTOS. Madame Schema não possui conta.', 'Aviso afixado: “A senha do Lorde NÃO deve ser anotada nem escondida. Quem encontrar, avise.” — Capitão Trigger.'],
+        6: ['A câmera da biblioteca flagrou, às 03h10, uma figura de pijama de seda e pantufas.', 'Sr. Rollback, Srta. Commit e Madame Schema jogavam cartas na sala de jantar até as 4h, com testemunhas. Álibi confirmado.'],
+        7: ['Na lixeira do terminal, um bilhete amassado com a anotação “senha do lorde”, e migalhas e açúcar na tecla Enter.', 'Um fio de seda estampado, de pijama, estava preso no encosto da cadeira do terminal.']
+      } }
+  ];
+  const validarCaso = c => c && typeof c.id === 'string' && c.id && typeof c.nome === 'string' && Array.isArray(c.carta) && Array.isArray(c.suspeitos) && c.suspeitos.length >= 2 && c.suspeitos.every(x => x && x.id && x.nome) && Array.isArray(c.metodos) && c.metodos.some(m => m && m.ok) && c.suspeitos.some(x => x.id === c.culpado);
+  const todosCasos = (extras = []) => { const m = new Map(); CASOS.concat((extras || []).filter(validarCaso)).forEach(c => m.set(c.id, c)); return [...m.values()]; };
+  const caso = (id, lista) => todosCasos(lista).find(c => c.id === id) || CASOS[0];
+  const pistaDe = (cs, sala, idx) => (cs.pistas && cs.pistas[sala] && cs.pistas[sala][idx]) || SALAS[sala - 1].ferr[idx].pista;
 
   /* ---------- Avatares (SVG) ---------- */
   const AVATARES = [
@@ -683,7 +747,7 @@ const DTP = (() => {
 
   /* ---------- Pacotes (missão e relatório) ---------- */
   const validarQuestao = q => q && typeof q.q === 'string' && q.q.trim() && Array.isArray(q.o) && q.o.length === 4 && q.o.every(x => typeof x === 'string' && x.trim()) && Number.isInteger(q.c) && q.c >= 0 && q.c < 4 && q.sala >= 1 && q.sala <= 7;
-  const montarPacote = (config, questoes) => ({ tipo: 'dtp-missao', v: 1, criadoEm: new Date().toISOString(), config: Object.assign({}, CONFIG_PADRAO, config), questoes });
+  const montarPacote = (config, questoes, extras = []) => ({ tipo: 'dtp-missao', v: 2, criadoEm: new Date().toISOString(), config: Object.assign({}, CONFIG_PADRAO, config), casos: todosCasos(extras), questoes });
   const lerPacote = txt => {
     txt = (txt || '').trim();
     let obj;
@@ -693,10 +757,11 @@ const DTP = (() => {
     obj.questoes = obj.questoes.filter(validarQuestao);
     if (!obj.questoes.length) throw new Error('A missão não contém questões válidas.');
     obj.config = Object.assign({}, CONFIG_PADRAO, obj.config || {});
+    obj.casos = Array.isArray(obj.casos) ? obj.casos.filter(validarCaso) : [];
     return obj;
   };
   const codigoPacote = pac => 'MIS1.' + b64e(JSON.stringify(pac));
-  const hashPacote = pac => hash(JSON.stringify([pac.questoes.map(q => [q.id, q.sala, q.c, q.q]), pac.config.porSala, pac.config.pontos]));
+  const hashPacote = pac => hash(JSON.stringify([pac.questoes.map(q => [q.id, q.sala, q.c, q.q]), pac.config.porSala, pac.config.pontos, pac.config.caso]));
   const lerRelatorio = txt => {
     txt = (txt || '').trim();
     const obj = /^RES1\./.test(txt) ? JSON.parse(b64d(txt.slice(5))) : JSON.parse(txt);
@@ -715,7 +780,7 @@ const DTP = (() => {
     document.addEventListener('fullscreenchange', atual); document.addEventListener('webkitfullscreenchange', atual);
     addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test((e.target || {}).tagName || '')) telaCheia(); });
   };
-  return { telaCheia, ligarTelaCheia, esc, fmt, b64e, b64d, uid, shuffle, fmtTempo, lsGet, lsSet, lsDel, hash, baixar, copiar, toast,
+  return { CASOS, caso, todosCasos, validarCaso, pistaDe, telaCheia, ligarTelaCheia, esc, fmt, b64e, b64d, uid, shuffle, fmtTempo, lsGet, lsSet, lsDel, hash, baixar, copiar, toast,
     CONFIG_PADRAO, SALAS, SUSPEITOS, CULPADO, METODOS, EPILOGO, AVATARES, avatarSVG, QUESTOES_PADRAO,
     validarQuestao, montarPacote, lerPacote, codigoPacote, hashPacote, lerRelatorio, codigoRelatorio };
 })();
@@ -725,24 +790,26 @@ const DTP = (() => {
 (() => {
 'use strict';
 const { esc, fmt, shuffle, fmtTempo, lsGet, lsSet, lsDel, uid, baixar, copiar, toast,
-  SALAS, SUSPEITOS, CULPADO, METODOS, EPILOGO, AVATARES, avatarSVG, QUESTOES_PADRAO } = DTP;
+  SALAS, AVATARES, avatarSVG, QUESTOES_PADRAO } = DTP;
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
 /* =====================================================================
    MISSÃO (banco de questões + configuração)
    ===================================================================== */
-let MISSAO = null;
+let MISSAO = null, CASO = DTP.caso('tabela');
+const tituloAtual = () => ((MISSAO.cfg.titulosCaso || {})[CASO.id]) || CASO.titulo || MISSAO.cfg.titulo;
+function usarCaso(id) { CASO = DTP.caso(id, MISSAO.pac.casos); }
 function prepararMissao(pac, fonte) {
   const mapa = {}; pac.questoes.forEach(q => mapa[q.id] = q);
-  MISSAO = { pac, fonte, mapa, cfg: pac.config, hash: DTP.hashPacote(pac) };
+  MISSAO = { pac, fonte, mapa, cfg: pac.config, hash: DTP.hashPacote(pac) }; { const pref = lsGet('dtp_caso_aluno'); CASO = DTP.caso(DTP.todosCasos(pac.casos).some(c => c.id === pref) ? pref : pac.config.caso, pac.casos); }
 }
 async function carregarMissao() {
   const imp = lsGet('dtp_pacote_aluno');
   if (imp) { try { prepararMissao(DTP.lerPacote(JSON.stringify(imp)), 'missão importada'); return; } catch (e) {} }
   if (location.protocol !== 'file:') { try { const r = await fetch('missao.json', { cache: 'no-store' }); if (r.ok) { prepararMissao(DTP.lerPacote(await r.text()), 'missao.json do professor'); return; } } catch (e) {} }
   const b = lsGet('dtp_banco');
-  if (Array.isArray(b)) { const q = b.filter(DTP.validarQuestao); if (q.length) { prepararMissao(DTP.montarPacote(lsGet('dtp_config', {}), q), 'banco do professor (neste navegador)'); return; } }
+  if (Array.isArray(b)) { const q = b.filter(DTP.validarQuestao); if (q.length) { prepararMissao(DTP.montarPacote(lsGet('dtp_config', {}), q, lsGet('dtp_casos', [])), 'banco do professor (neste navegador)'); return; } }
   prepararMissao(DTP.montarPacote({}, QUESTOES_PADRAO), 'missão padrão');
 }
 
@@ -775,16 +842,43 @@ const SFX = {
   vitoria: () => [523, 659, 784, 1047, 1319].forEach((f, i) => tom(f, .6, 'triangle', .08, i * .13)),
   tranca: () => { tom(140, .12, 'square', .05); tom(110, .15, 'square', .05, .12); }
 };
+let mestre = null, notaTimer = null, acordeTimer = null, ambNos = null;
 function iniciarAmbiente() {
-  if (ambienteOn || mudo) return; const a = audio(); if (!a) return; ambienteOn = true;
-  const n = a.sampleRate * 2, b = a.createBuffer(1, n, a.sampleRate), x = b.getChannelData(0); for (let i = 0; i < n; i++) x[i] = Math.random() * 2 - 1;
-  const s = a.createBufferSource(); s.buffer = b; s.loop = true; const f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1400; f.Q.value = .4;
-  const g = a.createGain(); g.gain.value = .022; s.connect(f).connect(g).connect(a.destination); s.start();
-  const o = a.createOscillator(), o2 = a.createOscillator(), g2 = a.createGain(); o.frequency.value = 55; o2.frequency.value = 82.6; o.type = 'sine'; o2.type = 'sine'; g2.gain.value = .014;
-  o.connect(g2); o2.connect(g2); g2.connect(a.destination); o.start(); o2.start();
-  AC._amb = g; AC._amb2 = g2;
+  if (ambienteOn) return; const a = audio(); if (!a) return; ambienteOn = true;
+  const comp = a.createDynamicsCompressor(); comp.connect(a.destination);
+  mestre = a.createGain(); mestre.gain.value = mudo ? 0 : .9; mestre.connect(comp);
+  // reverberação simples (eco curto com realimentação filtrada)
+  const rev = a.createGain(); const dl = a.createDelay(1.2); dl.delayTime.value = .42; const fb = a.createGain(); fb.gain.value = .45; const lp = a.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1500;
+  rev.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(mestre);
+  // pad sombrio: osciladores levemente desafinados passando por filtro que "respira"
+  const filtro = a.createBiquadFilter(); filtro.type = 'lowpass'; filtro.frequency.value = 520; filtro.Q.value = .7;
+  const padG = a.createGain(); padG.gain.value = .05; filtro.connect(padG); padG.connect(mestre); padG.connect(rev);
+  const lfo = a.createOscillator(), lfoG = a.createGain(); lfo.frequency.value = .06; lfoG.gain.value = 260; lfo.connect(lfoG); lfoG.connect(filtro.frequency); lfo.start();
+  const acordes = [[110, 164.8, 220, 261.6], [87.3, 130.8, 174.6, 261.6], [82.4, 123.5, 164.8, 207.7], [73.4, 110, 146.8, 220]];
+  const vozes = [0, 1, 2, 3].map(k => [-6, 6].map(det => { const o = a.createOscillator(); o.type = 'sawtooth'; o.frequency.value = acordes[0][k]; o.detune.value = det; const g = a.createGain(); g.gain.value = k === 0 ? .5 : .25; o.connect(g); g.connect(filtro); o.start(); return o; }));
+  let ac = 0; const trocar = () => { ac = (ac + 1) % acordes.length; vozes.forEach((par, k) => par.forEach(o => o.frequency.setTargetAtTime(acordes[ac][k], a.currentTime, 2.2))); acordeTimer = setTimeout(trocar, 12000 + Math.random() * 6000); };
+  acordeTimer = setTimeout(trocar, 9000);
+  // sinos de caixa de música, esparsos (escala menor harmônica de lá)
+  const escala = [440, 493.9, 523.3, 659.3, 698.5, 830.6, 880, 1046.5];
+  const sino = (fr, t0) => { [[1, .05, 2.4], [2.76, .012, .9], [4.1, .006, .4]].forEach(([m, v, d]) => { const o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.value = fr * m; g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(v, t0 + .01); g.gain.exponentialRampToValueAtTime(.0001, t0 + d); o.connect(g); g.connect(mestre); g.connect(rev); o.start(t0); o.stop(t0 + d + .1); }); };
+  const nota = () => {
+    if (!mudo && AC && AC.state === 'running') {
+      const t = a.currentTime + .05, i = (Math.random() * escala.length) | 0; sino(escala[i], t);
+      if (Math.random() > .45) sino(escala[Math.max(0, i - 1 - ((Math.random() * 2) | 0))], t + .5 + Math.random() * .3);
+    }
+    notaTimer = setTimeout(nota, 4500 + Math.random() * 5500);
+  };
+  setTimeout(nota, 1500);
 }
-function aplicarMudo() { if (AC && AC._amb) { AC._amb.gain.value = mudo ? 0 : .022; AC._amb2.gain.value = mudo ? 0 : .014; } else if (!mudo && jogoAtivo) iniciarAmbiente(); $('#b-som').textContent = mudo ? '🔇' : '🔊'; lsSet('dtp_mudo', mudo); }
+function rotuloSom() { $$('[data-som]').forEach(b => { b.textContent = mudo ? '🔇' : '🔊'; b.title = mudo ? 'Ativar som' : 'Desativar som (mudo)'; b.setAttribute('aria-pressed', mudo ? 'true' : 'false'); }); const g = $('#b-som'); if (g) { g.textContent = mudo ? '🔇' : '🔊'; g.title = mudo ? 'Ativar som' : 'Desativar som'; } }
+function aplicarMudo() {
+  lsSet('dtp_mudo', mudo); rotuloSom();
+  if (!mudo) { const a = audio(); if (!ambienteOn) iniciarAmbiente(); else if (mestre && a) { mestre.gain.cancelScheduledValues(a.currentTime); mestre.gain.setTargetAtTime(.9, a.currentTime, .15); } }
+  else if (mestre && AC) { mestre.gain.cancelScheduledValues(AC.currentTime); mestre.gain.setTargetAtTime(0, AC.currentTime, .05); setTimeout(() => { if (mudo && AC && AC.state === 'running') AC.suspend(); }, 400); }
+}
+// os navegadores só liberam áudio após um gesto do usuário: o som começa no primeiro toque/tecla
+const liberarAudio = () => { audio(); iniciarAmbiente(); };
+['pointerdown', 'keydown'].forEach(ev => addEventListener(ev, liberarAudio, { once: true, capture: true }));
 
 /* =====================================================================
    TELAS
@@ -795,7 +889,7 @@ const modalRoot = $('#modal-root');
 let modais = [];
 function abrirModal(html, { fechavel = true, classe = '', aoFechar = null } = {}) {
   const bg = document.createElement('div'); bg.className = 'modal-bg'; bg.innerHTML = `<div class="modal ${classe}">${html}</div>`;
-  modalRoot.appendChild(bg); modais.push(bg); teclas.clear(); joy.u = joy.d = joy.l = joy.r = false;
+  modalRoot.appendChild(bg); modais.push(bg); rota = null; teclas.clear(); joy.u = joy.d = joy.l = joy.r = false;
   bg._fechavel = fechavel;
   bg.fechar = () => { if (!bg.isConnected) return; bg.remove(); modais = modais.filter(m => m !== bg); if (aoFechar) aoFechar(); };
   if (fechavel) bg.addEventListener('mousedown', e => { if (e.target === bg) bg.fechar(); });
@@ -811,11 +905,14 @@ let avSel = AVATARES[0].id;
 let S = null;                    // estado do jogo
 
 function rotuloMissao() {
+  const sel = $('#sel-caso'); sel.innerHTML = DTP.todosCasos(MISSAO.pac.casos).map(c => `<option value="${esc(c.id)}" ${c.id === CASO.id ? 'selected' : ''}>${esc(c.nome)}</option>`).join('');
+  sel.onchange = () => { lsSet('dtp_caso_aluno', sel.value); usarCaso(sel.value); SFX.clique(); rotuloMissao(); };
+  $('.subtit').textContent = CASO.sub; $('#tit-h1').textContent = tituloAtual(); document.title = tituloAtual() + ' — Módulo do Aluno';
   const n = MISSAO.pac.questoes.length;
-  $('#fonte-missao').innerHTML = `Missão: <b style="color:var(--ouro2)">${esc(MISSAO.cfg.titulo)}</b> · ${n} questões · fonte: ${esc(MISSAO.fonte)} · <a id="l-importar">trocar missão</a>`;
+  $('#fonte-missao').innerHTML = ` · <a id="l-importar" title="Trocar missão (código ou missao.json do professor)" style="color:inherit;cursor:pointer">${n} questões</a>`;
   $('#l-importar').onclick = abrirImportar;
   const sv = lsGet('dtp_save');
-  $('#b-continuar').style.display = (sv && sv.S && !sv.S.fim && sv.S.missao === MISSAO.hash) ? '' : 'none';
+  $('#b-continuar').style.display = (sv && sv.S && !sv.S.fim && sv.S.missao === MISSAO.hash && (!sv.S.caso || sv.S.caso === CASO.id)) ? '' : 'none';
 }
 function montarAvatares() {
   $('#opcoes-av').innerHTML = AVATARES.map(a => `<div class="av-card ${a.id === avSel ? 'sel' : ''}" data-id="${a.id}" tabindex="0" role="button" aria-label="${esc(a.nome)}">${avatarSVG(a)}<div class="n">${esc(a.nome)}</div></div>`).join('');
@@ -825,7 +922,7 @@ function montarAvatares() {
 function abrirComoJogar() {
   const bg = abrirModal(`<div class="painel"><h3>Como jogar <button class="fechar" aria-label="Fechar">×</button></h3>
     <div class="aviso" style="font-size:.95rem">
-      <p>Alguém apagou a tabela <b>CLIENTES</b> do servidor da mansão Codd. Você é o detetive e precisa descobrir <b>quem foi</b> e <b>com qual comando SQL</b>.</p>
+      <p>${fmt(CASO.intro)} Você é o detetive e precisa descobrir <b>quem foi</b> e <b>com qual comando SQL</b>.</p>
       <ul class="como kbdl">
         <li>Ande pela mansão com as <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> ou <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> (no celular, use o direcional na tela).</li>
         <li>Aproxime-se do símbolo dourado <b style="color:var(--ouro2)">◆</b> de cada sala e pressione <kbd>E</kbd> para investigar.</li>
@@ -848,7 +945,7 @@ function abrirImportar() {
   const aplicar = async (limpar) => {
     try {
       if (limpar) lsDel('dtp_pacote_aluno'); else { const p = DTP.lerPacote(bg.querySelector('#imp-txt').value); lsSet('dtp_pacote_aluno', p); }
-      await carregarMissao(); rotuloMissao(); bg.fechar(); toast('Missão carregada: ' + MISSAO.cfg.titulo + ' (' + MISSAO.pac.questoes.length + ' questões)');
+      await carregarMissao(); rotuloMissao(); bg.fechar(); toast('Missão carregada: ' + tituloAtual() + ' (' + MISSAO.pac.questoes.length + ' questões)');
     } catch (e) { const m = bg.querySelector('#imp-msg'); m.className = 'msg-acus no v'; m.textContent = 'Não foi possível ler a missão: ' + e.message; }
   };
   bg.querySelector('#imp-ok').onclick = () => aplicar(false);
@@ -860,7 +957,7 @@ function abrirImportar() {
    ===================================================================== */
 const salasQ = () => [1, 2, 3, 4, 5, 6, 7];
 function novoEstado(perfil) {
-  const st = { v: 1, rid: uid(), missao: MISSAO.hash, perfil, inicio: Date.now(), tempo: 0, pontos: 0, x: 600, y: 412, salas: {}, ferr: [], log: [], tent: {}, acusacoes: 0, descartados: [], fim: null, finalAberto: false };
+  const st = { v: 1, caso: CASO.id, rid: uid(), missao: MISSAO.hash, perfil, inicio: Date.now(), tempo: 0, pontos: 0, x: 600, y: 412, salas: {}, ferr: [], log: [], tent: {}, acusacoes: 0, descartados: [], fim: null, finalAberto: false };
   salasQ().forEach(id => {
     const pool = shuffle(MISSAO.pac.questoes.filter(q => q.sala === id).map(q => q.id));
     st.salas[id] = { pool, ptr: 0, ac: [], alvo: Math.min(Math.max(1, Math.min(2, MISSAO.cfg.porSala | 0 || 2)), pool.length) };
@@ -1117,6 +1214,7 @@ addEventListener('resize', () => { if (jogoAtivo) ajustarCanvas(); });
 const escuro = document.createElement('canvas'); escuro.width = W * SC; escuro.height = H * SC; const ectx = escuro.getContext('2d');
 const mini = $('#mini'), mctx = mini.getContext('2d');
 const teclas = new Set(); const joy = { u: false, d: false, l: false, r: false };
+let rota = null, rotaDest = null, camSx = 0, camSy = 0;
 let ult = 0, tAnd = 0, faceEsq = false, andando = false, proxPasso = 0, proxRaio = 8, tMini = 0;
 let sprite = null;
 const poeira = Array.from({ length: 46 }, () => ({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * 8, vy: -3 - Math.random() * 6, r: .8 + Math.random() * 1.8, f: Math.random() * 6 }));
@@ -1141,7 +1239,14 @@ function atualizar(dt) {
     if (teclas.has('arrowleft') || teclas.has('a') || joy.l) dx -= 1; if (teclas.has('arrowright') || teclas.has('d') || joy.r) dx += 1;
     if (teclas.has('arrowup') || teclas.has('w') || joy.u) dy -= 1; if (teclas.has('arrowdown') || teclas.has('s') || joy.d) dy += 1;
     andando = false;
-    if (dx || dy) {
+    if (dx || dy) rota = null;
+    if (rota && rota.length) {
+      const [tx, ty] = rota[0], ddx = tx - S.x, ddy = ty - S.y, dist = Math.hypot(ddx, ddy), passo = 205 * dt;
+      if (dist <= passo) { S.x = tx; S.y = ty; rota.shift(); }
+      else { const nx = S.x + ddx / dist * passo, ny = S.y + ddy / dist * passo; if (livre(nx, ny)) { S.x = nx; S.y = ny; } else if (livre(nx, S.y)) S.x = nx; else if (livre(S.x, ny)) S.y = ny; else rota = null; }
+      if (ddx) faceEsq = ddx < 0; andando = true;
+      if (rota && !rota.length) { rota = null; interagir(); }
+    } else if (dx || dy) {
       const n = Math.hypot(dx, dy), v = 205 * dt; dx = dx / n * v; dy = dy / n * v;
       if (livre(S.x + dx, S.y)) { S.x += dx; andando = true; } if (livre(S.x, S.y + dy)) { S.y += dy; andando = true; }
       if (dx) faceEsq = dx < 0;
@@ -1222,9 +1327,9 @@ function desenhar(t) {
   ctx.globalCompositeOperation = 'source-over';
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   if (camMode) {
-    const sx = Math.max(0, Math.min(W - vw, S.x - vw / 2)), sy = Math.max(0, Math.min(H - vh, S.y - 50 - vh / 2));
+    const sx = Math.max(0, Math.min(W - vw, S.x - vw / 2)), sy = Math.max(0, Math.min(H - vh, S.y - 50 - vh / 2)); camSx = sx; camSy = sy;
     vctx.drawImage(mundo, sx * SC, sy * SC, vw * SC, vh * SC, 0, 0, cv.width, cv.height);
-  } else vctx.drawImage(mundo, 0, 0, cv.width, cv.height);
+  } else { camSx = 0; camSy = 0; vctx.drawImage(mundo, 0, 0, cv.width, cv.height); }
   vctx.drawImage(VIGNETA, 0, 0, cv.width, cv.height);
   if (t - tMini > .1) { tMini = t; desenharMini(); }
 }
@@ -1267,6 +1372,46 @@ $$('#dpad button').forEach(b => {
 });
 $('#btn-acao').addEventListener('click', interagir);
 setTimeout(() => { const d = $('#dica-ctrl'); if (d) d.style.opacity = '0'; }, 1e6);
+
+
+/* ---------- Clique nas interrogações: o detetive caminha até lá ---------- */
+const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+function linhaLivre(x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0), n = Math.max(1, Math.ceil(d / 4)); for (let i = 1; i <= n; i++) if (!livre(x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n)) return false; return true; }
+function caminho(x0, y0, gx, gy, raio) {
+  const G = 8, cols = Math.ceil(W / G) + 1, rows = Math.ceil(H / G) + 1, idx = (c, r) => r * cols + c;
+  const sc = Math.round(x0 / G), sr = Math.round(y0 / G), prev = new Int32Array(cols * rows).fill(-2); prev[idx(sc, sr)] = -1; const q = [idx(sc, sr)]; let qi = 0, fim = -1;
+  while (qi < q.length) {
+    const cur = q[qi++], c = cur % cols, r = (cur / cols) | 0;
+    if (Math.hypot(c * G - gx, r * G - gy) <= raio) { fim = cur; break; }
+    for (const [dc, dr] of DIRS) {
+      const nc = c + dc, nr = r + dr; if (nc < 0 || nr < 0 || nc >= cols || nr >= rows) continue; const ni = idx(nc, nr); if (prev[ni] !== -2) continue;
+      if (!livre(nc * G, nr * G)) continue; if (dc && dr && !(livre((c + dc) * G, r * G) && livre(c * G, (r + dr) * G))) continue;
+      prev[ni] = cur; q.push(ni);
+    }
+  }
+  if (fim < 0) return null;
+  const pts = []; for (let c = fim; c !== -1; c = prev[c]) pts.push([(c % cols) * G, ((c / cols) | 0) * G]); pts.reverse(); pts[0] = [x0, y0];
+  const out = []; let i = 0; while (i < pts.length - 1) { let j = pts.length - 1; while (j > i + 1 && !linhaLivre(pts[i][0], pts[i][1], pts[j][0], pts[j][1])) j--; out.push(pts[j]); i = j; }
+  return out;
+}
+function mundoDe(e) {
+  const r = cv.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height;
+  return camMode ? [camSx + fx * vw, camSy + fy * vh] : [fx * W, fy * H];
+}
+cv.addEventListener('pointerdown', e => {
+  if (!S || modalAberto() || !jogoAtivo) return;
+  const [wx, wy] = mundoDe(e); let melhor = null, bd = 1e9;
+  for (const id of [1, 2, 3, 4, 5, 6, 7, 8]) {
+    const trancada = id === 8 && !finalAberto(), m = trancada ? [1035, 468] : GEO[id].mk;
+    const d = Math.min(Math.hypot(wx - m[0], wy - (m[1] - 28)), Math.hypot(wx - m[0], wy - m[1]), trancada ? Math.hypot(wx - 1035, wy - 492) : 1e9);
+    if (d < (camMode ? 48 : 42) && d < bd) { bd = d; melhor = { id, m, raio: trancada ? 34 : 26 }; }
+  }
+  if (!melhor) return;
+  const rt = caminho(S.x, S.y, melhor.m[0], melhor.m[1], melhor.raio);
+  if (!rt) { toast('Não consegui achar um caminho até lá.', true); return; }
+  rota = rt; SFX.clique();
+  if (!rt.length) { rota = null; interagir(); }
+});
 
 /* =====================================================================
    INTERAÇÃO — desafios, ferramentas, caderno, acusação
@@ -1327,7 +1472,7 @@ function entregarFerramenta(sid, idx) {
   S.ferr.push({ sala: sid, idx }); SFX.ferr(); hud(true); salvar(true);
   const bg = abrirModal(`<div class="carta perg premio">
     <div class="tit">Ferramenta obtida</div><div class="big">${f.ico}</div><h3>${esc(f.nome)}</h3><div class="uso">${esc(f.uso)}</div>
-    <div class="pista"><small>Pista descoberta</small>${esc(f.pista)}</div>
+    <div class="pista"><small>Pista descoberta</small>${esc(DTP.pistaDe(CASO, sala.id, idx))}</div>
     <div class="acoes" style="margin-top:18px"><button class="btn primario" id="p-ok">Guardar no inventário</button></div></div>`, { fechavel: false });
   bg.querySelector('#p-ok').onclick = () => { bg.fechar(); aposSala(sid); };
 }
@@ -1346,9 +1491,9 @@ function aposSala(sid) {
 }
 function abrirCaderno(aba = 'pistas', voltar) {
   const render = () => {
-    const pistas = S.ferr.length ? S.ferr.map(f => { const t = SALAS[f.sala - 1].ferr[f.idx]; return `<div class="item-p"><div class="i">${t.ico}</div><div><h4>${esc(t.nome)} <span style="color:var(--mut);font-weight:400;font-family:var(--f-ui);font-size:.72rem">· ${esc(SALAS[f.sala - 1].nome)}</span></h4><p>${esc(t.pista)}</p></div></div>`; }).join('')
+    const pistas = S.ferr.length ? S.ferr.map(f => { const t = SALAS[f.sala - 1].ferr[f.idx]; return `<div class="item-p"><div class="i">${t.ico}</div><div><h4>${esc(t.nome)} <span style="color:var(--mut);font-weight:400;font-family:var(--f-ui);font-size:.72rem">· ${esc(SALAS[f.sala - 1].nome)}</span></h4><p>${esc(DTP.pistaDe(CASO, f.sala, f.idx))}</p></div></div>`; }).join('')
       : '<div class="vazio">Nenhuma pista ainda. Resolva os desafios das salas para conquistar ferramentas.</div>';
-    const sus = SUSPEITOS.map(s => `<div class="sus ${S.descartados.includes(s.id) ? 'desc' : ''}"><div class="f">${s.ico}</div><h4>${esc(s.nome)}</h4><div class="pp">${esc(s.papel)}</div><p>${esc(s.desc)}</p><label><input type="checkbox" data-id="${s.id}" ${S.descartados.includes(s.id) ? 'checked' : ''}> Descartar suspeito</label></div>`).join('');
+    const sus = CASO.suspeitos.map(s => `<div class="sus ${S.descartados.includes(s.id) ? 'desc' : ''}"><div class="f">${s.ico}</div><h4>${esc(s.nome)}</h4><div class="pp">${esc(s.papel)}</div><p>${esc(s.desc)}</p><label><input type="checkbox" data-id="${s.id}" ${S.descartados.includes(s.id) ? 'checked' : ''}> Descartar suspeito</label></div>`).join('');
     return aba === 'pistas' ? `<div class="lista-p">${pistas}</div>` : `<div class="sus-grid">${sus}</div>`;
   };
   const bg = abrirModal(`<div class="painel"><h3>📓 Caderno do Detetive <button class="fechar" aria-label="Fechar">×</button></h3>
@@ -1362,11 +1507,11 @@ function abrirCaderno(aba = 'pistas', voltar) {
 function abrirAcusacao() {
   let su = null, me = null;
   const bg = abrirModal(`<div class="painel" style="width:min(900px,94vw)"><h3>⚖ Acusação final <button class="fechar" aria-label="Fechar">×</button></h3>
-    <p class="aviso" style="margin-top:-4px">Nos terminais do servidor, a tabela <b>CLIENTES</b> não existe mais. Com base nas pistas do seu caderno, aponte o culpado e o comando usado.</p>
-    <div class="sec-t">1. Quem apagou a tabela?</div>
-    <div class="sus-grid">${SUSPEITOS.map(s => `<div class="sus escolha ${S.descartados.includes(s.id) ? 'desc' : ''}" data-id="${s.id}" tabindex="0" role="button"><div class="f">${s.ico}</div><h4>${esc(s.nome)}</h4><div class="pp">${esc(s.papel)}</div><p>${esc(s.desc)}</p></div>`).join('')}</div>
+    <p class="aviso" style="margin-top:-4px">${fmt(CASO.cena)} Com base nas pistas do seu caderno, aponte o culpado e o comando usado.</p>
+    <div class="sec-t">1. ${esc(CASO.pergunta)}</div>
+    <div class="sus-grid">${CASO.suspeitos.map(s => `<div class="sus escolha ${S.descartados.includes(s.id) ? 'desc' : ''}" data-id="${s.id}" tabindex="0" role="button"><div class="f">${s.ico}</div><h4>${esc(s.nome)}</h4><div class="pp">${esc(s.papel)}</div><p>${esc(s.desc)}</p></div>`).join('')}</div>
     <div class="sec-t">2. Qual comando foi executado?</div>
-    <div class="metodos">${METODOS.map(m => `<button class="met" data-id="${m.id}">${esc(m.cmd)}</button>`).join('')}</div>
+    <div class="metodos">${CASO.metodos.map(m => `<button class="met" data-id="${m.id}">${esc(m.cmd)}</button>`).join('')}</div>
     <div class="msg-acus" id="ac-msg"></div>
     <div class="linha-fl" style="justify-content:space-between;margin-top:16px"><button class="btn" id="ac-cad">📓 Ver caderno</button><button class="btn primario" id="ac-ok" disabled>Acusar</button></div></div>`, { fechavel: true });
   bg.querySelector('.fechar').onclick = bg.fechar;
@@ -1375,7 +1520,7 @@ function abrirAcusacao() {
   bg.querySelectorAll('.escolha').forEach(c => { const f = () => { su = c.dataset.id; bg.querySelectorAll('.escolha').forEach(x => x.classList.toggle('sel', x === c)); SFX.clique(); refresh(); }; c.onclick = f; c.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); f(); } }; });
   bg.querySelectorAll('.met').forEach(c => c.onclick = () => { me = c.dataset.id; bg.querySelectorAll('.met').forEach(x => x.classList.toggle('sel', x === c)); SFX.clique(); refresh(); });
   ok.onclick = () => {
-    const sOk = su === CULPADO, mOk = METODOS.find(m => m.id === me).ok;
+    const sOk = su === CASO.culpado, mOk = CASO.metodos.find(m => m.id === me).ok;
     if (sOk && mOk) {
       const idx = Math.min(S.acusacoes, 2), bonus = MISSAO.cfg.bonusAcusacao[idx] ?? 60; S.pontos += bonus; S.bonus = bonus; S.fim = Date.now(); lsDel('dtp_save');
       bg.fechar(); finalizar();
@@ -1400,7 +1545,7 @@ function estatisticas() {
   return { porQ, acertos1, total, certas, erros: total - certas, porSala, qs: qs.length };
 }
 function relatorio() {
-  return { t: 'dtp-res', v: 1, rid: S.rid, missao: MISSAO.cfg.titulo, mh: MISSAO.hash, nome: S.perfil.nome, turma: S.perfil.turma, mat: S.perfil.mat, avatar: S.perfil.avatar,
+  return { t: 'dtp-res', v: 1, rid: S.rid, caso: CASO.id, missao: tituloAtual(), mh: MISSAO.hash, nome: S.perfil.nome, turma: S.perfil.turma, mat: S.perfil.mat, avatar: S.perfil.avatar,
     inicio: S.inicio, fim: S.fim, tempo: Math.round(S.tempo), pontos: S.pontos, max: pontosMax(), acusErr: S.acusacoes, log: S.log };
 }
 function rankDe(p) { return p >= .9 ? ['🏆', 'Inspetor-Chefe dos Dados', 'Domínio excelente dos conteúdos!'] : p >= .7 ? ['🥇', 'Detetive Sênior', 'Ótimo desempenho — poucos pontos a ajustar.'] : p >= .45 ? ['🥈', 'Investigador', 'Bom caminho. Revise os tópicos abaixo.'] : ['🥉', 'Detetive Aprendiz', 'O caso foi resolvido, mas vale estudar os tópicos abaixo e tentar de novo.']; }
@@ -1410,10 +1555,10 @@ function finalizar() {
   const est = estatisticas(), pct = rel.pontos / rel.max, [med, tit, sub] = rankDe(pct);
   const errados = Object.entries(est.porQ).filter(([, v]) => v.t > 1 || !v.ok || v.primeira === 0).filter(([, v]) => v.primeira === 0);
   const codigo = DTP.codigoRelatorio(rel);
-  const culpado = SUSPEITOS.find(s => s.id === CULPADO);
+  const culpado = CASO.suspeitos.find(s => s.id === CASO.culpado);
   $('#fin-wrap').innerHTML = `
-    <div class="selo">CASO ENCERRADO</div><h2>${esc(MISSAO.cfg.titulo)}</h2>
-    <div class="perg epilogo"><b style="font-family:var(--f-titulo);color:#4a1520">${culpado.ico} O culpado: ${esc(culpado.nome)}.</b><br>${fmt(EPILOGO)}</div>
+    <div class="selo">CASO ENCERRADO</div><h2>${esc(tituloAtual())}</h2>
+    <div class="perg epilogo"><b style="font-family:var(--f-titulo);color:#4a1520">${culpado.ico} O culpado: ${esc(culpado.nome)}.</b><br>${fmt(CASO.epilogo)}</div>
     <div class="rank"><div class="medalha">${med}</div><div><div class="tt">${tit}</div><div class="st">${esc(S.perfil.nome)} · ${sub}</div></div></div>
     <div class="cartoes">
       <div class="cartao"><b>${rel.pontos}</b><span>pontos de ${rel.max}</span></div>
@@ -1476,19 +1621,19 @@ function historia(aoFim) {
     <div class="carta-topo"><span class="ico">✉️</span><div><h3>Telegrama urgente</h3><small>Mansão Codd · de madrugada</small></div></div>
     <div style="font-family:var(--f-maq);font-size:1.02rem;line-height:1.55;font-weight:400">
       <p>Caro(a) detetive <b>${esc(S.perfil.nome)}</b>,</p>
-      <p>Durante a festa de ontem, a tabela <b>CLIENTES</b> desapareceu do servidor da minha mansão — estrutura, dados, tudo. Nenhum backup foi encontrado.</p>
-      <p>Cinco pessoas estiveram aqui na hora do ocorrido. Preciso saber <b>quem foi</b> e <b>qual comando SQL</b> foi usado.</p>
+      ${CASO.carta.map(x => `<p>${fmt(x)}</p>`).join('')}
       <p>As salas estão escuras e cada porta guarda um enigma de Banco de Dados. Quem resolve o enigma, encontra uma ferramenta; quem reúne as ferramentas, encontra a verdade.</p>
       <p style="text-align:right">— Lorde Edmund Codd</p></div>
     <div class="acoes"><span></span><button class="btn primario" id="h-ok">Aceitar o caso</button></div></div>`, { fechavel: false });
   bg.querySelector('#h-ok').onclick = () => { bg.fechar(); aoFim(); };
 }
 function iniciarJogo(perfil, retomar) {
+  if (retomar && S.caso) usarCaso(S.caso);
   if (!retomar) S = novoEstado(perfil);
   carregarSprite(); if (!ESTATICO) construirEstatico();
   $('#hud-nome').textContent = S.perfil.nome; $('#hud-sub').textContent = [S.perfil.turma, S.perfil.mat].filter(Boolean).join(' · ') || AVATARES.find(a => a.id === S.perfil.avatar).nome;
-  $('#hud-titulo').textContent = MISSAO.cfg.titulo; $('#hud-mini').innerHTML = avatarSVG(AVATARES.find(a => a.id === S.perfil.avatar));
-  $('#b-som').textContent = mudo ? '🔇' : '🔊';
+  $('#hud-titulo').textContent = tituloAtual(); $('#hud-mini').innerHTML = avatarSVG(AVATARES.find(a => a.id === S.perfil.avatar));
+  rotuloSom();
   tela('tela-jogo'); hud(); iniciarAmbiente();
   if (!retomar) { salvar(true); historia(() => { toast(matchMedia('(pointer:coarse)').matches ? 'Use o direcional para andar e toque em Investigar nos símbolos dourados.' : 'Use as setas ou WASD para andar. Pressione E nos símbolos dourados.'); }); }
 }
@@ -1506,7 +1651,8 @@ $('#b-av-ok').onclick = () => {
 };
 $('#b-caderno').onclick = () => { if (S && !modalAberto()) abrirCaderno(); };
 $('#b-menu').onclick = () => { if (S && !modalAberto()) abrirMenu(); };
-$('#b-som').onclick = () => { mudo = !mudo; aplicarMudo(); };
+$$('[data-som],#b-som').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); mudo = !mudo; aplicarMudo(); if (!mudo) SFX.clique(); }));
+rotuloSom();
 addEventListener('beforeunload', () => { if (S && !S.fim) salvar(true); });
 setInterval(() => { if (S && jogoAtivo) salvar(); }, 5000);
 document.addEventListener('visibilitychange', () => { if (document.hidden && S && !S.fim) salvar(true); });
@@ -1514,7 +1660,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && S &
 /* ---------- Início ---------- */
 DTP.ligarTelaCheia();
 carregarMissao().then(() => { rotuloMissao(); requestAnimationFrame(loop); });
-window.__dtp = { get S() { return S; }, livre, GEO, alvoProximo, qAtualId, get MISSAO() { return MISSAO; } };
+window.__dtp = { get AC() { return AC; }, get mestre() { return mestre; }, get S() { return S; }, livre, GEO, alvoProximo, qAtualId, get MISSAO() { return MISSAO; } };
 })();
 
 </script>

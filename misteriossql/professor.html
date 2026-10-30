@@ -159,7 +159,7 @@ kbd{background:#0d0a14;border:1px solid var(--linha);border-radius:3px;padding:0
 </head>
 <body>
 <header class="topo">
-  <div class="marca"><span class="logo">🕵️</span><div><h1>Quartel-General</h1><small>PAINEL DO PROFESSOR · O MISTÉRIO DA TABELA PERDIDA</small></div></div>
+  <div class="marca"><span class="logo">🕵️</span><div><h1>Quartel-General</h1><small>PAINEL DO PROFESSOR</small></div></div>
   <nav class="abas" id="nav"></nav>
   <button class="btn pequeno fantasma" data-fs><span class="fsi">⛶</span> Tela inteira</button>
 </header>
@@ -208,6 +208,7 @@ const DTP = (() => {
   const CONFIG_PADRAO = {
     titulo: 'O Mistério da Tabela Perdida',
     turma: '',
+    caso: 'tabela',          // id do caso (ver CASOS)
     porSala: 2,              // desafios por sala (1 ou 2)
     embaralhar: true,        // embaralhar alternativas
     revelarGabarito: true,   // mostrar a resposta certa e a explicação após errar
@@ -292,6 +293,65 @@ const DTP = (() => {
     { id: 'alter', cmd: 'ALTER TABLE clientes DROP COLUMN nome;' }
   ];
   const EPILOGO = 'Tobias Drop confessou. Com a conta **tdrop_admin**, criada só para trocar a lâmpada do servidor, ele executou `DROP TABLE clientes;` acreditando que era “lixo antigo”. O backup estava desligado — e a tabela se foi para sempre. Lição de Banco de Dados: **privilégio mínimo** (cada conta só pode o que precisa) e **backup testado** (sem ele, um DROP é irreversível).';
+
+
+  /* ---------- Casos (camada de enredo; o mapa e as questões são os mesmos) ---------- */
+  const CASOS = [
+    { id: 'tabela', titulo: 'O Mistério da Tabela Perdida', nome: 'Caso 1 — A Tabela Perdida', sub: 'Na mansão Codd, uma tabela desapareceu na calada da noite…',
+      carta: ['Durante a festa de ontem, a tabela **CLIENTES** desapareceu do servidor da minha mansão — estrutura, dados, tudo. Nenhum backup foi encontrado.',
+        'Cinco pessoas estiveram aqui na hora do ocorrido. Preciso saber **quem foi** e **qual comando SQL** foi usado.'],
+      cena: 'Nos terminais do servidor, a tabela **CLIENTES** não existe mais.', intro: 'Alguém apagou a tabela **CLIENTES** do servidor da mansão Codd.',
+      pergunta: 'Quem apagou a tabela?', culpado: 'tobias', suspeitos: SUSPEITOS, metodos: METODOS, epilogo: EPILOGO, pistas: null },
+    { id: 'preco', titulo: 'O Mistério do Preço Zero', nome: 'Caso 2 — O Preço Zero', sub: 'Na noite do leilão de vinhos, todos os preços da mansão Codd viraram zero…',
+      carta: ['Hoje, às 22h47, durante o leilão de vinhos, todos os preços da tabela **PRODUTOS** foram alterados para **zero**. Nada foi apagado — só mudou. O leilão foi cancelado e o prejuízo é enorme.',
+        'Cinco pessoas estavam na mansão. Preciso saber **quem executou** a alteração e **qual comando SQL** foi usado.'],
+      cena: 'Nos terminais, todos os registros da tabela **PRODUTOS** aparecem com preço **0**.', intro: 'Alguém zerou os preços da tabela **PRODUTOS** da mansão Codd.',
+      pergunta: 'Quem zerou os preços?', culpado: 'wesley',
+      suspeitos: [
+        { id: 'havilland', nome: 'Dr. Havilland Having', papel: 'Advogado do Lorde', ico: '👨‍⚖️', desc: 'Só aparece para “filtrar” o que interessa ao Lorde. Fala pouco, mas cada frase tem condição.' },
+        { id: 'primavera', nome: 'Srta. Primavera Key', papel: 'Secretária', ico: '👩‍💻', desc: 'Organiza agendas e convidados. Cada pessoa para ela é “única e identificada”.' },
+        { id: 'gustavo', nome: 'Gustavo Group', papel: 'Leiloeiro e sommelier', ico: '🧑‍🍳', desc: 'Agrupa os lotes por safra e adora uma contagem de garrafas.' },
+        { id: 'cascata', nome: 'Dona Cascata Cascade', papel: 'Viúva sócia da adega', ico: '👵', desc: 'Quando ela muda de ideia, tudo ao redor muda junto.' },
+        { id: 'wesley', nome: 'Wesley Where', papel: 'Estagiário temporário', ico: '🧑‍💻', desc: 'Camisa xadrez, crachá novo e um nervosismo constante. Primeira semana na mansão.' }],
+      metodos: [{ id: 'upd', cmd: 'UPDATE produtos SET preco = 0;', ok: true }, { id: 'del', cmd: 'DELETE FROM produtos;' }, { id: 'drop', cmd: 'DROP TABLE produtos;' }, { id: 'ins', cmd: 'INSERT INTO produtos (preco) VALUES (0);' }],
+      epilogo: 'Wesley Where confessou. Com a conta temporária **estagiario_wesley**, ele devia corrigir o preço de **um único** vinho, mas executou `UPDATE produtos SET preco = 0;` — **sem WHERE**. Todas as linhas foram atingidas. O banco foi restaurado do backup. Lição de Banco de Dados: use **WHERE** em todo UPDATE/DELETE, teste antes com um `SELECT` e trabalhe com **transações** (BEGIN / ROLLBACK).',
+      pistas: {
+        1: ['Sob a lanterna, o livro de registros: às 22h47, um único comando alterou TODAS as linhas da tabela PRODUTOS — todos os preços viraram 0. Nenhuma linha foi apagada.', 'O manual afirma: alterar registros exige permissão de UPDATE na tabela. Quem só tem SELECT apenas consulta.'],
+        2: ['Dr. Havilland Having jantava à mesa principal com o Lorde das 21h às 23h30. Álibi confirmado.', 'Dona Cascata Cascade tocava piano diante de todos no salão de música às 22h47. Álibi confirmado.'],
+        3: ['Uma voz jovem e nervosa: “Era só pra corrigir o preço do vinho da safra 98… por que mudou TUDO?”', 'O terminal do escritório só abre com crachá; o registro mostra um crachá temporário emitido há três dias.'],
+        4: ['Pegadas de tênis de lona, com lama da entrada, vão do jardim até o escritório. O pessoal antigo só usa botas.', 'Digitais jovens, sem calos, foram encontradas no teclado do terminal do escritório.'],
+        5: ['Permissões na tabela PRODUTOS — havilland: só SELECT · primavera: só SELECT · gustavo: só SELECT · estagiario_wesley: UPDATE (temporária). Dona Cascata não tem conta.', 'Ordem de serviço: “Wesley Where corrigirá o preço de UM vinho no sistema. Atenção: sempre usar WHERE.” — Lorde Codd.'],
+        6: ['A câmera do escritório flagrou, às 22h45, um jovem de camisa xadrez e crachá novo cruzando a porta.', 'Srta. Primavera Key e Gustavo Group conduziam o leilão no salão às 22h47, com 40 testemunhas. Álibi confirmado.'],
+        7: ['No histórico do terminal, o comando termina com ponto e vírgula logo após o valor: não há cláusula WHERE.', 'Gotas de refrigerante e migalhas de salgadinho no teclado: o estagiário lanchava ali.']
+      } }
+    ,
+    { id: 'acesso', titulo: 'O Mistério do Acesso Indevido', nome: 'Caso 3 — O Acesso Indevido', sub: 'Na madrugada da mansão Codd, alguém ganhou poderes que não deveria ter…',
+      carta: ['Às 03h12 desta madrugada, uma conta recebeu **todos os privilégios** sobre a tabela **CLIENTES**. Nada foi apagado ou alterado, mas dados sigilosos ficaram expostos a quem não devia vê-los.',
+        'Cinco pessoas estavam na mansão. Preciso saber **quem concedeu** o acesso e **qual comando SQL** foi usado.'],
+      cena: 'No terminal, a conta **visconde** aparece com **todos os privilégios** sobre a tabela **CLIENTES**.', intro: 'Alguém concedeu privilégios indevidos sobre a tabela **CLIENTES** da mansão Codd.',
+      pergunta: 'Quem concedeu o acesso?', culpado: 'cursor',
+      suspeitos: [
+        { id: 'trigger', nome: 'Capitão Trigger', papel: 'Chefe de segurança', ico: '💂', desc: 'Só entra em ação quando algo acontece. Faz a ronda da casa todas as madrugadas.' },
+        { id: 'commit', nome: 'Srta. Commit', papel: 'Secretária', ico: '👩‍💼', desc: 'Só considera um trabalho pronto depois de “confirmado” por escrito.' },
+        { id: 'rollback', nome: 'Sr. Rollback', papel: 'Contador', ico: '🧑‍🏫', desc: 'Vive desfazendo o que os outros fazem de errado nos livros-caixa.' },
+        { id: 'schema', nome: 'Madame Schema', papel: 'Arquiteta e decoradora', ico: '👩‍🎨', desc: 'Planeja a estrutura de cada cômodo antes de mexer em qualquer móvel.' },
+        { id: 'cursor', nome: 'Visconde Cursor', papel: 'Primo do Lorde', ico: '🥸', desc: 'De pijama de seda e pantufas, percorre a casa linha por linha, bisbilhotando tudo e atrás de doces.' }],
+      metodos: [{ id: 'grant', cmd: 'GRANT ALL PRIVILEGES ON clientes TO visconde;', ok: true }, { id: 'revoke', cmd: 'REVOKE ALL PRIVILEGES ON clientes FROM visconde;' }, { id: 'user', cmd: 'CREATE USER visconde;' }, { id: 'sel', cmd: 'SELECT * FROM clientes;' }],
+      epilogo: 'Visconde Cursor confessou. Encontrou a senha do Lorde colada sob o teclado da biblioteca e, às 03h12, executou `GRANT ALL PRIVILEGES ON clientes TO visconde;`. Disse que queria “só dar uma olhada” nos dados. Lição de Banco de Dados: **senha nunca se anota**; aplique **privilégio mínimo**, **audite** as concessões pelo log e use `REVOKE` para retirar acessos indevidos.',
+      pistas: {
+        1: ['Sob a lanterna, o livro de registros: às 03h12, o usuário “lorde” concedeu TODOS os privilégios sobre CLIENTES à conta “visconde”. Nada foi apagado nem alterado: foi uma concessão de acesso.', 'O manual afirma: só quem possui GRANT OPTION (administradores) concede privilégios. Contas comuns não conseguem dar permissão a ninguém.'],
+        2: ['Capitão Trigger fez a ronda do jardim das 2h às 4h, registrada por três guardas. Álibi confirmado.', 'O Lorde dormia no quarto principal; a câmera mostra que ele não saiu de lá. Quem usou a conta “lorde” não era ele.'],
+        3: ['Um sussurro no corredor: “Achei a senha colada embaixo do teclado… ninguém vai notar uma permissãozinha a mais.”', 'A porta da biblioteca foi aberta às 03h05 com a chave reserva, e só a família e a segurança sabem onde ela fica.'],
+        4: ['Marcas de pantufas de pelúcia vão da escada de serviço até a biblioteca.', 'Digitais com açúcar de confeiteiro foram encontradas no teclado do terminal da biblioteca.'],
+        5: ['Contas e privilégios — lorde: DBA (GRANT OPTION) · trigger: DBA (GRANT OPTION) · commit: INSERT/UPDATE em CLIENTES · rollback: só SELECT · visconde: só SELECT em PRODUTOS. Madame Schema não possui conta.', 'Aviso afixado: “A senha do Lorde NÃO deve ser anotada nem escondida. Quem encontrar, avise.” — Capitão Trigger.'],
+        6: ['A câmera da biblioteca flagrou, às 03h10, uma figura de pijama de seda e pantufas.', 'Sr. Rollback, Srta. Commit e Madame Schema jogavam cartas na sala de jantar até as 4h, com testemunhas. Álibi confirmado.'],
+        7: ['Na lixeira do terminal, um bilhete amassado com a anotação “senha do lorde”, e migalhas e açúcar na tecla Enter.', 'Um fio de seda estampado, de pijama, estava preso no encosto da cadeira do terminal.']
+      } }
+  ];
+  const validarCaso = c => c && typeof c.id === 'string' && c.id && typeof c.nome === 'string' && Array.isArray(c.carta) && Array.isArray(c.suspeitos) && c.suspeitos.length >= 2 && c.suspeitos.every(x => x && x.id && x.nome) && Array.isArray(c.metodos) && c.metodos.some(m => m && m.ok) && c.suspeitos.some(x => x.id === c.culpado);
+  const todosCasos = (extras = []) => { const m = new Map(); CASOS.concat((extras || []).filter(validarCaso)).forEach(c => m.set(c.id, c)); return [...m.values()]; };
+  const caso = (id, lista) => todosCasos(lista).find(c => c.id === id) || CASOS[0];
+  const pistaDe = (cs, sala, idx) => (cs.pistas && cs.pistas[sala] && cs.pistas[sala][idx]) || SALAS[sala - 1].ferr[idx].pista;
 
   /* ---------- Avatares (SVG) ---------- */
   const AVATARES = [
@@ -472,7 +532,7 @@ const DTP = (() => {
 
   /* ---------- Pacotes (missão e relatório) ---------- */
   const validarQuestao = q => q && typeof q.q === 'string' && q.q.trim() && Array.isArray(q.o) && q.o.length === 4 && q.o.every(x => typeof x === 'string' && x.trim()) && Number.isInteger(q.c) && q.c >= 0 && q.c < 4 && q.sala >= 1 && q.sala <= 7;
-  const montarPacote = (config, questoes) => ({ tipo: 'dtp-missao', v: 1, criadoEm: new Date().toISOString(), config: Object.assign({}, CONFIG_PADRAO, config), questoes });
+  const montarPacote = (config, questoes, extras = []) => ({ tipo: 'dtp-missao', v: 2, criadoEm: new Date().toISOString(), config: Object.assign({}, CONFIG_PADRAO, config), casos: todosCasos(extras), questoes });
   const lerPacote = txt => {
     txt = (txt || '').trim();
     let obj;
@@ -482,10 +542,11 @@ const DTP = (() => {
     obj.questoes = obj.questoes.filter(validarQuestao);
     if (!obj.questoes.length) throw new Error('A missão não contém questões válidas.');
     obj.config = Object.assign({}, CONFIG_PADRAO, obj.config || {});
+    obj.casos = Array.isArray(obj.casos) ? obj.casos.filter(validarCaso) : [];
     return obj;
   };
   const codigoPacote = pac => 'MIS1.' + b64e(JSON.stringify(pac));
-  const hashPacote = pac => hash(JSON.stringify([pac.questoes.map(q => [q.id, q.sala, q.c, q.q]), pac.config.porSala, pac.config.pontos]));
+  const hashPacote = pac => hash(JSON.stringify([pac.questoes.map(q => [q.id, q.sala, q.c, q.q]), pac.config.porSala, pac.config.pontos, pac.config.caso]));
   const lerRelatorio = txt => {
     txt = (txt || '').trim();
     const obj = /^RES1\./.test(txt) ? JSON.parse(b64d(txt.slice(5))) : JSON.parse(txt);
@@ -504,7 +565,7 @@ const DTP = (() => {
     document.addEventListener('fullscreenchange', atual); document.addEventListener('webkitfullscreenchange', atual);
     addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test((e.target || {}).tagName || '')) telaCheia(); });
   };
-  return { telaCheia, ligarTelaCheia, esc, fmt, b64e, b64d, uid, shuffle, fmtTempo, lsGet, lsSet, lsDel, hash, baixar, copiar, toast,
+  return { CASOS, caso, todosCasos, validarCaso, pistaDe, telaCheia, ligarTelaCheia, esc, fmt, b64e, b64d, uid, shuffle, fmtTempo, lsGet, lsSet, lsDel, hash, baixar, copiar, toast,
     CONFIG_PADRAO, SALAS, SUSPEITOS, CULPADO, METODOS, EPILOGO, AVATARES, avatarSVG, QUESTOES_PADRAO,
     validarQuestao, montarPacote, lerPacote, codigoPacote, hashPacote, lerRelatorio, codigoRelatorio };
 })();
@@ -522,6 +583,11 @@ let BANCO = lsGet('dtp_banco');
 if (!Array.isArray(BANCO) || !BANCO.length) { BANCO = JSON.parse(JSON.stringify(QUESTOES_PADRAO)); lsSet('dtp_banco', BANCO); }
 let CFG = Object.assign({}, CONFIG_PADRAO, lsGet('dtp_config', {}));
 let RES = lsGet('dtp_resultados', []);
+let CASOS_X = lsGet('dtp_casos', []).filter(DTP.validarCaso);
+const salvarCasos = () => lsSet('dtp_casos', CASOS_X);
+const TODOS = () => DTP.todosCasos(CASOS_X);
+const tituloDe = id => ((CFG.titulosCaso || {})[id]) || DTP.caso(id, CASOS_X).titulo || CONFIG_PADRAO.titulo;
+const pacote = () => { CFG.titulo = tituloDe(CFG.caso); return DTP.montarPacote(CFG, BANCO, CASOS_X); };
 const salvarBanco = () => lsSet('dtp_banco', BANCO);
 const salvarCfg = () => lsSet('dtp_config', CFG);
 const salvarRes = () => lsSet('dtp_resultados', RES);
@@ -683,13 +749,15 @@ function importarBanco(f) {
    MISSÃO
    ===================================================================== */
 function vMissao() {
+  const cs = DTP.caso(CFG.caso, CASOS_X);
   const av = avisos().filter(a => a[0] === 'err');
   $('#conteudo').innerHTML = `
     <h2 class="sec">Configuração e publicação da missão</h2>
     <p class="lead">As alterações são salvas automaticamente. Depois de ajustar, publique a missão para os alunos.</p>
     <div class="grid g2">
       <div class="pan"><h3>Configurações</h3>
-        <label class="campo"><span>Título da missão (aparece no jogo e no relatório)</span><input type="text" id="c-tit" value="${esc(CFG.titulo)}" maxlength="80"></label>
+        <label class="campo"><span>Caso (enredo, suspeitos e pistas)</span><select id="c-caso">${TODOS().map(c => `<option value="${c.id}" ${c.id === CFG.caso ? 'selected' : ''}>${esc(c.nome)}</option>`).join('')}</select></label>
+        <label class="campo"><span>Título da missão (guardado junto com o caso selecionado)</span><input type="text" id="c-tit" value="${esc(tituloDe(CFG.caso))}" maxlength="80"></label>
         <label class="campo"><span>Turma / disciplina (preenche o campo Turma do aluno)</span><input type="text" id="c-turma" value="${esc(CFG.turma)}" maxlength="40" placeholder="Ex.: Introdução a Banco de Dados — ADS 1º período"></label>
         <label class="campo"><span>Desafios por sala</span><select id="c-por"><option value="1" ${CFG.porSala == 1 ? 'selected' : ''}>1 desafio (partida curta, ~7 questões)</option><option value="2" ${CFG.porSala == 2 ? 'selected' : ''}>2 desafios (recomendado, ~14 questões)</option></select></label>
         <div class="cx"><input type="checkbox" id="c-emb" ${CFG.embaralhar ? 'checked' : ''}><label for="c-emb">Embaralhar a ordem das alternativas</label></div>
@@ -714,6 +782,8 @@ function vMissao() {
           <button class="btn" id="p-cod">📋 Copiar código da missão</button>
           <a class="btn" href="aluno.html" target="_blank" rel="noopener">▶ Testar no módulo do aluno</a>
         </div>
+        <div class="muted sm" style="margin-bottom:8px">O <code>missao.json</code> leva junto <b>todos os casos</b> (${TODOS().length} disponíveis), então o aluno não precisa de um <code>aluno.html</code> novo para jogar um caso novo.</div>
+        <div class="barra-acoes" style="margin:0 0 12px"><button class="btn pequeno fantasma" id="p-expcaso">⬇ Exportar caso atual</button><button class="btn pequeno fantasma" id="p-impcaso">⬆ Importar caso (.json)</button><input type="file" id="p-filecaso" accept=".json" style="display:none"></div>
         <details class="d"><summary>Como distribuir para os alunos</summary>
           <div class="muted sm" style="line-height:1.6">
             <b>Opção A — site (recomendada):</b> publique <code>aluno.html</code> e <code>missao.json</code> na mesma pasta (ex.: GitHub Pages). O jogo lê o <code>missao.json</code> automaticamente. Para atualizar as questões, substitua apenas o <code>missao.json</code>.<br>
@@ -724,19 +794,23 @@ function vMissao() {
       </div>
     </div>
     <div class="pan"><h3>Roteiro da investigação</h3>
-      <p class="muted sm" style="margin-top:-4px">Cada resposta correta rende uma ferramenta; cada ferramenta revela uma pista. Culpado: <b>Tobias Drop</b> · Comando: <b><code>DROP TABLE clientes;</code></b></p>
+      <p class="muted sm" style="margin-top:-4px">Cada resposta correta rende uma ferramenta; cada ferramenta revela uma pista. Culpado: <b>${esc(cs.suspeitos.find(x => x.id === cs.culpado).nome)}</b> · Comando: <b><code>${esc(cs.metodos.find(m => m.ok).cmd)}</code></b></p>
       <div class="tw"><table class="t ferr-tab"><thead><tr><th>Sala</th><th>Tópico</th><th>1ª ferramenta</th><th>2ª ferramenta</th></tr></thead><tbody>
-        ${SALAS_Q.map(s => `<tr><td>${s.ico} ${esc(s.nome)}</td><td>${esc(s.tema)}</td>${s.ferr.map(f => `<td>${f.ico} <b>${esc(f.nome)}</b><br><span class="muted sm">${esc(f.pista)}</span></td>`).join('')}</tr>`).join('')}
+        ${SALAS_Q.map(s => `<tr><td>${s.ico} ${esc(s.nome)}</td><td>${esc(s.tema)}</td>${s.ferr.map((f, i) => `<td>${f.ico} <b>${esc(f.nome)}</b><br><span class="muted sm">${esc(DTP.pistaDe(cs, s.id, i))}</span></td>`).join('')}</tr>`).join('')}
       </tbody></table></div></div>`;
   const num = (id, def) => { const v = parseInt($(id).value, 10); return Number.isFinite(v) && v >= 0 ? v : def; };
   const salva = () => {
-    CFG.titulo = $('#c-tit').value.trim() || CONFIG_PADRAO.titulo; CFG.turma = $('#c-turma').value.trim(); CFG.porSala = +$('#c-por').value; CFG.embaralhar = $('#c-emb').checked; CFG.revelarGabarito = $('#c-gab').checked;
+    CFG.titulo = $('#c-tit').value.trim() || DTP.caso(CFG.caso, CASOS_X).titulo; CFG.titulosCaso = Object.assign({}, CFG.titulosCaso, { [CFG.caso]: CFG.titulo }); CFG.turma = $('#c-turma').value.trim(); CFG.porSala = +$('#c-por').value; CFG.embaralhar = $('#c-emb').checked; CFG.revelarGabarito = $('#c-gab').checked;
     CFG.pontos = [num('#c-p0', 100), num('#c-p1', 60), num('#c-p2', 30)]; CFG.bonusAcusacao = [num('#c-b0', 200), num('#c-b1', 120), num('#c-b2', 60)]; CFG.penalidadeAcusacao = num('#c-pen', 50); salvarCfg();
   };
   document.querySelectorAll('#conteudo input,#conteudo select').forEach(i => { if (i.id.startsWith('c-')) i.onchange = salva; });
+  $('#c-caso').onchange = () => { CFG.caso = $('#c-caso').value; CFG.titulo = tituloDe(CFG.caso); salvarCfg(); vMissao(); toast('Caso alterado: ' + DTP.caso(CFG.caso, CASOS_X).nome); };
+  $('#p-expcaso').onclick = () => baixar('caso_' + CFG.caso + '.json', JSON.stringify({ tipo: 'dtp-caso', v: 1, caso: DTP.caso(CFG.caso, CASOS_X) }, null, 1));
+  $('#p-impcaso').onclick = () => $('#p-filecaso').click();
+  $('#p-filecaso').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const o = JSON.parse(await f.text()), c = o.caso || o; if (!DTP.validarCaso(c)) throw new Error('estrutura do caso inválida (precisa de id, nome, carta, suspeitos, metodos com um ok e culpado)'); CASOS_X = CASOS_X.filter(x => x.id !== c.id).concat([c]); salvarCasos(); salva(); CFG.caso = c.id; salvarCfg(); vMissao(); toast('Caso importado: ' + c.nome); } catch (er) { toast('Arquivo inválido: ' + er.message, true); } };
   $('#c-padrao').onclick = () => { CFG = Object.assign({}, CONFIG_PADRAO); salvarCfg(); vMissao(); toast('Configurações padrão restauradas.'); };
-  $('#p-json').onclick = () => { salva(); baixar('missao.json', JSON.stringify(DTP.montarPacote(CFG, BANCO), null, 1)); toast('missao.json baixado. Coloque-o na mesma pasta do aluno.html.'); };
-  $('#p-cod').onclick = async () => { salva(); const c = DTP.codigoPacote(DTP.montarPacote(CFG, BANCO)); toast(await copiar(c) ? `Código copiado (${Math.round(c.length / 1024)} KB).` : 'Não foi possível copiar.', false); };
+  $('#p-json').onclick = () => { salva(); baixar('missao.json', JSON.stringify(pacote(), null, 1)); toast('missao.json baixado. Coloque-o na mesma pasta do aluno.html.'); };
+  $('#p-cod').onclick = async () => { salva(); const c = DTP.codigoPacote(pacote()); toast(await copiar(c) ? `Código copiado (${Math.round(c.length / 1024)} KB).` : 'Não foi possível copiar.', false); };
 }
 
 /* =====================================================================
