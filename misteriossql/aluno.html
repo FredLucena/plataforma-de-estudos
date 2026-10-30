@@ -324,7 +324,7 @@ ul.como{padding-left:1.1em;line-height:1.55;margin:.4em 0}ul.como li{margin-bott
     </div>
       </div>
   <button class="btn pequeno fantasma" id="b-como" style="position:fixed;right:14px;bottom:10px;z-index:4">Como jogar</button>
-  <div class="rodape-t">Módulo do Aluno · criado por <b>Prof. Fred Lucena</b> · Banco de Dados<span id="fonte-missao"></span></div>
+  <div class="rodape-t">Criado por <b>Prof. Fred Lucena</b> em <a id="l-importar" title="Trocar missão" style="color:inherit;cursor:default;text-decoration:none">2026</a></div>
 </section>
 
 <!-- ============ AVATAR ============ -->
@@ -911,7 +911,6 @@ function rotuloMissao() {
   sel.onchange = () => { lsSet('dtp_caso_aluno', sel.value); usarCaso(sel.value); SFX.clique(); rotuloMissao(); };
   $('.subtit').textContent = CASO.sub; $('#tit-h1').textContent = tituloAtual(); document.title = tituloAtual() + ' — Módulo do Aluno';
   const n = MISSAO.pac.questoes.length;
-  $('#fonte-missao').innerHTML = ` · <a id="l-importar" title="Trocar missão (código ou missao.json do professor)" style="color:inherit;cursor:pointer">${n} questões</a>`;
   $('#l-importar').onclick = abrirImportar;
   const sv = lsGet('dtp_save');
   $('#b-continuar').style.display = (sv && sv.S && !sv.S.fim && sv.S.missao === MISSAO.hash && (!sv.S.caso || sv.S.caso === CASO.id)) ? '' : 'none';
