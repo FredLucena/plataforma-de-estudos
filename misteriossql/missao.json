@@ -1,0 +1,516 @@
+{
+ "tipo": "dtp-missao",
+ "v": 1,
+ "criadoEm": "2026-10-30T17:03:08.893Z",
+ "config": {
+  "titulo": "O Mistério do Preço Zero",
+  "turma": "",
+  "caso": "preco",
+  "porSala": 2,
+  "embaralhar": true,
+  "revelarGabarito": true,
+  "pontos": [
+   100,
+   60,
+   30
+  ],
+  "bonusAcusacao": [
+   200,
+   120,
+   60
+  ],
+  "penalidadeAcusacao": 50
+ },
+ "questoes": [
+  {
+   "id": "s1q1",
+   "sala": 1,
+   "nivel": 1,
+   "q": "Qual é a diferença entre **dado** e **informação**?",
+   "o": [
+    "Dado é um fato bruto, sem contexto; informação é o dado processado, com significado.",
+    "Dado e informação são sinônimos em qualquer situação.",
+    "Informação é o fato bruto; dado é o resultado de uma análise.",
+    "Dado só existe em bancos de dados relacionais."
+   ],
+   "c": 0,
+   "e": "O número 38,5 é um dado. Interpretado como “temperatura do paciente: 38,5 °C (febre)”, torna-se informação."
+  },
+  {
+   "id": "s1q2",
+   "sala": 1,
+   "nivel": 1,
+   "q": "O que é um **SGBD** (Sistema Gerenciador de Banco de Dados)?",
+   "o": [
+    "O conjunto de tabelas armazenadas em disco.",
+    "O software que permite criar, acessar, manter e proteger bancos de dados.",
+    "Uma linguagem de programação para criar sites.",
+    "O computador que hospeda os arquivos do sistema."
+   ],
+   "c": 1,
+   "e": "O banco de dados são os dados em si; o SGBD (MySQL, PostgreSQL, Oracle…) é o software que os gerencia."
+  },
+  {
+   "id": "s1q3",
+   "sala": 1,
+   "nivel": 2,
+   "q": "Qual é uma vantagem de usar um SGBD em vez de planilhas e arquivos de texto espalhados?",
+   "o": [
+    "Elimina totalmente a necessidade de backup.",
+    "Controla acessos simultâneos, reduz redundância e inconsistência e centraliza a segurança.",
+    "Impede que qualquer usuário altere os dados.",
+    "Dispensa o planejamento e a modelagem dos dados."
+   ],
+   "c": 1,
+   "e": "O SGBD oferece controle de concorrência, integridade, segurança e menor redundância. Backup continua sendo necessário."
+  },
+  {
+   "id": "s1q4",
+   "sala": 1,
+   "nivel": 1,
+   "q": "Qual profissional é responsável por instalar e configurar o SGBD, conceder permissões e realizar backups?",
+   "o": [
+    "Analista de requisitos",
+    "Administrador de Banco de Dados (DBA)",
+    "Usuário final",
+    "Designer de interface"
+   ],
+   "c": 1,
+   "e": "O DBA cuida da administração do ambiente: instalação, desempenho, segurança, permissões e cópias de segurança."
+  },
+  {
+   "id": "s1q5",
+   "sala": 1,
+   "nivel": 1,
+   "q": "Qual alternativa apresenta apenas exemplos de SGBDs?",
+   "o": [
+    "MySQL, PostgreSQL e Oracle",
+    "HTML, CSS e JavaScript",
+    "Word, Excel e PowerPoint",
+    "Python, Java e C"
+   ],
+   "c": 0,
+   "e": "HTML/CSS/JS são tecnologias web; Word/Excel/PowerPoint são aplicativos de escritório; Python/Java/C são linguagens de programação."
+  },
+  {
+   "id": "s2q1",
+   "sala": 2,
+   "nivel": 1,
+   "q": "No Modelo Entidade-Relacionamento (MER), o que representa uma **entidade**?",
+   "o": [
+    "Um objeto ou conceito do mundo real sobre o qual queremos guardar dados (ex.: Cliente).",
+    "Uma característica de um objeto (ex.: nome).",
+    "A ligação entre duas tabelas por meio de chaves.",
+    "Um comando para consultar os dados."
+   ],
+   "c": 0,
+   "e": "Entidade é “a coisa”; atributos são suas características; relacionamentos ligam entidades."
+  },
+  {
+   "id": "s2q2",
+   "sala": 2,
+   "nivel": 2,
+   "q": "Qual atributo é, tipicamente, **multivalorado**?",
+   "o": [
+    "CPF do cliente",
+    "Data de nascimento",
+    "Telefones do cliente (pode ter vários)",
+    "Código do cliente"
+   ],
+   "c": 2,
+   "e": "Um mesmo cliente pode ter vários telefones. No modelo relacional, esse atributo costuma virar uma tabela própria."
+  },
+  {
+   "id": "s2q3",
+   "sala": 2,
+   "nivel": 1,
+   "q": "Um cliente pode fazer vários pedidos, mas cada pedido pertence a um único cliente. A cardinalidade entre Cliente e Pedido é:",
+   "o": [
+    "1:1 (um para um)",
+    "1:N (um para muitos)",
+    "N:N (muitos para muitos)",
+    "0:0 (nenhum para nenhum)"
+   ],
+   "c": 1,
+   "e": "Um cliente → muitos pedidos; cada pedido → um cliente. É o relacionamento 1:N mais comum."
+  },
+  {
+   "id": "s2q4",
+   "sala": 2,
+   "nivel": 2,
+   "q": "Um aluno cursa várias disciplinas e cada disciplina possui vários alunos. Essa cardinalidade é:",
+   "o": [
+    "1:1",
+    "1:N",
+    "N:N (muitos para muitos)",
+    "Não existe relacionamento"
+   ],
+   "c": 2,
+   "e": "Relacionamentos N:N exigem uma tabela associativa (ex.: Matrícula) na implementação relacional."
+  },
+  {
+   "id": "s2q5",
+   "sala": 2,
+   "nivel": 1,
+   "q": "O que é um **atributo identificador** de uma entidade?",
+   "o": [
+    "Aquele que mais aparece nas consultas.",
+    "Aquele cujo valor identifica unicamente cada ocorrência da entidade (ex.: CPF, matrícula).",
+    "Aquele que possui o maior tamanho em bytes.",
+    "Qualquer atributo do tipo texto."
+   ],
+   "c": 1,
+   "e": "O identificador distingue uma ocorrência das demais e dará origem à chave primária."
+  },
+  {
+   "id": "s3q1",
+   "sala": 3,
+   "nivel": 1,
+   "q": "No modelo relacional, cada **linha** (tupla) de uma tabela representa:",
+   "o": [
+    "Uma coluna da tabela",
+    "Uma ocorrência (registro) da entidade",
+    "Um tipo de dado",
+    "Um índice"
+   ],
+   "c": 1,
+   "e": "Linhas são registros (ocorrências); colunas são atributos."
+  },
+  {
+   "id": "s3q2",
+   "sala": 3,
+   "nivel": 1,
+   "q": "A **chave primária** (PK) de uma tabela garante que:",
+   "o": [
+    "O valor pode se repetir desde que a linha seja diferente",
+    "Cada linha é identificada por um valor único e não nulo",
+    "A tabela só poderá ter uma linha",
+    "A coluna será sempre numérica"
+   ],
+   "c": 1,
+   "e": "A PK é única e obrigatória (não aceita NULL). Pode ser de qualquer tipo, inclusive texto."
+  },
+  {
+   "id": "s3q3",
+   "sala": 3,
+   "nivel": 1,
+   "q": "Para que serve uma **chave estrangeira** (FK)?",
+   "o": [
+    "Para criptografar os dados",
+    "Para referenciar a chave primária de outra tabela e criar o relacionamento",
+    "Para ordenar as linhas",
+    "Para impedir a criação de novas tabelas"
+   ],
+   "c": 1,
+   "e": "A FK aponta para a PK de outra tabela, estabelecendo o vínculo e permitindo a integridade referencial."
+  },
+  {
+   "id": "s3q4",
+   "sala": 3,
+   "nivel": 2,
+   "q": "Como um relacionamento **N:N** é implementado no modelo relacional?",
+   "o": [
+    "Colocando uma lista de IDs em uma única coluna",
+    "Criando uma tabela associativa com as chaves estrangeiras das duas tabelas",
+    "Duplicando as duas tabelas",
+    "Não é possível representar N:N"
+   ],
+   "c": 1,
+   "e": "A tabela associativa (ex.: matricula com id_aluno e id_disciplina) transforma o N:N em dois relacionamentos 1:N."
+  },
+  {
+   "id": "s3q5",
+   "sala": 3,
+   "nivel": 2,
+   "q": "Existe uma FK `pedido.id_cliente` referenciando `cliente.id`. O que ocorre ao inserir um pedido com `id_cliente = 999`, que não existe em `cliente`?",
+   "o": [
+    "O SGBD cria automaticamente o cliente 999",
+    "O SGBD rejeita a inserção (violação de integridade referencial)",
+    "O pedido é gravado com id_cliente nulo",
+    "A tabela cliente é apagada"
+   ],
+   "c": 1,
+   "e": "A integridade referencial impede que uma FK aponte para um valor que não existe na tabela referenciada."
+  },
+  {
+   "id": "s4q1",
+   "sala": 4,
+   "nivel": 1,
+   "q": "Uma tabela está na **1ª Forma Normal (1FN)** quando:",
+   "o": [
+    "Todos os atributos são atômicos (sem valores multivalorados ou grupos repetidos)",
+    "Não possui chave primária",
+    "Todos os atributos são numéricos",
+    "Possui no máximo duas colunas"
+   ],
+   "c": 0,
+   "e": "1FN: cada célula guarda um único valor indivisível."
+  },
+  {
+   "id": "s4q2",
+   "sala": 4,
+   "nivel": 1,
+   "q": "A coluna `telefones` guarda “8888-1111, 9999-2222” em uma mesma célula. Qual forma normal está sendo violada?",
+   "o": [
+    "1FN",
+    "2FN",
+    "3FN",
+    "Nenhuma"
+   ],
+   "c": 0,
+   "e": "Dois valores na mesma célula tornam o atributo não atômico — violação da 1FN."
+  },
+  {
+   "id": "s4q3",
+   "sala": 4,
+   "nivel": 2,
+   "q": "A **2ª Forma Normal (2FN)** elimina:",
+   "o": [
+    "Dependências transitivas",
+    "Dependências parciais da chave primária composta",
+    "Tabelas com mais de 3 colunas",
+    "Chaves estrangeiras"
+   ],
+   "c": 1,
+   "e": "Na 2FN, todo atributo não-chave deve depender da chave inteira, e não apenas de parte dela."
+  },
+  {
+   "id": "s4q4",
+   "sala": 4,
+   "nivel": 2,
+   "q": "A **3ª Forma Normal (3FN)** elimina:",
+   "o": [
+    "Dependências parciais",
+    "Dependências transitivas (atributo não-chave dependendo de outro não-chave)",
+    "Chaves primárias",
+    "Relacionamentos 1:N"
+   ],
+   "c": 1,
+   "e": "Ex.: em Funcionario(id, nome, cod_depto, nome_depto), nome_depto depende de cod_depto, não de id — deve ir para a tabela Departamento."
+  },
+  {
+   "id": "s4q5",
+   "sala": 4,
+   "nivel": 1,
+   "q": "Qual é o principal objetivo da normalização?",
+   "o": [
+    "Reduzir redundância e evitar anomalias de inserção, atualização e exclusão",
+    "Aumentar o número de tabelas para dificultar acessos",
+    "Substituir o uso de chaves primárias",
+    "Criptografar os dados"
+   ],
+   "c": 0,
+   "e": "Dados repetidos geram inconsistências; normalizar organiza a informação em tabelas coesas."
+  },
+  {
+   "id": "s5q1",
+   "sala": 5,
+   "nivel": 1,
+   "q": "Qual comando SQL cria uma nova tabela?",
+   "o": [
+    "INSERT TABLE",
+    "CREATE TABLE",
+    "NEW TABLE",
+    "MAKE TABLE"
+   ],
+   "c": 1,
+   "e": "CREATE TABLE define o nome, as colunas, os tipos e as restrições da tabela."
+  },
+  {
+   "id": "s5q2",
+   "sala": 5,
+   "nivel": 2,
+   "q": "Qual comando adiciona a coluna `email` à tabela `clientes`?",
+   "o": [
+    "`UPDATE clientes ADD email VARCHAR(100);`",
+    "`INSERT INTO clientes email;`",
+    "`ALTER TABLE clientes ADD email VARCHAR(100);`",
+    "`CREATE COLUMN email ON clientes;`"
+   ],
+   "c": 2,
+   "e": "ALTER TABLE altera a estrutura de uma tabela existente (adicionar, modificar ou remover colunas)."
+  },
+  {
+   "id": "s5q3",
+   "sala": 5,
+   "nivel": 1,
+   "q": "O que faz o comando `DROP TABLE clientes;`?",
+   "o": [
+    "Apaga apenas as linhas da tabela, mantendo a estrutura",
+    "Remove a tabela por completo: estrutura e dados",
+    "Renomeia a tabela",
+    "Cria uma cópia de segurança da tabela"
+   ],
+   "c": 1,
+   "e": "DROP TABLE é DDL e é irreversível sem backup. Normalmente exige privilégios de administrador."
+  },
+  {
+   "id": "s5q4",
+   "sala": 5,
+   "nivel": 2,
+   "q": "Qual comando DDL esvazia a tabela (remove todas as linhas) preservando sua estrutura?",
+   "o": [
+    "DROP TABLE",
+    "TRUNCATE TABLE",
+    "ALTER TABLE",
+    "CREATE TABLE"
+   ],
+   "c": 1,
+   "e": "TRUNCATE remove todas as linhas e mantém a tabela. DROP remove a tabela inteira."
+  },
+  {
+   "id": "s5q5",
+   "sala": 5,
+   "nivel": 1,
+   "q": "A sigla **DDL** significa:",
+   "o": [
+    "Data Definition Language — define a estrutura (CREATE, ALTER, DROP)",
+    "Data Delivery Layer — entrega dados à aplicação",
+    "Database Design Logic — desenho lógico do banco",
+    "Dynamic Data Link — liga bancos diferentes"
+   ],
+   "c": 0,
+   "e": "DDL = Linguagem de Definição de Dados. Já INSERT, UPDATE e DELETE pertencem à DML."
+  },
+  {
+   "id": "s6q1",
+   "sala": 6,
+   "nivel": 1,
+   "q": "Qual comando insere um novo cliente?",
+   "o": [
+    "`INSERT INTO clientes (nome, email) VALUES ('Ana', 'ana@email.com');`",
+    "`ADD clientes (nome, email) = ('Ana', 'ana@email.com');`",
+    "`CREATE clientes VALUES ('Ana', 'ana@email.com');`",
+    "`UPDATE clientes SET nome = 'Ana';`"
+   ],
+   "c": 0,
+   "e": "INSERT INTO tabela (colunas) VALUES (valores) adiciona uma nova linha."
+  },
+  {
+   "id": "s6q2",
+   "sala": 6,
+   "nivel": 2,
+   "q": "O que acontece ao executar `UPDATE produtos SET preco = 0;` **sem** cláusula WHERE?",
+   "o": [
+    "Nada, pois falta o WHERE",
+    "Apenas o primeiro produto é alterado",
+    "O preço de todos os produtos passa a ser 0",
+    "A tabela produtos é apagada"
+   ],
+   "c": 2,
+   "e": "Sem WHERE, o UPDATE atinge todas as linhas. Sempre confira o filtro antes de executar!"
+  },
+  {
+   "id": "s6q3",
+   "sala": 6,
+   "nivel": 1,
+   "q": "Qual comando remove somente o cliente de id 7?",
+   "o": [
+    "`DROP TABLE clientes WHERE id = 7;`",
+    "`DELETE FROM clientes WHERE id = 7;`",
+    "`TRUNCATE TABLE clientes;`",
+    "`DELETE clientes;`"
+   ],
+   "c": 1,
+   "e": "DELETE FROM … WHERE remove só as linhas que atendem à condição."
+  },
+  {
+   "id": "s6q4",
+   "sala": 6,
+   "nivel": 1,
+   "q": "Qual comando altera o e-mail do cliente de id 3?",
+   "o": [
+    "`UPDATE clientes SET email = 'novo@email.com' WHERE id = 3;`",
+    "`ALTER clientes SET email = 'novo@email.com' WHERE id = 3;`",
+    "`INSERT INTO clientes email = 'novo@email.com';`",
+    "`SELECT email = 'novo@email.com' FROM clientes;`"
+   ],
+   "c": 0,
+   "e": "UPDATE tabela SET coluna = valor WHERE condição."
+  },
+  {
+   "id": "s6q5",
+   "sala": 6,
+   "nivel": 1,
+   "q": "Qual grupo contém apenas comandos de manipulação de dados (DML)?",
+   "o": [
+    "CREATE, ALTER e DROP",
+    "INSERT, UPDATE e DELETE",
+    "GRANT, REVOKE e CREATE",
+    "TRUNCATE, DROP e ALTER"
+   ],
+   "c": 1,
+   "e": "CREATE/ALTER/DROP/TRUNCATE são DDL; GRANT/REVOKE são DCL; INSERT/UPDATE/DELETE são DML."
+  },
+  {
+   "id": "s7q1",
+   "sala": 7,
+   "nivel": 1,
+   "q": "Qual consulta retorna apenas o nome e o e-mail de todos os clientes?",
+   "o": [
+    "`SELECT nome, email FROM clientes;`",
+    "`SELECT * FROM nome, email;`",
+    "`GET nome, email FROM clientes;`",
+    "`FROM clientes SELECT ALL;`"
+   ],
+   "c": 0,
+   "e": "SELECT colunas FROM tabela. O asterisco (*) traria todas as colunas."
+  },
+  {
+   "id": "s7q2",
+   "sala": 7,
+   "nivel": 1,
+   "q": "Qual consulta lista os clientes da cidade de Recife?",
+   "o": [
+    "`SELECT * FROM clientes WHERE cidade = 'Recife';`",
+    "`SELECT * FROM clientes HAVING 'Recife';`",
+    "`SELECT cidade FROM clientes = 'Recife';`",
+    "`FILTER clientes BY cidade = 'Recife';`"
+   ],
+   "c": 0,
+   "e": "WHERE filtra as linhas antes do resultado ser exibido."
+  },
+  {
+   "id": "s7q3",
+   "sala": 7,
+   "nivel": 1,
+   "q": "Qual consulta informa quantos pedidos existem?",
+   "o": [
+    "`SELECT SUM(*) FROM pedidos;`",
+    "`SELECT COUNT(*) FROM pedidos;`",
+    "`SELECT MAX(*) FROM pedidos;`",
+    "`COUNT pedidos;`"
+   ],
+   "c": 1,
+   "e": "COUNT(*) conta linhas. SUM soma valores de uma coluna; MAX retorna o maior valor."
+  },
+  {
+   "id": "s7q4",
+   "sala": 7,
+   "nivel": 2,
+   "q": "O **INNER JOIN** entre duas tabelas retorna:",
+   "o": [
+    "Todas as linhas das duas tabelas, combinadas ou não",
+    "Somente as linhas que têm correspondência nas duas tabelas, segundo a condição de junção",
+    "Apenas as linhas da tabela da esquerda",
+    "O produto de todas as colunas, sem condições"
+   ],
+   "c": 1,
+   "e": "INNER JOIN mantém só o que casa pela condição (ex.: pedido.id_cliente = cliente.id)."
+  },
+  {
+   "id": "s7q5",
+   "sala": 7,
+   "nivel": 3,
+   "q": "Qual consulta mostra o total de pedidos de cada cliente?",
+   "o": [
+    "`SELECT id_cliente, COUNT(*) FROM pedidos GROUP BY id_cliente;`",
+    "`SELECT id_cliente, COUNT(*) FROM pedidos ORDER BY COUNT;`",
+    "`SELECT COUNT(*) FROM pedidos WHERE id_cliente;`",
+    "`SELECT DISTINCT id_cliente, pedidos;`"
+   ],
+   "c": 0,
+   "e": "GROUP BY agrupa as linhas; a função agregada COUNT(*) é calculada por grupo."
+  }
+ ]
+}
