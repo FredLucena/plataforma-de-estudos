@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fred Lucena | DER Fácil, Master Quiz, Batalha do Saber, Mistérios da Mansão, Explorador e Horário de Prova</title>
-<meta name="description" content="Ferramentas para a sala de aula criadas por Fred Lucena: DER Fácil, Master Quiz, Batalha do Saber, Mistérios da Mansão, Explorador e Horário de Prova.">
+<title>Fred Lucena | DER Fácil, Master Quiz, Batalha do Saber, Mistérios da Mansão, Explorador, O Arquivo Central e Horário de Prova</title>
+<meta name="description" content="Ferramentas para a sala de aula criadas por Fred Lucena: DER Fácil, Master Quiz, Batalha do Saber, Mistérios da Mansão, Explorador, O Arquivo Central e Horário de Prova.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
@@ -19,6 +19,7 @@
   --crimson:#A3262F;
   --battle:#2B45C9;
   --mystery:#7A4B14;
+  --central:#1F5F4A;
   --folder:#F2B632;
   --red:#E5484D;
   --blue:#3E63DD;
@@ -56,6 +57,7 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,5.2vw,3.7re
 .menu .m-battle i{background:var(--battle);clip-path:polygon(0 100%,0 20%,20% 20%,20% 0,40% 0,40% 20%,60% 20%,60% 0,80% 0,80% 20%,100% 20%,100% 100%)}
 .menu .m-mist i{background:var(--mystery);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
 .menu .m-exp i{background:var(--folder);border-radius:3px 3px 3px 3px}
+.menu .m-central i{background:var(--central);clip-path:polygon(0 100%,0 15%,40% 15%,50% 0,100% 0,100% 100%)}
 .menu .m-clock i{border:4px solid var(--crimson);border-radius:50%}
 .menu small{margin-left:auto;font-family:var(--body);font-weight:500;font-size:.9rem;color:var(--soft);letter-spacing:0;text-align:right}
 
@@ -66,6 +68,7 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,5.2vw,3.7re
 .band.battle{background:var(--battle)}
 .band.mist{background:var(--mystery)}
 .band.exp{background:var(--graph)}
+.band.central{background:var(--central)}
 .band.clock{background:var(--crimson)}
 .inner{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
 .band.flip .copy{order:2}
@@ -80,6 +83,8 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,5.2vw,3.7re
 .btns{display:flex;gap:12px;flex-wrap:wrap}
 .btn.alt{background:transparent;color:#fff;border:2px solid #fff;padding:12px 24px}
 .btn.alt:hover{background:#fff;color:var(--ink)}
+.btn.off{opacity:.75;cursor:default}
+.btn.off:hover{background:#fff}
 .art svg{width:100%;height:auto;display:block}
 .art text{font-family:var(--body)}
 
@@ -111,6 +116,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
       <a href="#batalha-do-saber">Batalha do Saber</a>
       <a href="#misterios-da-mansao">Mistérios da Mansão</a>
       <a href="#explorador">Explorador</a>
+      <a href="#o-arquivo-central">O Arquivo Central</a>
       <a href="#relogio">Horário de Prova</a>
     </nav>
   </header>
@@ -127,6 +133,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
         <li><a class="m-battle" href="#batalha-do-saber"><i aria-hidden="true"></i>Batalha do Saber<small>Quiz em trilha, para professor e aluno</small></a></li>
         <li><a class="m-mist" href="#misterios-da-mansao"><i aria-hidden="true"></i>Mistérios da Mansão<small>Jogo de investigação, para professor e aluno</small></a></li>
         <li><a class="m-exp" href="#explorador"><i aria-hidden="true"></i>Explorador<small>Arquivos compartilhados</small></a></li>
+        <li><a class="m-central" href="#o-arquivo-central"><i aria-hidden="true"></i>O Arquivo Central<small>Em breve</small></a></li>
         <li><a class="m-clock" href="#relogio"><i aria-hidden="true"></i>Horário de Prova<small>Hora em tela inteira</small></a></li>
       </ul>
     </div>
@@ -394,7 +401,39 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   </div>
 </section>
 
-<section class="band clock flip" id="relogio" aria-labelledby="h-clock">
+<section class="band central flip" id="o-arquivo-central" aria-labelledby="h-central">
+  <div class="wrap inner">
+    <div class="copy">
+      <h2 id="h-central">O Arquivo Central</h2>
+      <p class="tag">Uma nova ferramenta a caminho.</p>
+      <p class="d">Ela ainda está sendo preparada. Quando estiver no ar, o botão abaixo passa a levar direto para ela.</p>
+      <span class="btn off" aria-disabled="true">Em breve</span>
+    </div>
+    <div class="art">
+      <svg viewBox="0 0 440 280" role="img" aria-label="Um arquivo de gavetas fechado">
+        <rect x="8" y="8" width="424" height="264" rx="14" fill="#fff" fill-opacity=".1"/>
+        <rect x="130" y="24" width="180" height="232" rx="10" fill="#F4EFE4" stroke="#0F2E24" stroke-width="4"/>
+        <g fill="#E4DCC8" stroke="#0F2E24" stroke-width="3">
+          <rect x="146" y="40" width="148" height="60" rx="6"/>
+          <rect x="146" y="110" width="148" height="60" rx="6"/>
+          <rect x="146" y="180" width="148" height="60" rx="6"/>
+        </g>
+        <g fill="#fff" stroke="#0F2E24" stroke-width="3">
+          <rect x="190" y="52" width="60" height="22" rx="4"/>
+          <rect x="190" y="122" width="60" height="22" rx="4"/>
+          <rect x="190" y="192" width="60" height="22" rx="4"/>
+        </g>
+        <g stroke="#0F2E24" stroke-width="4" stroke-linecap="round">
+          <path d="M205 86 H235"/>
+          <path d="M205 156 H235"/>
+          <path d="M205 226 H235"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="band clock" id="relogio" aria-labelledby="h-clock">
   <div class="wrap inner">
     <div class="copy">
       <h2 id="h-clock">Horário de Prova</h2>
