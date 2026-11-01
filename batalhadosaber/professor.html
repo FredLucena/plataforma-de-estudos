@@ -450,7 +450,7 @@ html.fs,html.fs body{height:100%; background:var(--bg)}
 html.fs .app.wide{max-width:none; width:100%; min-height:100vh; display:flex; flex-direction:column; padding:2vh 2.5vw 2vh}
 html.fs .app.wide>main{flex:1; display:flex; flex-direction:column; min-height:0}
 html.fs .app.wide>main>section:not([hidden]){flex:1; display:flex; flex-direction:column; min-height:0}
-html.fs .app.wide>footer{display:none}
+html.fs .app.wide>footer{display:block; flex:none; margin:0; padding:.6vh 0 0; font-size:clamp(.7rem,1.5vh,.95rem); text-align:center}
 html.fs .app.wide #s-reveal>div:not([hidden]){flex:1; display:flex; flex-direction:column; min-height:0}
 html.fs .lobby{flex:1; align-items:stretch}
 html.fs .joinbox{align-content:center}
@@ -486,7 +486,7 @@ html.fs,html.fs body{height:100%; margin:0}
 html.fs .app:not(.wide){max-width:none !important; width:100%; box-sizing:border-box; min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; padding:max(12px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 74px max(14px,env(safe-area-inset-left,0px))}
 html.fs .app:not(.wide)>main{flex:1; display:flex; flex-direction:column; min-height:0}
 html.fs .app:not(.wide)>main>section:not([hidden]){flex:1; display:flex; flex-direction:column; min-height:0}
-html.fs .app:not(.wide)>.foot{display:none}
+html.fs .app:not(.wide)>.foot{display:block; flex:none; margin:0; padding:6px 0 2px; font-size:.75rem; text-align:center}
 html.fs .waitbox{flex:1; align-content:center}
 html.fs #s-join .card{flex:1; align-content:center}
 html.fs .sopts{flex:1; grid-auto-rows:1fr; margin-bottom:6px}
