@@ -133,7 +133,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
         <li><a class="m-battle" href="#batalha-do-saber"><i aria-hidden="true"></i>Batalha do Saber<small>Quiz em trilha, para professor e aluno</small></a></li>
         <li><a class="m-mist" href="#misterios-da-mansao"><i aria-hidden="true"></i>Mistérios da Mansão<small>Jogo de investigação, para professor e aluno</small></a></li>
         <li><a class="m-exp" href="#explorador"><i aria-hidden="true"></i>Explorador<small>Arquivos compartilhados</small></a></li>
-        <li><a class="m-central" href="#o-arquivo-central"><i aria-hidden="true"></i>O Arquivo Central<small>Em breve</small></a></li>
+        <li><a class="m-central" href="#o-arquivo-central"><i aria-hidden="true"></i>O Arquivo Central<small>Jogo de SQL em 3D</small></a></li>
         <li><a class="m-clock" href="#relogio"><i aria-hidden="true"></i>Horário de Prova<small>Hora em tela inteira</small></a></li>
       </ul>
     </div>
@@ -405,28 +405,36 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   <div class="wrap inner">
     <div class="copy">
       <h2 id="h-central">O Arquivo Central</h2>
-      <p class="tag">Uma nova ferramenta a caminho.</p>
-      <p class="d">Ela ainda está sendo preparada. Quando estiver no ar, o botão abaixo passa a levar direto para ela.</p>
-      <span class="btn off" aria-disabled="true">Em breve</span>
+      <p class="tag">Jogo de SQL em 3D.</p>
+      <p class="d">Um quebra-cabeça para aprender SQL. O aluno acorda numa instalação científica abandonada, onde o banco de dados que controla as portas foi corrompido. Para avançar, ele consulta as tabelas nos terminais e escreve o SELECT certo: quando o resultado bate, a porta se abre.</p>
+      <ul>
+        <li>Sete setores para atravessar, andando pela instalação em 3D com o teclado e o mouse</li>
+        <li>Três níveis de desafio: básico (SELECT, WHERE, AND/OR), intermediário (ORDER BY, LIKE, IN, BETWEEN, IS NULL, DISTINCT) e avançado (JOIN e LEFT JOIN)</li>
+        <li>O terminal dá dicas quando o aluno pede e mostra os dados da tabela</li>
+        <li>Conta tentativas e tempo, e no final gera um resumo para o aluno entregar ao professor</li>
+      </ul>
+      <a class="btn" href="https://fredlucena.com.br/arquivocentral/">Jogar O Arquivo Central</a>
     </div>
     <div class="art">
-      <svg viewBox="0 0 440 280" role="img" aria-label="Um arquivo de gavetas fechado">
-        <rect x="8" y="8" width="424" height="264" rx="14" fill="#fff" fill-opacity=".1"/>
-        <rect x="130" y="24" width="180" height="232" rx="10" fill="#F4EFE4" stroke="#0F2E24" stroke-width="4"/>
-        <g fill="#E4DCC8" stroke="#0F2E24" stroke-width="3">
-          <rect x="146" y="40" width="148" height="60" rx="6"/>
-          <rect x="146" y="110" width="148" height="60" rx="6"/>
-          <rect x="146" y="180" width="148" height="60" rx="6"/>
+      <svg viewBox="0 0 440 280" role="img" aria-label="Corredor em 3D com uma porta fechada no fundo e um terminal mostrando uma consulta SELECT">
+        <rect x="8" y="8" width="424" height="264" rx="14" fill="#0F2E24"/>
+        <polygon points="24,24 416,24 290,86 150,86" fill="#0B2219"/>
+        <polygon points="24,256 416,256 290,200 150,200" fill="#14463A"/>
+        <polygon points="24,24 150,86 150,200 24,256" fill="#123C31"/>
+        <polygon points="416,24 290,86 290,200 416,256" fill="#123C31"/>
+        <rect x="150" y="86" width="140" height="114" fill="#174D3F"/>
+        <g fill="none" stroke="#5EEAD4" stroke-opacity=".6" stroke-width="2" stroke-linejoin="round">
+          <rect x="24" y="24" width="392" height="232"/>
+          <rect x="150" y="86" width="140" height="114"/>
+          <path d="M24 24 L150 86 M416 24 L290 86 M24 256 L150 200 M416 256 L290 200"/>
         </g>
-        <g fill="#fff" stroke="#0F2E24" stroke-width="3">
-          <rect x="190" y="52" width="60" height="22" rx="4"/>
-          <rect x="190" y="122" width="60" height="22" rx="4"/>
-          <rect x="190" y="192" width="60" height="22" rx="4"/>
-        </g>
-        <g stroke="#0F2E24" stroke-width="4" stroke-linecap="round">
-          <path d="M205 86 H235"/>
-          <path d="M205 156 H235"/>
-          <path d="M205 226 H235"/>
+        <rect x="190" y="116" width="60" height="84" fill="#0B2219" stroke="#5EEAD4" stroke-width="3"/>
+        <circle cx="220" cy="104" r="5" fill="#FF6B6B"/>
+        <rect x="256" y="150" width="160" height="96" rx="8" fill="#0B2219" stroke="#5EEAD4" stroke-width="3"/>
+        <g font-size="13" fill="#5EEAD4" font-family="ui-monospace,Menlo,Consolas,monospace">
+          <text x="270" y="176">SELECT codigo</text>
+          <text x="270" y="196">FROM chaves</text>
+          <text x="270" y="216">WHERE ativa = 1;</text>
         </g>
       </svg>
     </div>
