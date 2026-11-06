@@ -694,10 +694,10 @@ const DTP = (() => {
   const QUESTOES_PADRAO = [
     // Sala 1 — Conceitos
     Q('s1q1', 1, 1, 'Qual é a diferença entre **dado** e **informação**?',
-      ["Dado é um fato bruto e sem contexto; informação é o dado interpretado.", "Dado é o fato já analisado; informação é o registro bruto guardado.", "Dado e informação são sinônimos, pois ambos descrevem um fato.", "Dado só existe em bancos relacionais; informação, em planilhas."], 0,
+      ["Dado é um fato bruto e sem contexto; informação é o dado interpretado.", "Dado é o fato já analisado e classificado; informação é o registro bruto guardado no sistema.", "Dado e informação são sinônimos, pois ambos descrevem um fato.", "Dado só existe em bancos relacionais; informação, em planilhas."], 0,
       'O número 38,5 é um dado. Interpretado como “temperatura do paciente: 38,5 °C (febre)”, torna-se informação.'),
     Q('s1q2', 1, 1, 'O que é um **SGBD** (Sistema Gerenciador de Banco de Dados)?',
-      ["O conjunto de tabelas e arquivos armazenados no disco do servidor.", "O software que permite criar, acessar, manter e proteger bancos.", "Uma linguagem de programação usada para criar páginas e sistemas web.", "O computador que hospeda os arquivos e executa o sistema."], 1,
+      ["O conjunto de tabelas e arquivos armazenados no disco do servidor.", "O software que permite criar, acessar, manter e proteger bancos.", "Uma linguagem de programação usada para criar páginas, aplicativos e sistemas web.", "O computador que hospeda os arquivos e executa o sistema."], 1,
       'O banco de dados são os dados em si; o SGBD (MySQL, PostgreSQL, Oracle…) é o software que os gerencia.'),
     Q('s1q3', 1, 2, 'Qual é uma vantagem de usar um SGBD em vez de planilhas e arquivos de texto espalhados?',
       ["Elimina totalmente a necessidade de backup e de recuperação.", "Controla acessos simultâneos e reduz a redundância.", "Impede que qualquer usuário altere os dados já armazenados.", "Dispensa o planejamento e a modelagem prévia dos dados."], 1,
@@ -706,11 +706,11 @@ const DTP = (() => {
       ["Analista de requisitos de software", "Administrador de BD (DBA)", "Usuário final do sistema web", "Designer de interface gráfica"], 1,
       'O DBA cuida da administração do ambiente: instalação, desempenho, segurança, permissões e cópias de segurança.'),
     Q('s1q5', 1, 1, 'Qual alternativa apresenta apenas exemplos de SGBDs?',
-      ["MySQL, PostgreSQL e SQL Server", "HTML, CSS, JavaScript e PHP", "Word, Excel, PowerPoint e Outlook", "Python, Java, C++ e Ruby"], 0,
+      ["MySQL, PostgreSQL e SQL Server", "HTML, CSS, JavaScript e PHP", "Word, Excel, PowerPoint, Outlook e OneNote", "Python, Java, C++ e Ruby"], 0,
       'HTML/CSS/JS são tecnologias web; Word/Excel/PowerPoint são aplicativos de escritório; Python/Java/C são linguagens de programação.'),
     // Sala 2 — MER
     Q('s2q1', 2, 1, 'No Modelo Entidade-Relacionamento (MER), o que representa uma **entidade**?',
-      ["Um objeto do mundo real sobre o qual guardamos dados (ex.: Cliente).", "Uma característica que descreve um objeto real (ex.: nome).", "A ligação entre duas tabelas feita por meio de chaves (PK e FK).", "Um comando usado para consultar e filtrar os dados armazenados."], 0,
+      ["Um objeto do mundo real sobre o qual guardamos dados (ex.: Cliente).", "Uma característica que descreve um objeto real (ex.: nome).", "A ligação entre duas tabelas feita por meio de chaves primárias e estrangeiras.", "Um comando usado para consultar e filtrar os dados armazenados."], 0,
       'Entidade é “a coisa”; atributos são suas características; relacionamentos ligam entidades.'),
     Q('s2q2', 2, 2, 'Qual atributo é, tipicamente, **multivalorado**?',
       ["CPF único do cliente", "Data de nascimento do cliente", "Telefones do cliente (vários)", "Código de identificação do cliente"], 2,
@@ -722,23 +722,23 @@ const DTP = (() => {
       ["1:1 (um aluno para uma disciplina)", "1:N (um aluno para muitas disciplinas)", "N:N (muitos para muitos)", "Não existe relacionamento entre eles"], 2,
       'Relacionamentos N:N exigem uma tabela associativa (ex.: Matrícula) na implementação relacional.'),
     Q('s2q5', 2, 1, 'O que é um **atributo identificador** de uma entidade?',
-      ["Aquele que aparece com mais frequência nas consultas feitas.", "Aquele cujo valor é único para cada ocorrência (ex.: CPF).", "Aquele que ocupa o maior tamanho em bytes dentro da tabela.", "Qualquer atributo do tipo texto guardado nessa entidade."], 1,
+      ["Aquele que aparece com mais frequência nas consultas feitas pelos usuários do sistema.", "Aquele cujo valor é único para cada ocorrência (ex.: CPF).", "Aquele que ocupa o maior tamanho em bytes dentro da tabela.", "Qualquer atributo do tipo texto guardado nessa entidade."], 1,
       'O identificador distingue uma ocorrência das demais e dará origem à chave primária.'),
     // Sala 3 — Modelo relacional
     Q('s3q1', 3, 1, 'No modelo relacional, cada **linha** (tupla) de uma tabela representa:',
-      ["Um atributo da entidade", "Uma ocorrência da entidade", "Um tipo de dado da coluna", "Um índice de busca rápida"], 1,
+      ["Um atributo da entidade", "Uma ocorrência da entidade", "Um tipo de dado aceito pela coluna", "Um índice de busca rápida"], 1,
       'Linhas são registros (ocorrências); colunas são atributos.'),
     Q('s3q2', 3, 1, 'A **chave primária** (PK) de uma tabela garante que:',
       ["O valor pode se repetir se o resto da linha for diferente", "Cada linha tem um valor único e não nulo", "A tabela poderá ter apenas uma linha cadastrada", "O valor da coluna será sempre do tipo numérico"], 1,
       'A PK é única e obrigatória (não aceita NULL). Pode ser de qualquer tipo, inclusive texto.'),
     Q('s3q3', 3, 1, 'Para que serve uma **chave estrangeira** (FK)?',
-      ["Para criptografar os dados armazenados na tabela", "Para referenciar a PK de outra tabela e ligá-las", "Para ordenar as linhas conforme o valor da coluna", "Para impedir a criação de novas tabelas no banco"], 1,
+      ["Para criptografar os dados armazenados na tabela", "Para referenciar a PK de outra tabela e ligá-las", "Para ordenar as linhas conforme o valor da coluna escolhida na consulta", "Para impedir a criação de novas tabelas no banco"], 1,
       'A FK aponta para a PK de outra tabela, estabelecendo o vínculo e permitindo a integridade referencial.'),
     Q('s3q4', 3, 2, 'Como um relacionamento **N:N** é implementado no modelo relacional?',
-      ["Colocando uma lista de IDs dentro de uma única coluna", "Criando uma tabela associativa com as duas chaves", "Duplicando as duas tabelas e unindo seus registros", "Não é possível representar N:N no modelo relacional"], 1,
+      ["Colocando uma lista de IDs separados por vírgula dentro de uma única coluna", "Criando uma tabela associativa com as duas chaves", "Duplicando as duas tabelas e unindo seus registros", "Não é possível representar N:N no modelo relacional"], 1,
       'A tabela associativa (ex.: matricula com id_aluno e id_disciplina) transforma o N:N em dois relacionamentos 1:N.'),
     Q('s3q5', 3, 2, 'Existe uma FK `pedido.id_cliente` referenciando `cliente.id`. O que ocorre ao inserir um pedido com `id_cliente = 999`, que não existe em `cliente`?',
-      ["O SGBD cria automaticamente o cliente 999 que faltava", "O SGBD rejeita a inserção por violar a integridade", "O pedido é gravado normalmente com id_cliente nulo", "A tabela cliente é apagada e recriada pelo SGBD"], 1,
+      ["O SGBD cria automaticamente o cliente 999 que faltava, com os demais campos vazios", "O SGBD rejeita a inserção por violar a integridade", "O pedido é gravado normalmente com id_cliente nulo", "A tabela cliente é apagada e recriada pelo SGBD"], 1,
       'A integridade referencial impede que uma FK aponte para um valor que não existe na tabela referenciada.'),
     // Sala 4 — Normalização
     Q('s4q1', 4, 1, 'Uma tabela está na **1ª Forma Normal (1FN)** quando:',
@@ -748,20 +748,20 @@ const DTP = (() => {
       ['1FN', '2FN', '3FN', 'Nenhuma'], 0,
       'Dois valores na mesma célula tornam o atributo não atômico — violação da 1FN.'),
     Q('s4q3', 4, 2, 'A **2ª Forma Normal (2FN)** elimina:',
-      ["Dependências transitivas entre atributos não-chave", "Dependências parciais da chave primária composta", "Tabelas com mais de três colunas de dados", "Chaves estrangeiras que ligam duas tabelas"], 1,
+      ["Dependências transitivas entre os atributos não-chave da própria tabela", "Dependências parciais da chave primária composta", "Tabelas com mais de três colunas de dados", "Chaves estrangeiras que ligam duas tabelas"], 1,
       'Na 2FN, todo atributo não-chave deve depender da chave inteira, e não apenas de parte dela.'),
     Q('s4q4', 4, 2, 'A **3ª Forma Normal (3FN)** elimina:',
       ["Dependências parciais de qualquer atributo da chave primária composta", "Dependências transitivas entre atributos não-chave", "As chaves primárias e estrangeiras de todas as tabelas do banco", "Os relacionamentos 1:N existentes entre tabelas"], 1,
       'Ex.: em Funcionario(id, nome, cod_depto, nome_depto), nome_depto depende de cod_depto, não de id — deve ir para a tabela Departamento.'),
     Q('s4q5', 4, 1, 'Qual é o principal objetivo da normalização?',
-      ["Reduzir redundância e evitar anomalias de atualização", "Aumentar o número de tabelas para dificultar acessos", "Substituir o uso de chaves primárias nas tabelas", "Criptografar os dados para impedir acessos indevidos"], 0,
+      ["Reduzir redundância e evitar anomalias de atualização", "Aumentar o número de tabelas para dificultar o acesso de quem não é administrador", "Substituir o uso de chaves primárias nas tabelas", "Criptografar os dados para impedir acessos indevidos"], 0,
       'Dados repetidos geram inconsistências; normalizar organiza a informação em tabelas coesas.'),
     // Sala 5 — DDL
     Q('s5q1', 5, 1, 'Qual comando SQL cria uma nova tabela?',
-      ['INSERT TABLE', 'CREATE TABLE', 'NEW TABLE', 'MAKE TABLE'], 1,
+      ['INSERT NEW TABLE', 'CREATE TABLE', 'NEW TABLE', 'MAKE TABLE'], 1,
       'CREATE TABLE define o nome, as colunas, os tipos e as restrições da tabela.'),
     Q('s5q2', 5, 2, 'Qual comando adiciona a coluna `email` à tabela `clientes`?',
-      ["`UPDATE clientes ADD COLUMN email VARCHAR(100);`", "`INSERT INTO clientes ADD (email) VARCHAR(100);`", "`ALTER TABLE clientes ADD email VARCHAR(100);`", "`CREATE COLUMN email VARCHAR(100) ON clientes;`"], 2,
+      ["`UPDATE clientes ADD COLUMN email VARCHAR(100) NOT NULL;`", "`INSERT INTO clientes ADD (email) VARCHAR(100);`", "`ALTER TABLE clientes ADD email VARCHAR(100);`", "`CREATE COLUMN email VARCHAR(100) ON clientes;`"], 2,
       'ALTER TABLE altera a estrutura de uma tabela existente (adicionar, modificar ou remover colunas).'),
     Q('s5q3', 5, 1, 'O que faz o comando `DROP TABLE clientes;`?',
       ["Apaga apenas as linhas da tabela, mantendo a estrutura", "Remove a tabela por completo: estrutura e dados", "Renomeia a tabela e mantém todos os dados", "Cria uma cópia de segurança da tabela e a mantém no banco"], 1,
@@ -770,39 +770,39 @@ const DTP = (() => {
       ["DROP TABLE IF EXISTS", "TRUNCATE TABLE", "ALTER TABLE", "RENAME TABLE"], 1,
       'TRUNCATE remove todas as linhas e mantém a tabela. DROP remove a tabela inteira.'),
     Q('s5q5', 5, 1, 'A sigla **DDL** significa:',
-      ["Data Definition Language — define a estrutura das tabelas", "Data Delivery Layer — entrega os dados à aplicação cliente", "Database Design Logic — descreve o desenho lógico do banco", "Dynamic Data Link — liga bancos de dados diferentes"], 0,
+      ["Data Definition Language — define a estrutura das tabelas", "Data Delivery Layer — entrega os dados armazenados à aplicação cliente", "Database Design Logic — descreve o desenho lógico do banco", "Dynamic Data Link — liga bancos de dados diferentes"], 0,
       'DDL = Linguagem de Definição de Dados. Já INSERT, UPDATE e DELETE pertencem à DML.'),
     // Sala 6 — DML
     Q('s6q1', 6, 1, 'Qual comando insere um novo cliente?',
-      ["`INSERT INTO clientes (nome, email) VALUES ('Ana', 'ana@email.com');`", "`ADD INTO clientes (nome, email) VALUES ('Ana', 'ana@email.com');`", "`CREATE clientes (nome, email) VALUES ('Ana', 'ana@email.com');`", "`UPDATE clientes SET nome = 'Ana', email = 'ana@email.com';`"], 0,
+      ["`INSERT INTO clientes (nome, email) VALUES ('Ana', 'ana@email.com');`", "`ADD INTO clientes (nome, email) VALUES ('Ana', 'ana@email.com'), ('Bia', 'b@email.com');`", "`CREATE clientes (nome, email) VALUES ('Ana', 'ana@email.com');`", "`UPDATE clientes SET nome = 'Ana', email = 'ana@email.com';`"], 0,
       'INSERT INTO tabela (colunas) VALUES (valores) adiciona uma nova linha.'),
     Q('s6q2', 6, 2, 'O que acontece ao executar `UPDATE produtos SET preco = 0;` **sem** cláusula WHERE?',
-      ["Nada acontece, pois falta a cláusula WHERE", "Somente o primeiro produto é alterado", "O preço de todos os produtos passa a ser 0", "A tabela produtos é apagada do banco"], 2,
+      ["Nada acontece, pois o comando só funciona quando existe a cláusula WHERE", "Somente o primeiro produto é alterado", "O preço de todos os produtos passa a ser 0", "A tabela produtos é apagada do banco"], 2,
       'Sem WHERE, o UPDATE atinge todas as linhas. Sempre confira o filtro antes de executar!'),
     Q('s6q3', 6, 1, 'Qual comando remove somente o cliente de id 7?',
-      ["`DROP TABLE clientes WHERE id = 7;`", "`DELETE FROM clientes WHERE id = 7;`", "`TRUNCATE TABLE clientes WHERE id = 7;`", "`REMOVE FROM clientes WHERE id = 7;`"], 1,
+      ["`DROP TABLE clientes WHERE id = 7;`", "`DELETE FROM clientes WHERE id = 7;`", "`TRUNCATE TABLE clientes WHERE id = 7 LIMIT 1;`", "`REMOVE FROM clientes WHERE id = 7;`"], 1,
       'DELETE FROM … WHERE remove só as linhas que atendem à condição.'),
     Q('s6q4', 6, 1, 'Qual comando altera o e-mail do cliente de id 3?',
-      ["`UPDATE clientes SET email = 'novo@email.com' WHERE id = 3;`", "`ALTER clientes SET email = 'novo@email.com' WHERE id = 3;`", "`INSERT INTO clientes SET email = 'novo@email.com' WHERE id = 3;`", "`SELECT email = 'novo@email.com' FROM clientes WHERE id = 3;`"], 0,
+      ["`UPDATE clientes SET email = 'novo@email.com' WHERE id = 3;`", "`ALTER clientes SET email = 'novo@email.com' WHERE id = 3;`", "`INSERT INTO clientes SET email = 'novo@email.com' WHERE id = 3 AND nome IS NOT NULL;`", "`SELECT email = 'novo@email.com' FROM clientes WHERE id = 3;`"], 0,
       'UPDATE tabela SET coluna = valor WHERE condição.'),
     Q('s6q5', 6, 1, 'Qual grupo contém apenas comandos de manipulação de dados (DML)?',
-      ["CREATE, ALTER e TRUNCATE", "INSERT, UPDATE e DELETE", "GRANT, REVOKE e CREATE", "TRUNCATE, DROP e ALTER"], 1,
+      ["CREATE, ALTER, DROP e TRUNCATE", "INSERT, UPDATE e DELETE", "GRANT, REVOKE e CREATE", "TRUNCATE, DROP e ALTER"], 1,
       'CREATE/ALTER/DROP/TRUNCATE são DDL; GRANT/REVOKE são DCL; INSERT/UPDATE/DELETE são DML.'),
     // Sala 7 — Consultas
     Q('s7q1', 7, 1, 'Qual consulta retorna apenas o nome e o e-mail de todos os clientes?',
       ["`SELECT nome, email FROM clientes;`", "`SELECT * FROM clientes (nome, email);`", "`GET nome, email FROM TABLE clientes;`", "`FROM clientes SELECT nome, email;`"], 0,
       'SELECT colunas FROM tabela. O asterisco (*) traria todas as colunas.'),
     Q('s7q2', 7, 1, 'Qual consulta lista os clientes da cidade de Recife?',
-      ["`SELECT * FROM clientes WHERE cidade = 'Recife';`", "`SELECT * FROM clientes ONLY IF cidade = 'Recife';`", "`SELECT * FROM clientes WHEN cidade EQUALS 'Recife';`", "`FILTER * FROM clientes BY cidade EQUALS 'Recife';`"], 0,
+      ["`SELECT * FROM clientes WHERE cidade = 'Recife';`", "`SELECT * FROM clientes ONLY IF cidade = 'Recife';`", "`SELECT * FROM clientes WHEN cidade EQUALS 'Recife' ORDER BY nome;`", "`FILTER * FROM clientes BY cidade EQUALS 'Recife';`"], 0,
       'WHERE filtra as linhas antes do resultado ser exibido.'),
     Q('s7q3', 7, 1, 'Qual consulta informa quantos pedidos existem?',
       ["`SELECT SUM(*) FROM pedidos GROUP BY id;`", "`SELECT COUNT(*) FROM pedidos;`", "`SELECT MAX(*) FROM pedidos ORDER BY 1;`", "`SELECT NUM(*) FROM pedidos;`"], 1,
       'COUNT(*) conta linhas. SUM soma valores de uma coluna; MAX retorna o maior valor.'),
     Q('s7q4', 7, 2, 'O **INNER JOIN** entre duas tabelas retorna:',
-      ["Todas as linhas das duas tabelas, combinadas ou não", "Só as linhas que têm correspondência nas duas tabelas", "Apenas as linhas da tabela da esquerda, mesmo sem par", "O produto de todas as linhas, sem usar condições"], 1,
+      ["Todas as linhas das duas tabelas, combinadas ou não", "Só as linhas que têm correspondência nas duas tabelas", "Apenas as linhas da tabela da esquerda, mesmo quando não têm par na direita", "O produto de todas as linhas, sem usar condições"], 1,
       'INNER JOIN mantém só o que casa pela condição (ex.: pedido.id_cliente = cliente.id).'),
     Q('s7q5', 7, 3, 'Qual consulta mostra o total de pedidos de cada cliente?',
-      ["`SELECT id_cliente, COUNT(*) FROM pedidos GROUP BY id_cliente;`", "`SELECT id_cliente, COUNT(*) FROM pedidos ORDER BY id_cliente;`", "`SELECT COUNT(*) FROM pedidos WHERE id_cliente IS NOT NULL;`", "`SELECT DISTINCT id_cliente, COUNT(*) FROM pedidos;`"], 0,
+      ["`SELECT id_cliente, COUNT(*) FROM pedidos GROUP BY id_cliente;`", "`SELECT id_cliente, COUNT(*) FROM pedidos ORDER BY id_cliente;`", "`SELECT COUNT(*) FROM pedidos WHERE id_cliente IS NOT NULL ORDER BY id_cliente;`", "`SELECT DISTINCT id_cliente, COUNT(*) FROM pedidos;`"], 0,
       'GROUP BY agrupa as linhas; a função agregada COUNT(*) é calculada por grupo.')
   ];
 
@@ -831,8 +831,8 @@ const DTP = (() => {
   };
   const codigoRelatorio = rel => 'RES1.' + b64e(JSON.stringify(rel));
 
-  /* ---------- Ranking online (Supabase: REST + RLS; a chave abaixo é a publicável, feita para ficar no navegador) ---------- */
-  const ONLINE = { url: 'https://mcxbbqmznbpxrvhzjyid.supabase.co', key: 'sb_publishable_ivrHlAqAzp2_kD8JI8bBhw_YnH5I61q' };
+  /* ---------- Ranking online (Supabase: REST + RLS; a chave anon abaixo é pública por design; a segurança vem das políticas RLS) ---------- */
+  const ONLINE = { url: 'https://mcxbbqmznbpxrvhzjyid.supabase.co', key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jeGJicW16bmJweHJ2aHpqeWlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDI0MzIsImV4cCI6MjA5NTk3ODQzMn0.FrKGznogvezbuMeGDqHM4iUvLMvl9br4_CKR31qo7CY' };
   const chaveJog = r => String(r.nome || '').trim().toLowerCase() + '|' + String(r.turma || '').trim().toLowerCase();
   const rankReq = async (path, opt = {}) => {
     const c = new AbortController(), t = setTimeout(() => c.abort(), 9000);
@@ -1688,15 +1688,16 @@ function rankDe(p) { return p >= .9 ? ['🏆', 'Inspetor-Chefe dos Dados', 'Dom�
 const nomeCasoRk = id => { const c = DTP.todosCasos(MISSAO && MISSAO.pac ? MISSAO.pac.casos : []).find(x => x.id === id); return c ? c.nome : id; };
 function abrirRanking(casoIni, meu) {
   const eu = meu || (S && S.perfil) || lsGet('dtp_perfil', {}), chaveEu = DTP.chaveJog(eu);
-  let dados = null, offline = false, caso = casoIni || (typeof CASO !== 'undefined' && CASO ? CASO.id : ''), turma = '';
+  let dados = null, offline = false, erro = '', caso = casoIni || (typeof CASO !== 'undefined' && CASO ? CASO.id : ''), turma = '';
   const bg = abrirModal(`<div class="painel" style="width:min(760px,94vw)"><h3>🏆 Ranking <button class="fechar" aria-label="Fechar">×</button></h3><div id="rk-c"><p class="aviso">Carregando o ranking online…</p></div></div>`);
   bg.querySelector('.fechar').onclick = bg.fechar;
   const desenhar = () => {
+    const motivo = /PGRST205|404|dtp_ranking/.test(erro) ? 'a tabela do ranking ainda não foi criada no Supabase (' + erro.slice(0, 80) + ')' : erro.slice(0, 140);
     const casos = [...new Set(dados.map(r => r.caso || 'tabela'))]; if (caso && !casos.includes(caso)) casos.push(caso);
     const turmas = [...new Set(dados.map(r => r.turma || '').filter(Boolean))].sort();
     const L = DTP.rankMontar(dados, { caso, turma }), top = L.slice(0, 50), meuI = L.find(x => x.k === chaveEu);
     const med = n => n === 1 ? '🥇' : n === 2 ? '🥈' : n === 3 ? '🥉' : n + 'º';
-    bg.querySelector('#rk-c').innerHTML = `${offline ? '<p class="aviso" style="color:#f0a79b">Sem conexão com o ranking online — mostrando só os resultados deste aparelho.</p>' : ''}
+    bg.querySelector('#rk-c').innerHTML = `${offline ? `<p class="aviso" style="color:#f0a79b">Sem conexão com o ranking online — mostrando só os resultados deste aparelho.<br><small style="opacity:.8">Motivo: ${esc(motivo)}</small></p>` : ''}
       <div class="rk-filtros"><select id="rk-caso"><option value="">Todos os casos</option>${casos.map(id => `<option value="${esc(id)}" ${id === caso ? 'selected' : ''}>${esc(nomeCasoRk(id))}</option>`).join('')}</select>
       <select id="rk-turma"><option value="">Todas as turmas</option>${turmas.map(t => `<option ${t === turma ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></div>
       ${meuI ? `<div class="rk-sub">Sua posição: <b>${med(meuI.pos)}</b> de ${L.length} · ${meuI.r.pontos} pontos</div>` : `<div class="rk-sub">${L.length} competidor(es)</div>`}
@@ -1706,7 +1707,7 @@ function abrirRanking(casoIni, meu) {
   };
   (async () => {
     try { await DTP.rankReenviar().catch(() => {}); dados = await DTP.rankListar(); }
-    catch (e) { offline = true; dados = lsGet('dtp_resultados', []); }
+    catch (e) { offline = true; erro = String(e.message || e); dados = lsGet('dtp_resultados', []); }
     if (bg.isConnected) desenhar();
   })();
 }
