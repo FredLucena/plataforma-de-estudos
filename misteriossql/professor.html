@@ -139,6 +139,11 @@ table.t th{font-family:var(--f-titulo);font-size:.66rem;letter-spacing:.12em;tex
 table.t td{padding:9px 10px;border-bottom:1px solid var(--linha);vertical-align:middle}
 table.t tr:hover td{background:rgba(255,255,255,.03)}
 .tw{overflow-x:auto;border:1px solid var(--linha);border-radius:8px}
+.podio{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.pod{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--linha);border-radius:10px;padding:16px;text-align:center}
+.pod .m{font-size:2.2rem}.pod .pt{font-family:var(--f-titulo);font-size:1.5rem;color:var(--ouro2);margin:4px 0}
+.pod.p1{border-color:var(--ouro);box-shadow:0 0 18px rgba(201,162,75,.3)}
+@media(max-width:600px){.podio{grid-template-columns:1fr}}
 .pill{display:inline-block;border-radius:10px;padding:.1em .7em;font-size:.78rem;font-weight:600}
 .pill.a{background:rgba(76,175,122,.18);color:#8fe0b0}.pill.m{background:rgba(201,162,75,.18);color:#f1d78a}.pill.b{background:rgba(224,87,79,.18);color:#ffb3ad}
 .barra{height:9px;background:#0d0a14;border:1px solid var(--linha);border-radius:5px;overflow:hidden;min-width:90px}.barra i{display:block;height:100%;background:linear-gradient(90deg,#8a6d28,#f1d78a)}
@@ -335,7 +340,7 @@ const DTP = (() => {
         { id: 'commit', nome: 'Srta. Commit', papel: 'Secretária', ico: '👩‍💼', desc: 'Só considera um trabalho pronto depois de “confirmado” por escrito.' },
         { id: 'rollback', nome: 'Sr. Rollback', papel: 'Contador', ico: '🧑‍🏫', desc: 'Vive desfazendo o que os outros fazem de errado nos livros-caixa.' },
         { id: 'schema', nome: 'Madame Schema', papel: 'Arquiteta e decoradora', ico: '👩‍🎨', desc: 'Planeja a estrutura de cada cômodo antes de mexer em qualquer móvel.' },
-        { id: 'cursor', nome: 'Visconde Cursor', papel: 'Primo do Lorde', ico: '🥸', desc: 'De pijama de seda e pantufas, percorre a casa linha por linha, bisbilhotando tudo e atrás de doces.' }],
+        { id: 'cursor', nome: 'Visconde Cursor', papel: 'Primo do Lorde', ico: '🥸', desc: 'De pijama de seda e pantufas, percorre a casa linha por linha atrás de doces.' }],
       metodos: [{ id: 'grant', cmd: 'GRANT ALL PRIVILEGES ON clientes TO visconde;', ok: true }, { id: 'revoke', cmd: 'REVOKE ALL PRIVILEGES ON clientes FROM visconde;' }, { id: 'user', cmd: 'CREATE USER visconde;' }, { id: 'sel', cmd: 'SELECT * FROM clientes;' }],
       epilogo: 'Visconde Cursor confessou. Encontrou a senha do Lorde colada sob o teclado da biblioteca e, às 03h12, executou `GRANT ALL PRIVILEGES ON clientes TO visconde;`. Disse que queria “só dar uma olhada” nos dados. Lição de Banco de Dados: **senha nunca se anota**; aplique **privilégio mínimo**, **audite** as concessões pelo log e use `REVOKE` para retirar acessos indevidos.',
       pistas: {
@@ -358,7 +363,7 @@ const DTP = (() => {
         { id: 'distinct', nome: 'Sr. Distinct', papel: 'Mordomo-chefe', ico: '🤵', desc: 'Não suporta repetições: nenhum talher, nenhum convidado e nenhuma história se repetem à sua mesa.' },
         { id: 'join', nome: 'Lady Join', papel: 'Anfitriã', ico: '💃', desc: 'Vive juntando pessoas que combinam. Onde há festa, ela está no meio.' },
         { id: 'check', nome: 'Cadu Check', papel: 'Segurança noturno', ico: '💂', desc: 'Só deixa passar quem cumpre a regra. Anda sempre com uma lista de verificação na mão.' },
-        { id: 'normal', nome: 'Dr. Normal Forma', papel: 'Consultor de organização', ico: '🧐', desc: 'De paletó de tweed e prancheta, vive dizendo que tudo na casa está “fora da forma” e precisa ser reorganizado.' }],
+        { id: 'normal', nome: 'Dr. Normal Forma', papel: 'Consultor de organização', ico: '🧐', desc: 'De paletó de tweed e prancheta, diz que tudo na casa está “fora da forma”.' }],
       metodos: [{ id: 'alter', cmd: 'ALTER TABLE funcionarios DROP COLUMN salario;', ok: true }, { id: 'drop', cmd: 'DROP TABLE funcionarios CASCADE CONSTRAINTS;' }, { id: 'upd', cmd: 'UPDATE funcionarios SET salario = NULL WHERE id > 0;' }, { id: 'del', cmd: 'DELETE FROM funcionarios WHERE salario IS NOT NULL;' }],
       epilogo: 'Dr. Normal Forma confessou. Com a conta temporária **consultor_nf**, queria “normalizar” a folha: moveria o salário para uma tabela própria. Executou `ALTER TABLE funcionarios DROP COLUMN salario;` antes de criar a nova tabela — e os valores se perderam. Lição de Banco de Dados: `ALTER TABLE` é **DDL** e muda a estrutura; **teste em ambiente de homologação**, crie e migre os dados **antes** de remover a coluna antiga, tenha **backup** e conceda `ALTER` só a quem precisa.',
       pistas: {
@@ -381,7 +386,7 @@ const DTP = (() => {
         { id: 'unique', nome: 'Prof. Unique', papel: 'Tutor do herdeiro', ico: '👨‍🏫', desc: 'Ensina que cada aluno é único e não admite cópias nas provas. Pontual como um relógio.' },
         { id: 'limit', nome: 'Capitão Limit', papel: 'Chefe da guarda', ico: '💂', desc: 'Só deixa entrar os dez primeiros da fila. Os demais esperam do lado de fora.' },
         { id: 'view', nome: 'Baronesa View', papel: 'Anfitriã e viúva', ico: '👵', desc: 'Só enxerga o que os outros decidem lhe mostrar. Adora uma janela com vista.' },
-        { id: 'autoinc', nome: 'Sr. Auto Increment', papel: 'Contador', ico: '🧮', desc: 'De colete e manguitos, soma “mais um” a tudo o que passa. Anda nervoso desde que o Lorde pediu uma revisão das contas.' }],
+        { id: 'autoinc', nome: 'Sr. Auto Increment', papel: 'Contador', ico: '🧮', desc: 'De colete e manguitos, soma “mais um” a tudo. Anda nervoso com a revisão das contas.' }],
       metodos: [{ id: 'trunc', cmd: 'TRUNCATE TABLE auditoria;', ok: true }, { id: 'drop', cmd: 'DROP TABLE auditoria;' }, { id: 'del', cmd: 'DELETE FROM auditoria WHERE id = 1;' }, { id: 'upd', cmd: 'UPDATE auditoria SET acao = NULL;' }],
       epilogo: 'Sr. Auto Increment confessou. Com a conta **contador_admin**, ele vinha desviando valores e, para apagar os rastros, executou `TRUNCATE TABLE auditoria;`. O comando esvazia a tabela de uma vez, mantém a estrutura e reinicia o contador automático — por isso o ID voltou para 1. Lição de Banco de Dados: diferencie `DELETE` (linha a linha, com WHERE), `TRUNCATE` (esvazia tudo) e `DROP` (remove a tabela); proteja as **tabelas de auditoria** (somente INSERT/SELECT), aplique **privilégio mínimo** e mantenha **backup** externo dos logs.',
       pistas: {
@@ -470,17 +475,17 @@ const DTP = (() => {
       ["O conjunto de tabelas e arquivos armazenados no disco do servidor.", "O software que permite criar, acessar, manter e proteger bancos.", "Uma linguagem de programação usada para criar páginas e sistemas web.", "O computador que hospeda os arquivos e executa o sistema."], 1,
       'O banco de dados são os dados em si; o SGBD (MySQL, PostgreSQL, Oracle…) é o software que os gerencia.'),
     Q('s1q3', 1, 2, 'Qual é uma vantagem de usar um SGBD em vez de planilhas e arquivos de texto espalhados?',
-      ["Elimina totalmente a necessidade de backup e de recuperação.", "Controla acessos simultâneos e reduz redundância e inconsistência.", "Impede que qualquer usuário altere os dados já armazenados.", "Dispensa o planejamento e a modelagem prévia dos dados."], 1,
+      ["Elimina totalmente a necessidade de backup e de recuperação.", "Controla acessos simultâneos e reduz a redundância.", "Impede que qualquer usuário altere os dados já armazenados.", "Dispensa o planejamento e a modelagem prévia dos dados."], 1,
       'O SGBD oferece controle de concorrência, integridade, segurança e menor redundância. Backup continua sendo necessário.'),
     Q('s1q4', 1, 1, 'Qual profissional é responsável por instalar e configurar o SGBD, conceder permissões e realizar backups?',
-      ["Analista de requisitos", "Administrador do banco (DBA)", "Usuário final do sistema", "Designer de interface gráfica"], 1,
+      ["Analista de requisitos de software", "Administrador de BD (DBA)", "Usuário final do sistema web", "Designer de interface gráfica"], 1,
       'O DBA cuida da administração do ambiente: instalação, desempenho, segurança, permissões e cópias de segurança.'),
     Q('s1q5', 1, 1, 'Qual alternativa apresenta apenas exemplos de SGBDs?',
       ["MySQL, PostgreSQL e SQL Server", "HTML, CSS, JavaScript e PHP", "Word, Excel, PowerPoint e Outlook", "Python, Java, C++ e Ruby"], 0,
       'HTML/CSS/JS são tecnologias web; Word/Excel/PowerPoint são aplicativos de escritório; Python/Java/C são linguagens de programação.'),
     // Sala 2 — MER
     Q('s2q1', 2, 1, 'No Modelo Entidade-Relacionamento (MER), o que representa uma **entidade**?',
-      ["Um objeto do mundo real sobre o qual guardamos dados (ex.: Cliente).", "Uma característica que descreve um objeto do mundo real (ex.: nome).", "A ligação entre duas tabelas feita por meio de chaves (PK e FK).", "Um comando usado para consultar e filtrar os dados armazenados."], 0,
+      ["Um objeto do mundo real sobre o qual guardamos dados (ex.: Cliente).", "Uma característica que descreve um objeto real (ex.: nome).", "A ligação entre duas tabelas feita por meio de chaves (PK e FK).", "Um comando usado para consultar e filtrar os dados armazenados."], 0,
       'Entidade é “a coisa”; atributos são suas características; relacionamentos ligam entidades.'),
     Q('s2q2', 2, 2, 'Qual atributo é, tipicamente, **multivalorado**?',
       ["CPF único do cliente", "Data de nascimento do cliente", "Telefones do cliente (vários)", "Código de identificação do cliente"], 2,
@@ -489,7 +494,7 @@ const DTP = (() => {
       ['1:1 (um para um)', '1:N (um para muitos)', 'N:N (muitos para muitos)', '0:0 (nenhum para nenhum)'], 1,
       'Um cliente → muitos pedidos; cada pedido → um cliente. É o relacionamento 1:N mais comum.'),
     Q('s2q4', 2, 2, 'Um aluno cursa várias disciplinas e cada disciplina possui vários alunos. Essa cardinalidade é:',
-      ["1:1 (um para um)", "1:N (um para muitos)", "N:N (muitos para muitos)", "Não existe relacionamento"], 2,
+      ["1:1 (um aluno para uma disciplina)", "1:N (um aluno para muitas disciplinas)", "N:N (muitos para muitos)", "Não existe relacionamento entre eles"], 2,
       'Relacionamentos N:N exigem uma tabela associativa (ex.: Matrícula) na implementação relacional.'),
     Q('s2q5', 2, 1, 'O que é um **atributo identificador** de uma entidade?',
       ["Aquele que aparece com mais frequência nas consultas feitas.", "Aquele cujo valor é único para cada ocorrência (ex.: CPF).", "Aquele que ocupa o maior tamanho em bytes dentro da tabela.", "Qualquer atributo do tipo texto guardado nessa entidade."], 1,
@@ -499,7 +504,7 @@ const DTP = (() => {
       ["Um atributo da entidade", "Uma ocorrência da entidade", "Um tipo de dado da coluna", "Um índice de busca rápida"], 1,
       'Linhas são registros (ocorrências); colunas são atributos.'),
     Q('s3q2', 3, 1, 'A **chave primária** (PK) de uma tabela garante que:',
-      ["O valor pode se repetir se o resto da linha for diferente", "Cada linha tem um identificador único e não nulo", "A tabela poderá ter apenas uma linha cadastrada", "O valor da coluna será sempre do tipo numérico"], 1,
+      ["O valor pode se repetir se o resto da linha for diferente", "Cada linha tem um valor único e não nulo", "A tabela poderá ter apenas uma linha cadastrada", "O valor da coluna será sempre do tipo numérico"], 1,
       'A PK é única e obrigatória (não aceita NULL). Pode ser de qualquer tipo, inclusive texto.'),
     Q('s3q3', 3, 1, 'Para que serve uma **chave estrangeira** (FK)?',
       ["Para criptografar os dados armazenados na tabela", "Para referenciar a PK de outra tabela e ligá-las", "Para ordenar as linhas conforme o valor da coluna", "Para impedir a criação de novas tabelas no banco"], 1,
@@ -512,7 +517,7 @@ const DTP = (() => {
       'A integridade referencial impede que uma FK aponte para um valor que não existe na tabela referenciada.'),
     // Sala 4 — Normalização
     Q('s4q1', 4, 1, 'Uma tabela está na **1ª Forma Normal (1FN)** quando:',
-      ["Todos os atributos são atômicos, sem grupos repetidos", "Não possui chave primária definida em nenhuma coluna", "Todos os atributos da tabela são do tipo numérico", "A tabela possui no máximo duas colunas de dados"], 0,
+      ["Cada atributo guarda apenas um valor indivisível", "Não possui chave primária definida em nenhuma das colunas", "Todos os atributos da tabela são obrigatoriamente numéricos", "A tabela possui no máximo duas colunas de dados cadastradas"], 0,
       '1FN: cada célula guarda um único valor indivisível.'),
     Q('s4q2', 4, 1, 'A coluna `telefones` guarda “8888-1111, 9999-2222” em uma mesma célula. Qual forma normal está sendo violada?',
       ['1FN', '2FN', '3FN', 'Nenhuma'], 0,
@@ -521,7 +526,7 @@ const DTP = (() => {
       ["Dependências transitivas entre atributos não-chave", "Dependências parciais da chave primária composta", "Tabelas com mais de três colunas de dados", "Chaves estrangeiras que ligam duas tabelas"], 1,
       'Na 2FN, todo atributo não-chave deve depender da chave inteira, e não apenas de parte dela.'),
     Q('s4q4', 4, 2, 'A **3ª Forma Normal (3FN)** elimina:',
-      ["Dependências parciais da chave primária composta", "Dependências transitivas entre atributos não-chave", "As chaves primárias de todas as tabelas do banco", "Os relacionamentos 1:N existentes entre tabelas"], 1,
+      ["Dependências parciais de qualquer atributo da chave primária composta", "Dependências transitivas entre atributos não-chave", "As chaves primárias e estrangeiras de todas as tabelas do banco", "Os relacionamentos 1:N existentes entre tabelas"], 1,
       'Ex.: em Funcionario(id, nome, cod_depto, nome_depto), nome_depto depende de cod_depto, não de id — deve ir para a tabela Departamento.'),
     Q('s4q5', 4, 1, 'Qual é o principal objetivo da normalização?',
       ["Reduzir redundância e evitar anomalias de atualização", "Aumentar o número de tabelas para dificultar acessos", "Substituir o uso de chaves primárias nas tabelas", "Criptografar os dados para impedir acessos indevidos"], 0,
@@ -531,10 +536,10 @@ const DTP = (() => {
       ['INSERT TABLE', 'CREATE TABLE', 'NEW TABLE', 'MAKE TABLE'], 1,
       'CREATE TABLE define o nome, as colunas, os tipos e as restrições da tabela.'),
     Q('s5q2', 5, 2, 'Qual comando adiciona a coluna `email` à tabela `clientes`?',
-      ["`UPDATE clientes ADD COLUMN email VARCHAR(100);`", "`INSERT INTO clientes (email) VARCHAR(100);`", "`ALTER TABLE clientes ADD email VARCHAR(100);`", "`CREATE COLUMN email ON clientes;`"], 2,
+      ["`UPDATE clientes ADD COLUMN email VARCHAR(100);`", "`INSERT INTO clientes ADD (email) VARCHAR(100);`", "`ALTER TABLE clientes ADD email VARCHAR(100);`", "`CREATE COLUMN email VARCHAR(100) ON clientes;`"], 2,
       'ALTER TABLE altera a estrutura de uma tabela existente (adicionar, modificar ou remover colunas).'),
     Q('s5q3', 5, 1, 'O que faz o comando `DROP TABLE clientes;`?',
-      ["Apaga apenas as linhas da tabela, mantendo a estrutura", "Remove a tabela por completo: estrutura e dados", "Renomeia a tabela e mantém todos os dados", "Cria uma cópia de segurança da tabela inteira"], 1,
+      ["Apaga apenas as linhas da tabela, mantendo a estrutura", "Remove a tabela por completo: estrutura e dados", "Renomeia a tabela e mantém todos os dados", "Cria uma cópia de segurança da tabela e a mantém no banco"], 1,
       'DROP TABLE é DDL e é irreversível sem backup. Normalmente exige privilégios de administrador.'),
     Q('s5q4', 5, 2, 'Qual comando DDL esvazia a tabela (remove todas as linhas) preservando sua estrutura?',
       ["DROP TABLE IF EXISTS", "TRUNCATE TABLE", "ALTER TABLE", "RENAME TABLE"], 1,
@@ -563,10 +568,10 @@ const DTP = (() => {
       ["`SELECT nome, email FROM clientes;`", "`SELECT * FROM clientes (nome, email);`", "`GET nome, email FROM TABLE clientes;`", "`FROM clientes SELECT nome, email;`"], 0,
       'SELECT colunas FROM tabela. O asterisco (*) traria todas as colunas.'),
     Q('s7q2', 7, 1, 'Qual consulta lista os clientes da cidade de Recife?',
-      ["`SELECT * FROM clientes WHERE cidade='Recife';`", "`SELECT * FROM clientes IF cidade = 'Recife';`", "`SELECT * FROM clientes.cidade = 'Recife';`", "`FILTER * FROM clientes BY cidade = 'Recife';`"], 0,
+      ["`SELECT * FROM clientes WHERE cidade = 'Recife';`", "`SELECT * FROM clientes ONLY IF cidade = 'Recife';`", "`SELECT * FROM clientes WHEN cidade EQUALS 'Recife';`", "`FILTER * FROM clientes BY cidade EQUALS 'Recife';`"], 0,
       'WHERE filtra as linhas antes do resultado ser exibido.'),
     Q('s7q3', 7, 1, 'Qual consulta informa quantos pedidos existem?',
-      ["`SELECT SUM(*) FROM pedidos;`", "`SELECT COUNT(*) FROM pedidos;`", "`SELECT MAX(*) FROM pedidos;`", "`SELECT NUM(*) FROM pedidos;`"], 1,
+      ["`SELECT SUM(*) FROM pedidos GROUP BY id;`", "`SELECT COUNT(*) FROM pedidos;`", "`SELECT MAX(*) FROM pedidos ORDER BY 1;`", "`SELECT NUM(*) FROM pedidos;`"], 1,
       'COUNT(*) conta linhas. SUM soma valores de uma coluna; MAX retorna o maior valor.'),
     Q('s7q4', 7, 2, 'O **INNER JOIN** entre duas tabelas retorna:',
       ["Todas as linhas das duas tabelas, combinadas ou não", "Só as linhas que têm correspondência nas duas tabelas", "Apenas as linhas da tabela da esquerda, mesmo sem par", "O produto de todas as linhas, sem usar condições"], 1,
@@ -601,6 +606,43 @@ const DTP = (() => {
   };
   const codigoRelatorio = rel => 'RES1.' + b64e(JSON.stringify(rel));
 
+  /* ---------- Ranking online (Supabase: REST + RLS; a chave abaixo é a publicável, feita para ficar no navegador) ---------- */
+  const ONLINE = { url: 'https://mcxbbqmznbpxrvhzjyid.supabase.co', key: 'sb_publishable_ivrHlAqAzp2_kD8JI8bBhw_YnH5I61q' };
+  const chaveJog = r => String(r.nome || '').trim().toLowerCase() + '|' + String(r.turma || '').trim().toLowerCase();
+  const rankReq = async (path, opt = {}) => {
+    const c = new AbortController(), t = setTimeout(() => c.abort(), 9000);
+    try {
+      const r = await fetch(ONLINE.url + '/rest/v1/' + path, Object.assign({}, opt, { signal: c.signal, headers: Object.assign({ apikey: ONLINE.key, Authorization: 'Bearer ' + ONLINE.key, 'Content-Type': 'application/json' }, opt.headers || {}) }));
+      const tx = await r.text(); if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + tx.slice(0, 160));
+      return tx ? JSON.parse(tx) : null;
+    } finally { clearTimeout(t); }
+  };
+  const paraLinha = rel => ({ rid: String(rel.rid), nome: String(rel.nome || '').trim().slice(0, 60) || 'Anônimo', turma: String(rel.turma || '').trim().slice(0, 40), caso: String(rel.caso || 'tabela').slice(0, 40),
+    pontos: Math.max(0, Math.min(5000, rel.pontos | 0)), max: Math.max(1, Math.min(5000, rel.max | 0)), tempo: Math.max(0, Math.min(86400, Math.round(rel.tempo || 0))), fim: new Date(rel.fim || Date.now()).toISOString() });
+  const rankEnviar = async rels => {
+    rels = [].concat(rels).filter(r => r && r.rid); if (!rels.length) return 0;
+    await rankReq('dtp_ranking?on_conflict=rid', { method: 'POST', headers: { Prefer: 'resolution=ignore-duplicates,return=minimal' }, body: JSON.stringify(rels.map(paraLinha)) });
+    return rels.length;
+  };
+  // fila: resultados que não puderam ser enviados (sem internet) são reenviados depois
+  const rankFila = () => lsGet('dtp_fila_rank', []);
+  const rankEnfileirar = rel => { const f = rankFila().filter(x => x.rid !== rel.rid); f.push(rel); lsSet('dtp_fila_rank', f); };
+  const rankReenviar = async () => { const f = rankFila(); if (!f.length) return 0; await rankEnviar(f); lsSet('dtp_fila_rank', []); return f.length; };
+  const rankListar = caso => rankReq('dtp_ranking?select=rid,nome,turma,caso,pontos,max,tempo,fim&order=pontos.desc,tempo.asc&limit=2000' + (caso ? '&caso=eq.' + encodeURIComponent(caso) : ''));
+  const rankApagar = (chave, rid) => rankReq('rpc/dtp_ranking_apagar', { method: 'POST', body: JSON.stringify({ p_chave: chave, p_rid: rid }) });
+  // melhor resultado de cada jogador (nome + turma); desempate pelo menor tempo
+  const rankMontar = (lista, { caso = '', turma = '' } = {}) => {
+    const mel = new Map(), np = {};
+    (lista || []).filter(r => (!caso || (r.caso || 'tabela') === caso) && (!turma || (r.turma || '') === turma)).forEach(r => {
+      const k = chaveJog(r); np[k] = (np[k] || 0) + 1; const b = mel.get(k);
+      if (!b || r.pontos > b.pontos || (r.pontos === b.pontos && (r.tempo || 0) < (b.tempo || 0))) mel.set(k, r);
+    });
+    const L = [...mel.entries()].map(([k, r]) => ({ r, n: np[k], k }));
+    L.sort((a, b) => b.r.pontos - a.r.pontos || (a.r.tempo || 0) - (b.r.tempo || 0));
+    L.forEach((x, i) => { const p = L[i - 1]; x.pos = p && p.r.pontos === x.r.pontos && (p.r.tempo || 0) === (x.r.tempo || 0) ? p.pos : i + 1; });
+    return L;
+  };
+
   const fsOk = !!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen);
   const fsAtivo = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
   const telaCheia = () => { try { if (fsAtivo()) (document.exitFullscreen || document.webkitExitFullscreen).call(document); else (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen).call(document.documentElement); } catch (e) {} };
@@ -613,7 +655,7 @@ const DTP = (() => {
   };
   return { CASOS, caso, todosCasos, validarCaso, pistaDe, telaCheia, ligarTelaCheia, esc, fmt, b64e, b64d, uid, shuffle, fmtTempo, lsGet, lsSet, lsDel, hash, baixar, copiar, toast,
     CONFIG_PADRAO, SALAS, SUSPEITOS, CULPADO, METODOS, EPILOGO, AVATARES, avatarSVG, QUESTOES_PADRAO,
-    validarQuestao, montarPacote, lerPacote, codigoPacote, hashPacote, lerRelatorio, codigoRelatorio };
+    rankEnviar, rankEnfileirar, rankReenviar, rankFila, rankListar, rankApagar, rankMontar, chaveJog, validarQuestao, montarPacote, lerPacote, codigoPacote, hashPacote, lerRelatorio, codigoRelatorio };
 })();
 
 </script>
@@ -662,11 +704,11 @@ const qPorId = id => BANCO.find(q => q.id === id);
 
 /* ---------- Navegação ---------- */
 function nav() {
-  const abas = [['inicio', 'Início'], ['questoes', 'Questões', BANCO.length], ['missao', 'Missão'], ['resultados', 'Resultados', RES.length]];
+  const abas = [['inicio', 'Início'], ['questoes', 'Questões', BANCO.length], ['missao', 'Missão'], ['resultados', 'Resultados', RES.length], ['ranking', '🏆 Ranking']];
   $('#nav').innerHTML = abas.map(([k, t, n]) => `<button data-k="${k}" class="${aba === k ? 'at' : ''}">${t}${n != null ? `<span class="n">${n}</span>` : ''}</button>`).join('');
   $('#nav').querySelectorAll('button').forEach(b => b.onclick = () => { aba = b.dataset.k; render(); window.scrollTo(0, 0); });
 }
-function render() { nav(); ({ inicio: vInicio, questoes: vQuestoes, missao: vMissao, resultados: vResultados })[aba](); }
+function render() { nav(); ({ inicio: vInicio, questoes: vQuestoes, missao: vMissao, resultados: vResultados, ranking: vRanking })[aba](); }
 const contagem = id => BANCO.filter(q => q.sala === id).length;
 
 /* =====================================================================
@@ -924,6 +966,65 @@ function vResultados() {
   $('#r-csv').onclick = () => exportarCSV(L);
   $('#r-json').onclick = () => baixar('resultados.json', JSON.stringify(RES, null, 1));
   $('#r-limpar').onclick = () => { if (confirm('Apagar TODOS os resultados importados deste navegador?')) { RES = []; salvarRes(); render(); } };
+}
+/* ---------- Ranking (online no Supabase + resultados salvos neste navegador) ---------- */
+let rkCaso = '', rkTurma = '', RK_ON = null, rkStatus = '', rkCarregando = false;
+const nomeCaso = id => { const c = TODOS().find(x => x.id === (id || 'tabela')); return c ? c.nome : (id || ''); };
+const dadosRanking = () => { const vistos = new Set(RES.map(r => r.rid)); return RES.concat((RK_ON || []).filter(r => !vistos.has(r.rid)).map(r => Object.assign({}, r, { fim: new Date(r.fim).getTime(), _on: 1 }))); };
+const medalha = n => n === 1 ? '🥇' : n === 2 ? '🥈' : n === 3 ? '🥉' : n + 'º';
+const chaveProf = () => lsGet('dtp_chave_prof', '');
+async function carregarRanking(forcar) {
+  if (rkCarregando || (RK_ON && !forcar)) return; rkCarregando = true; rkStatus = '⏳ Consultando o ranking online…'; if (aba === 'ranking') vRanking();
+  try { await DTP.rankReenviar().catch(() => {}); RK_ON = await DTP.rankListar(); rkStatus = `🟢 Online: ${RK_ON.length} resultado(s) no banco.`; }
+  catch (e) { RK_ON = RK_ON || []; rkStatus = '🔴 Sem acesso ao ranking online (' + String(e.message || e).slice(0, 90) + '). Mostrando só os dados deste navegador.'; }
+  rkCarregando = false; if (aba === 'ranking') vRanking();
+}
+function vRanking() {
+  const todos = dadosRanking();
+  const turmas = [...new Set(todos.map(r => r.turma || '').filter(Boolean))].sort();
+  const casosUsados = [...new Set(todos.map(r => r.caso || 'tabela'))];
+  const R = DTP.rankMontar(todos, { caso: rkCaso, turma: rkTurma });
+  const pod = R.slice(0, 3).map(x => `<div class="pod p${x.pos}"><div class="m">${medalha(x.pos)}</div><b>${esc(x.r.nome || '—')}</b><div class="muted sm">${esc(x.r.turma || '')}</div><div class="pt">${x.r.pontos} pts</div><div class="muted sm">${pctRes(x.r)}% · ${fmtTempo(x.r.tempo || 0)}</div></div>`).join('');
+  $('#conteudo').innerHTML = `
+    <h2 class="sec">Ranking dos competidores</h2>
+    <p class="lead">Ranking <b>online</b>: os alunos enviam o resultado ao terminar e todos podem consultá-lo no módulo do aluno. Aqui ele se junta aos resultados importados neste navegador. Vale o <b>melhor resultado</b> de cada aluno (nome + turma); em empate, vence o <b>menor tempo</b>.</p>
+    <div class="muted sm" style="margin-bottom:10px">${esc(rkStatus)}</div>
+    <div class="barra-acoes">
+      <select id="k-caso" style="max-width:300px"><option value="">Todos os casos</option>${casosUsados.map(id => `<option value="${esc(id)}" ${id === rkCaso ? 'selected' : ''}>${esc(nomeCaso(id))}</option>`).join('')}</select>
+      <select id="k-turma" style="max-width:240px"><option value="">Todas as turmas</option>${turmas.map(t => `<option ${t === rkTurma ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select>
+      <span class="esp"></span>
+      <button class="btn pequeno" id="k-atual">🔄 Atualizar</button><button class="btn pequeno" id="k-copiar">📋 Copiar</button><button class="btn pequeno" id="k-csv">⬇ CSV</button>
+    </div>
+    ${R.length ? `<div class="podio">${pod}</div>
+    <div class="pan"><div class="tw"><table class="t"><thead><tr><th>Pos.</th><th>Competidor</th><th>Turma</th><th>Caso</th><th>Pontos</th><th>Tempo</th><th>Partidas</th><th>Data</th><th></th></tr></thead><tbody>
+    ${R.map(x => `<tr><td style="font-size:1.2rem;white-space:nowrap">${medalha(x.pos)}</td><td><b>${esc(x.r.nome || '—')}</b>${x.r.mat ? `<br><span class="muted sm">${esc(x.r.mat)}</span>` : ''}</td><td>${esc(x.r.turma || '—')}</td><td class="sm">${esc(nomeCaso(x.r.caso))}</td>
+      <td><span class="pill ${classePct(pctRes(x.r))}">${x.r.pontos}/${x.r.max} · ${pctRes(x.r)}%</span></td><td>${fmtTempo(x.r.tempo || 0)}</td><td>${x.n}</td><td class="sm muted">${dataBR(x.r.fim)}</td><td><button class="btn pequeno perigo" data-d="${esc(x.r.rid)}" title="Remover do ranking">✕</button></td></tr>`).join('')}
+    </tbody></table></div></div>` : '<div class="vazio">Ainda não há resultados para este filtro.</div>'}
+    <div class="pan" style="margin-top:14px"><h3>Administração do ranking online</h3>
+      <div class="barra-acoes" style="margin:0"><button class="btn pequeno" id="k-pub">⬆ Publicar resultados importados</button><button class="btn pequeno" id="k-chave">🔑 Chave do professor${chaveProf() ? ' ✓' : ''}</button><span class="esp"></span><button class="btn pequeno perigo" id="k-limpar">Apagar TODO o ranking online</button></div>
+      <p class="muted sm" style="margin:8px 0 0">Remover ou apagar exige a <b>chave do professor</b> (guardada só neste navegador). Enviar resultados e consultar o ranking não exigem chave.</p></div>`;
+  $('#k-caso').onchange = e => { rkCaso = e.target.value; vRanking(); };
+  $('#k-turma').onchange = e => { rkTurma = e.target.value; vRanking(); };
+  $('#k-atual').onclick = () => carregarRanking(true);
+  $('#k-csv').onclick = () => {
+    const lin = [['Posição', 'Nome', 'Turma', 'Matrícula', 'Caso', 'Pontos', 'Máximo', 'Aproveitamento %', 'Tempo (mm:ss)', 'Partidas', 'Data'], ...R.map(x => [x.pos, x.r.nome, x.r.turma, x.r.mat, nomeCaso(x.r.caso), x.r.pontos, x.r.max, pctRes(x.r), fmtTempo(x.r.tempo || 0), x.n, dataBR(x.r.fim)])];
+    const csv = lin.map(l => l.map(c => { c = String(c ?? ''); return /[";\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(';')).join('\r\n');
+    baixar('ranking.csv', '﻿' + csv, 'text/csv'); toast('Ranking exportado.');
+  };
+  $('#k-copiar').onclick = () => { copiar(`🏆 Ranking${rkCaso ? ' — ' + nomeCaso(rkCaso) : ''}${rkTurma ? ' — ' + rkTurma : ''}\n` + R.map(x => `${medalha(x.pos)} ${x.r.nome || '—'} — ${x.r.pontos} pts (${fmtTempo(x.r.tempo || 0)})`).join('\n')).then(() => toast('Ranking copiado.')); };
+  $('#k-pub').onclick = async () => { if (!RES.length) return toast('Não há resultados importados para publicar.', true); try { await DTP.rankEnviar(RES); toast(RES.length + ' resultado(s) publicado(s).'); carregarRanking(true); } catch (e) { toast('Falha ao publicar: ' + String(e.message || e).slice(0, 80), true); } };
+  $('#k-chave').onclick = () => { const c = prompt('Chave do professor (para remover itens do ranking online):', chaveProf()); if (c !== null) { lsSet('dtp_chave_prof', c.trim()); vRanking(); } };
+  const apagar = async rid => {
+    if (RES.some(r => r.rid === rid)) { RES = RES.filter(r => r.rid !== rid); salvarRes(); }
+    if ((RK_ON || []).some(r => r.rid === rid) || rid === '*') {
+      let ch = chaveProf(); if (!ch) { ch = (prompt('Informe a chave do professor:') || '').trim(); if (!ch) return; lsSet('dtp_chave_prof', ch); }
+      try { await DTP.rankApagar(ch, rid); toast('Removido do ranking online.'); } catch (e) { if (/chave/i.test(String(e.message))) { lsSet('dtp_chave_prof', ''); toast('Chave inválida.', true); } else toast('Falha: ' + String(e.message || e).slice(0, 80), true); }
+    }
+    carregarRanking(true);
+  };
+  document.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { if (confirm('Remover este resultado do ranking?')) apagar(b.dataset.d); });
+  $('#k-limpar').onclick = () => { if (confirm('Apagar TODO o ranking online? Isso não pode ser desfeito.') && confirm('Tem certeza? Todos os competidores serão removidos.')) { RES = []; salvarRes(); apagar('*'); } };
+  if (RK_ON === null) carregarRanking();
 }
 function importarResultados() {
   const txt = $('#r-txt').value.trim(); if (!txt) return toast('Cole um código ou carregue arquivos primeiro.', true);
