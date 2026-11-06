@@ -181,6 +181,7 @@ input[type=file]::file-selector-button:hover{background:rgba(241,215,138,.25)}
 #inv{display:flex;gap:6px;flex:1;overflow-x:auto;padding:4px 2px}
 .slot{flex:none;width:42px;height:42px;border:1px solid var(--linha);border-radius:5px;background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;position:relative}
 .slot.cheio{border-color:var(--ouro);background:radial-gradient(circle,rgba(201,162,75,.28),rgba(201,162,75,.04));box-shadow:0 0 10px rgba(201,162,75,.3)}
+.feedback .perda{margin:8px 0;padding:8px 10px;border:1px dashed #e0614f;border-radius:6px;color:#f0a79b;font-size:.92rem}
 .slot.novo{animation:novo 1.2s ease}
 @keyframes novo{0%{transform:scale(.2) rotate(-30deg);opacity:0}60%{transform:scale(1.35)}100%{transform:scale(1)}}
 .prog{font-family:var(--f-ui);font-size:.78rem;color:var(--mut);white-space:nowrap;font-weight:400}.prog b{color:var(--ouro2)}
@@ -569,6 +570,52 @@ const DTP = (() => {
         6: ['A câmera da biblioteca flagrou, às 03h10, uma figura de pijama de seda e pantufas.', 'Sr. Rollback, Srta. Commit e Madame Schema jogavam cartas na sala de jantar até as 4h, com testemunhas. Álibi confirmado.'],
         7: ['Na lixeira do terminal, um bilhete amassado com a anotação “senha do lorde”, e migalhas e açúcar na tecla Enter.', 'Um fio de seda estampado, de pijama, estava preso no encosto da cadeira do terminal.']
       } }
+    ,
+    { id: 'coluna', titulo: 'O Mistério da Coluna Sumida', nome: 'Caso 4 — A Coluna Sumida', sub: 'Na folha de pagamento da mansão Codd, uma coluna inteira evaporou…',
+      carta: ['À 01h20 desta madrugada, a coluna **SALARIO** deixou de existir na tabela **FUNCIONARIOS**. Os funcionários continuam cadastrados, mas ninguém sabe mais quanto cada um deve receber. A folha de pagamento está paralisada.',
+        'Cinco pessoas estavam na mansão. Preciso saber **quem removeu** a coluna e **qual comando SQL** foi usado.'],
+      cena: 'No terminal, a tabela **FUNCIONARIOS** existe e tem todas as linhas, mas a coluna **SALARIO** não aparece mais.', intro: 'Alguém removeu a coluna **SALARIO** da tabela **FUNCIONARIOS** da mansão Codd.',
+      pergunta: 'Quem removeu a coluna?', culpado: 'normal',
+      suspeitos: [
+        { id: 'composta', nome: 'Sra. Chave Composta', papel: 'Tesoureira', ico: '👩‍💼', desc: 'Só assina um pagamento quando dois dados, juntos, o identificam. Meticulosa até demais.' },
+        { id: 'distinct', nome: 'Sr. Distinct', papel: 'Mordomo-chefe', ico: '🤵', desc: 'Não suporta repetições: nenhum talher, nenhum convidado e nenhuma história se repetem à sua mesa.' },
+        { id: 'join', nome: 'Lady Join', papel: 'Anfitriã', ico: '💃', desc: 'Vive juntando pessoas que combinam. Onde há festa, ela está no meio.' },
+        { id: 'check', nome: 'Cadu Check', papel: 'Segurança noturno', ico: '💂', desc: 'Só deixa passar quem cumpre a regra. Anda sempre com uma lista de verificação na mão.' },
+        { id: 'normal', nome: 'Dr. Normal Forma', papel: 'Consultor de organização', ico: '🧐', desc: 'De paletó de tweed e prancheta, vive dizendo que tudo na casa está “fora da forma” e precisa ser reorganizado.' }],
+      metodos: [{ id: 'alter', cmd: 'ALTER TABLE funcionarios DROP COLUMN salario;', ok: true }, { id: 'drop', cmd: 'DROP TABLE funcionarios CASCADE CONSTRAINTS;' }, { id: 'upd', cmd: 'UPDATE funcionarios SET salario = NULL WHERE id > 0;' }, { id: 'del', cmd: 'DELETE FROM funcionarios WHERE salario IS NOT NULL;' }],
+      epilogo: 'Dr. Normal Forma confessou. Com a conta temporária **consultor_nf**, queria “normalizar” a folha: moveria o salário para uma tabela própria. Executou `ALTER TABLE funcionarios DROP COLUMN salario;` antes de criar a nova tabela — e os valores se perderam. Lição de Banco de Dados: `ALTER TABLE` é **DDL** e muda a estrutura; **teste em ambiente de homologação**, crie e migre os dados **antes** de remover a coluna antiga, tenha **backup** e conceda `ALTER` só a quem precisa.',
+      pistas: {
+        1: ['Sob a lanterna, o livro de registros: à 01h20, a estrutura da tabela FUNCIONARIOS foi modificada e a coluna salario deixou de existir. As linhas continuam lá; só aquela coluna sumiu.', 'O manual afirma: alterar a estrutura de uma tabela (ALTER TABLE) exige o privilégio ALTER. Quem só tem SELECT ou UPDATE não consegue mexer nas colunas.'],
+        2: ['Sra. Chave Composta conferia a folha de pagamento na mesa de jantar com dois auxiliares das 0h às 2h. Álibi confirmado.', 'Lady Join recebia convidados no salão, fotografada em todas as mesas até as 2h. Álibi confirmado.'],
+        3: ['Uma voz grave pelo corredor: “Salário misturado com cadastro… que bagunça! Esta noite eu deixo tudo nos eixos.”', 'O terminal do RH foi liberado à 01h10 com uma conta de consultor, criada por uma semana.'],
+        4: ['Pegadas de sapato social engraxado, com pó de giz, vão do corredor até o escritório do RH.', 'Fios de tweed cinza e cheiro de charuto foram encontrados no teclado do terminal do RH.'],
+        5: ['Permissões na tabela FUNCIONARIOS — composta: SELECT, UPDATE · distinct: só SELECT · check: só SELECT · consultor_nf: ALTER (temporária). Lady Join não tem conta.', 'Ordem de serviço: “Dr. Normal Forma só deve REVISAR a estrutura da folha, sem remover nada. Toda mudança deve ser testada antes.” — Lorde Codd.'],
+        6: ['A câmera do RH flagrou, à 01h18, um senhor de tweed cinza, com uma prancheta de diagramas, entrando no escritório.', 'Sr. Distinct e Cadu Check faziam a ronda da adega à 01h20, registrados no ponto eletrônico. Álibi confirmado.'],
+        7: ['No histórico do terminal, o comando altera a estrutura da tabela e termina com DROP COLUMN salario; não há DELETE nem UPDATE.', 'Na lixeira, um rascunho a lápis: “mover salario para nova tabela” — com o último passo riscado: “criar a nova tabela”.']
+      } }
+    ,
+    { id: 'auditoria', titulo: 'O Mistério da Auditoria Vazia', nome: 'Caso 5 — A Auditoria Vazia', sub: 'Na madrugada da mansão Codd, o registro de tudo o que acontece foi esvaziado…',
+      carta: ['Às 02h40 desta madrugada, **todas as linhas** da tabela **AUDITORIA** sumiram de uma só vez. A tabela continua lá, mas está vazia, e o contador de números voltou para 1. Sem ela, não sabemos quem mexeu em mais nada.',
+        'Cinco pessoas estavam na mansão. Preciso saber **quem esvaziou** a tabela e **qual comando SQL** foi usado.'],
+      cena: 'No terminal, a tabela **AUDITORIA** continua existindo, mas não tem **nenhuma linha**.', intro: 'Alguém esvaziou a tabela **AUDITORIA** da mansão Codd.',
+      pergunta: 'Quem esvaziou a tabela?', culpado: 'autoinc',
+      suspeitos: [
+        { id: 'alias', nome: 'Sra. Alias', papel: 'Secretária', ico: '👩‍💻', desc: 'Atende por vários nomes, conforme o convidado. Ninguém tem certeza de qual é o verdadeiro.' },
+        { id: 'unique', nome: 'Prof. Unique', papel: 'Tutor do herdeiro', ico: '👨‍🏫', desc: 'Ensina que cada aluno é único e não admite cópias nas provas. Pontual como um relógio.' },
+        { id: 'limit', nome: 'Capitão Limit', papel: 'Chefe da guarda', ico: '💂', desc: 'Só deixa entrar os dez primeiros da fila. Os demais esperam do lado de fora.' },
+        { id: 'view', nome: 'Baronesa View', papel: 'Anfitriã e viúva', ico: '👵', desc: 'Só enxerga o que os outros decidem lhe mostrar. Adora uma janela com vista.' },
+        { id: 'autoinc', nome: 'Sr. Auto Increment', papel: 'Contador', ico: '🧮', desc: 'De colete e manguitos, soma “mais um” a tudo o que passa. Anda nervoso desde que o Lorde pediu uma revisão das contas.' }],
+      metodos: [{ id: 'trunc', cmd: 'TRUNCATE TABLE auditoria;', ok: true }, { id: 'drop', cmd: 'DROP TABLE auditoria;' }, { id: 'del', cmd: 'DELETE FROM auditoria WHERE id = 1;' }, { id: 'upd', cmd: 'UPDATE auditoria SET acao = NULL;' }],
+      epilogo: 'Sr. Auto Increment confessou. Com a conta **contador_admin**, ele vinha desviando valores e, para apagar os rastros, executou `TRUNCATE TABLE auditoria;`. O comando esvazia a tabela de uma vez, mantém a estrutura e reinicia o contador automático — por isso o ID voltou para 1. Lição de Banco de Dados: diferencie `DELETE` (linha a linha, com WHERE), `TRUNCATE` (esvazia tudo) e `DROP` (remove a tabela); proteja as **tabelas de auditoria** (somente INSERT/SELECT), aplique **privilégio mínimo** e mantenha **backup** externo dos logs.',
+      pistas: {
+        1: ['Sob a lanterna, o livro de registros: às 02h40, TODAS as linhas da tabela AUDITORIA sumiram de uma só vez, mas a tabela continua existindo, vazia. O contador automático de IDs voltou para 1.', 'O manual afirma: esvaziar uma tabela de uma só vez exige privilégio elevado de DBA. Contas comuns só inserem ou consultam registros.'],
+        2: ['Sra. Alias organizava o baile com 30 convidados no salão das 2h às 3h. Álibi confirmado.', 'Prof. Unique dava aula particular ao herdeiro na sala de estudos até as 3h, e o herdeiro confirma. Álibi confirmado.'],
+        3: ['Um murmúrio atrás da porta: “Se a auditoria some, ninguém descobre aquelas somas desviadas… só preciso limpar tudo de uma vez.”', 'O terminal do cofre foi acessado às 02h35 com uma conta de administrador, mas o Lorde dormia e não foi ele.'],
+        4: ['Pegadas de sapatos de couro caro, com solado de borracha preta, vão do cofre até o escritório contábil.', 'Digitais manchadas de tinta de carimbo e uma tira de papel de calculadora foram encontradas no teclado do terminal do cofre.'],
+        5: ['Permissões na tabela AUDITORIA — alias: INSERT · unique: SELECT · limit: só SELECT · contador_admin: DBA (todos os privilégios). Baronesa View não possui conta.', 'Aviso afixado: “Ninguém deve apagar registros de auditoria. Eles servem para investigar justamente o que acontece aqui.” — Capitão Limit.'],
+        6: ['A câmera do escritório contábil flagrou, às 02h38, um homem de colete e manguitos, com uma calculadora na mão.', 'Capitão Limit e Baronesa View vigiavam a entrada da mansão, com dois guardas de testemunha, às 02h40. Álibi confirmado.'],
+        7: ['No histórico do terminal, há um único comando, sem WHERE, que esvazia a tabela e reinicia o contador de IDs; a tabela não foi removida.', 'Na gaveta da mesa, planilhas com somas desviadas e um recibo rasgado de conta pessoal, com valores que batem com a auditoria.']
+      } }
   ];
   const validarCaso = c => c && typeof c.id === 'string' && c.id && typeof c.nome === 'string' && Array.isArray(c.carta) && Array.isArray(c.suspeitos) && c.suspeitos.length >= 2 && c.suspeitos.every(x => x && x.id && x.nome) && Array.isArray(c.metodos) && c.metodos.some(m => m && m.ok) && c.suspeitos.some(x => x.id === c.culpado);
   const todosCasos = (extras = []) => { const m = new Map(); CASOS.concat((extras || []).filter(validarCaso)).forEach(c => m.set(c.id, c)); return [...m.values()]; };
@@ -640,115 +687,115 @@ const DTP = (() => {
   const QUESTOES_PADRAO = [
     // Sala 1 — Conceitos
     Q('s1q1', 1, 1, 'Qual é a diferença entre **dado** e **informação**?',
-      ['Dado é um fato bruto, sem contexto; informação é o dado processado, com significado.', 'Dado e informação são sinônimos em qualquer situação.', 'Informação é o fato bruto; dado é o resultado de uma análise.', 'Dado só existe em bancos de dados relacionais.'], 0,
+      ["Dado é um fato bruto e sem contexto; informação é o dado interpretado.", "Dado é o fato já analisado; informação é o registro bruto guardado.", "Dado e informação são sinônimos, pois ambos descrevem um fato.", "Dado só existe em bancos relacionais; informação, em planilhas."], 0,
       'O número 38,5 é um dado. Interpretado como “temperatura do paciente: 38,5 °C (febre)”, torna-se informação.'),
     Q('s1q2', 1, 1, 'O que é um **SGBD** (Sistema Gerenciador de Banco de Dados)?',
-      ['O conjunto de tabelas armazenadas em disco.', 'O software que permite criar, acessar, manter e proteger bancos de dados.', 'Uma linguagem de programação para criar sites.', 'O computador que hospeda os arquivos do sistema.'], 1,
+      ["O conjunto de tabelas e arquivos armazenados no disco do servidor.", "O software que permite criar, acessar, manter e proteger bancos.", "Uma linguagem de programação usada para criar páginas e sistemas web.", "O computador que hospeda os arquivos e executa o sistema."], 1,
       'O banco de dados são os dados em si; o SGBD (MySQL, PostgreSQL, Oracle…) é o software que os gerencia.'),
     Q('s1q3', 1, 2, 'Qual é uma vantagem de usar um SGBD em vez de planilhas e arquivos de texto espalhados?',
-      ['Elimina totalmente a necessidade de backup.', 'Controla acessos simultâneos, reduz redundância e inconsistência e centraliza a segurança.', 'Impede que qualquer usuário altere os dados.', 'Dispensa o planejamento e a modelagem dos dados.'], 1,
+      ["Elimina totalmente a necessidade de backup e de recuperação.", "Controla acessos simultâneos e reduz redundância e inconsistência.", "Impede que qualquer usuário altere os dados já armazenados.", "Dispensa o planejamento e a modelagem prévia dos dados."], 1,
       'O SGBD oferece controle de concorrência, integridade, segurança e menor redundância. Backup continua sendo necessário.'),
     Q('s1q4', 1, 1, 'Qual profissional é responsável por instalar e configurar o SGBD, conceder permissões e realizar backups?',
-      ['Analista de requisitos', 'Administrador de Banco de Dados (DBA)', 'Usuário final', 'Designer de interface'], 1,
+      ["Analista de requisitos", "Administrador do banco (DBA)", "Usuário final do sistema", "Designer de interface gráfica"], 1,
       'O DBA cuida da administração do ambiente: instalação, desempenho, segurança, permissões e cópias de segurança.'),
     Q('s1q5', 1, 1, 'Qual alternativa apresenta apenas exemplos de SGBDs?',
-      ['MySQL, PostgreSQL e Oracle', 'HTML, CSS e JavaScript', 'Word, Excel e PowerPoint', 'Python, Java e C'], 0,
+      ["MySQL, PostgreSQL e SQL Server", "HTML, CSS, JavaScript e PHP", "Word, Excel, PowerPoint e Outlook", "Python, Java, C++ e Ruby"], 0,
       'HTML/CSS/JS são tecnologias web; Word/Excel/PowerPoint são aplicativos de escritório; Python/Java/C são linguagens de programação.'),
     // Sala 2 — MER
     Q('s2q1', 2, 1, 'No Modelo Entidade-Relacionamento (MER), o que representa uma **entidade**?',
-      ['Um objeto ou conceito do mundo real sobre o qual queremos guardar dados (ex.: Cliente).', 'Uma característica de um objeto (ex.: nome).', 'A ligação entre duas tabelas por meio de chaves.', 'Um comando para consultar os dados.'], 0,
+      ["Um objeto do mundo real sobre o qual guardamos dados (ex.: Cliente).", "Uma característica que descreve um objeto do mundo real (ex.: nome).", "A ligação entre duas tabelas feita por meio de chaves (PK e FK).", "Um comando usado para consultar e filtrar os dados armazenados."], 0,
       'Entidade é “a coisa”; atributos são suas características; relacionamentos ligam entidades.'),
     Q('s2q2', 2, 2, 'Qual atributo é, tipicamente, **multivalorado**?',
-      ['CPF do cliente', 'Data de nascimento', 'Telefones do cliente (pode ter vários)', 'Código do cliente'], 2,
+      ["CPF único do cliente", "Data de nascimento do cliente", "Telefones do cliente (vários)", "Código de identificação do cliente"], 2,
       'Um mesmo cliente pode ter vários telefones. No modelo relacional, esse atributo costuma virar uma tabela própria.'),
     Q('s2q3', 2, 1, 'Um cliente pode fazer vários pedidos, mas cada pedido pertence a um único cliente. A cardinalidade entre Cliente e Pedido é:',
       ['1:1 (um para um)', '1:N (um para muitos)', 'N:N (muitos para muitos)', '0:0 (nenhum para nenhum)'], 1,
       'Um cliente → muitos pedidos; cada pedido → um cliente. É o relacionamento 1:N mais comum.'),
     Q('s2q4', 2, 2, 'Um aluno cursa várias disciplinas e cada disciplina possui vários alunos. Essa cardinalidade é:',
-      ['1:1', '1:N', 'N:N (muitos para muitos)', 'Não existe relacionamento'], 2,
+      ["1:1 (um para um)", "1:N (um para muitos)", "N:N (muitos para muitos)", "Não existe relacionamento"], 2,
       'Relacionamentos N:N exigem uma tabela associativa (ex.: Matrícula) na implementação relacional.'),
     Q('s2q5', 2, 1, 'O que é um **atributo identificador** de uma entidade?',
-      ['Aquele que mais aparece nas consultas.', 'Aquele cujo valor identifica unicamente cada ocorrência da entidade (ex.: CPF, matrícula).', 'Aquele que possui o maior tamanho em bytes.', 'Qualquer atributo do tipo texto.'], 1,
+      ["Aquele que aparece com mais frequência nas consultas feitas.", "Aquele cujo valor é único para cada ocorrência (ex.: CPF).", "Aquele que ocupa o maior tamanho em bytes dentro da tabela.", "Qualquer atributo do tipo texto guardado nessa entidade."], 1,
       'O identificador distingue uma ocorrência das demais e dará origem à chave primária.'),
     // Sala 3 — Modelo relacional
     Q('s3q1', 3, 1, 'No modelo relacional, cada **linha** (tupla) de uma tabela representa:',
-      ['Uma coluna da tabela', 'Uma ocorrência (registro) da entidade', 'Um tipo de dado', 'Um índice'], 1,
+      ["Um atributo da entidade", "Uma ocorrência da entidade", "Um tipo de dado da coluna", "Um índice de busca rápida"], 1,
       'Linhas são registros (ocorrências); colunas são atributos.'),
     Q('s3q2', 3, 1, 'A **chave primária** (PK) de uma tabela garante que:',
-      ['O valor pode se repetir desde que a linha seja diferente', 'Cada linha é identificada por um valor único e não nulo', 'A tabela só poderá ter uma linha', 'A coluna será sempre numérica'], 1,
+      ["O valor pode se repetir se o resto da linha for diferente", "Cada linha tem um identificador único e não nulo", "A tabela poderá ter apenas uma linha cadastrada", "O valor da coluna será sempre do tipo numérico"], 1,
       'A PK é única e obrigatória (não aceita NULL). Pode ser de qualquer tipo, inclusive texto.'),
     Q('s3q3', 3, 1, 'Para que serve uma **chave estrangeira** (FK)?',
-      ['Para criptografar os dados', 'Para referenciar a chave primária de outra tabela e criar o relacionamento', 'Para ordenar as linhas', 'Para impedir a criação de novas tabelas'], 1,
+      ["Para criptografar os dados armazenados na tabela", "Para referenciar a PK de outra tabela e ligá-las", "Para ordenar as linhas conforme o valor da coluna", "Para impedir a criação de novas tabelas no banco"], 1,
       'A FK aponta para a PK de outra tabela, estabelecendo o vínculo e permitindo a integridade referencial.'),
     Q('s3q4', 3, 2, 'Como um relacionamento **N:N** é implementado no modelo relacional?',
-      ['Colocando uma lista de IDs em uma única coluna', 'Criando uma tabela associativa com as chaves estrangeiras das duas tabelas', 'Duplicando as duas tabelas', 'Não é possível representar N:N'], 1,
+      ["Colocando uma lista de IDs dentro de uma única coluna", "Criando uma tabela associativa com as duas chaves", "Duplicando as duas tabelas e unindo seus registros", "Não é possível representar N:N no modelo relacional"], 1,
       'A tabela associativa (ex.: matricula com id_aluno e id_disciplina) transforma o N:N em dois relacionamentos 1:N.'),
     Q('s3q5', 3, 2, 'Existe uma FK `pedido.id_cliente` referenciando `cliente.id`. O que ocorre ao inserir um pedido com `id_cliente = 999`, que não existe em `cliente`?',
-      ['O SGBD cria automaticamente o cliente 999', 'O SGBD rejeita a inserção (violação de integridade referencial)', 'O pedido é gravado com id_cliente nulo', 'A tabela cliente é apagada'], 1,
+      ["O SGBD cria automaticamente o cliente 999 que faltava", "O SGBD rejeita a inserção por violar a integridade", "O pedido é gravado normalmente com id_cliente nulo", "A tabela cliente é apagada e recriada pelo SGBD"], 1,
       'A integridade referencial impede que uma FK aponte para um valor que não existe na tabela referenciada.'),
     // Sala 4 — Normalização
     Q('s4q1', 4, 1, 'Uma tabela está na **1ª Forma Normal (1FN)** quando:',
-      ['Todos os atributos são atômicos (sem valores multivalorados ou grupos repetidos)', 'Não possui chave primária', 'Todos os atributos são numéricos', 'Possui no máximo duas colunas'], 0,
+      ["Todos os atributos são atômicos, sem grupos repetidos", "Não possui chave primária definida em nenhuma coluna", "Todos os atributos da tabela são do tipo numérico", "A tabela possui no máximo duas colunas de dados"], 0,
       '1FN: cada célula guarda um único valor indivisível.'),
     Q('s4q2', 4, 1, 'A coluna `telefones` guarda “8888-1111, 9999-2222” em uma mesma célula. Qual forma normal está sendo violada?',
       ['1FN', '2FN', '3FN', 'Nenhuma'], 0,
       'Dois valores na mesma célula tornam o atributo não atômico — violação da 1FN.'),
     Q('s4q3', 4, 2, 'A **2ª Forma Normal (2FN)** elimina:',
-      ['Dependências transitivas', 'Dependências parciais da chave primária composta', 'Tabelas com mais de 3 colunas', 'Chaves estrangeiras'], 1,
+      ["Dependências transitivas entre atributos não-chave", "Dependências parciais da chave primária composta", "Tabelas com mais de três colunas de dados", "Chaves estrangeiras que ligam duas tabelas"], 1,
       'Na 2FN, todo atributo não-chave deve depender da chave inteira, e não apenas de parte dela.'),
     Q('s4q4', 4, 2, 'A **3ª Forma Normal (3FN)** elimina:',
-      ['Dependências parciais', 'Dependências transitivas (atributo não-chave dependendo de outro não-chave)', 'Chaves primárias', 'Relacionamentos 1:N'], 1,
+      ["Dependências parciais da chave primária composta", "Dependências transitivas entre atributos não-chave", "As chaves primárias de todas as tabelas do banco", "Os relacionamentos 1:N existentes entre tabelas"], 1,
       'Ex.: em Funcionario(id, nome, cod_depto, nome_depto), nome_depto depende de cod_depto, não de id — deve ir para a tabela Departamento.'),
     Q('s4q5', 4, 1, 'Qual é o principal objetivo da normalização?',
-      ['Reduzir redundância e evitar anomalias de inserção, atualização e exclusão', 'Aumentar o número de tabelas para dificultar acessos', 'Substituir o uso de chaves primárias', 'Criptografar os dados'], 0,
+      ["Reduzir redundância e evitar anomalias de atualização", "Aumentar o número de tabelas para dificultar acessos", "Substituir o uso de chaves primárias nas tabelas", "Criptografar os dados para impedir acessos indevidos"], 0,
       'Dados repetidos geram inconsistências; normalizar organiza a informação em tabelas coesas.'),
     // Sala 5 — DDL
     Q('s5q1', 5, 1, 'Qual comando SQL cria uma nova tabela?',
       ['INSERT TABLE', 'CREATE TABLE', 'NEW TABLE', 'MAKE TABLE'], 1,
       'CREATE TABLE define o nome, as colunas, os tipos e as restrições da tabela.'),
     Q('s5q2', 5, 2, 'Qual comando adiciona a coluna `email` à tabela `clientes`?',
-      ['`UPDATE clientes ADD email VARCHAR(100);`', '`INSERT INTO clientes email;`', '`ALTER TABLE clientes ADD email VARCHAR(100);`', '`CREATE COLUMN email ON clientes;`'], 2,
+      ["`UPDATE clientes ADD COLUMN email VARCHAR(100);`", "`INSERT INTO clientes (email) VARCHAR(100);`", "`ALTER TABLE clientes ADD email VARCHAR(100);`", "`CREATE COLUMN email ON clientes;`"], 2,
       'ALTER TABLE altera a estrutura de uma tabela existente (adicionar, modificar ou remover colunas).'),
     Q('s5q3', 5, 1, 'O que faz o comando `DROP TABLE clientes;`?',
-      ['Apaga apenas as linhas da tabela, mantendo a estrutura', 'Remove a tabela por completo: estrutura e dados', 'Renomeia a tabela', 'Cria uma cópia de segurança da tabela'], 1,
+      ["Apaga apenas as linhas da tabela, mantendo a estrutura", "Remove a tabela por completo: estrutura e dados", "Renomeia a tabela e mantém todos os dados", "Cria uma cópia de segurança da tabela inteira"], 1,
       'DROP TABLE é DDL e é irreversível sem backup. Normalmente exige privilégios de administrador.'),
     Q('s5q4', 5, 2, 'Qual comando DDL esvazia a tabela (remove todas as linhas) preservando sua estrutura?',
-      ['DROP TABLE', 'TRUNCATE TABLE', 'ALTER TABLE', 'CREATE TABLE'], 1,
+      ["DROP TABLE IF EXISTS", "TRUNCATE TABLE", "ALTER TABLE", "RENAME TABLE"], 1,
       'TRUNCATE remove todas as linhas e mantém a tabela. DROP remove a tabela inteira.'),
     Q('s5q5', 5, 1, 'A sigla **DDL** significa:',
-      ['Data Definition Language — define a estrutura (CREATE, ALTER, DROP)', 'Data Delivery Layer — entrega dados à aplicação', 'Database Design Logic — desenho lógico do banco', 'Dynamic Data Link — liga bancos diferentes'], 0,
+      ["Data Definition Language — define a estrutura das tabelas", "Data Delivery Layer — entrega os dados à aplicação cliente", "Database Design Logic — descreve o desenho lógico do banco", "Dynamic Data Link — liga bancos de dados diferentes"], 0,
       'DDL = Linguagem de Definição de Dados. Já INSERT, UPDATE e DELETE pertencem à DML.'),
     // Sala 6 — DML
     Q('s6q1', 6, 1, 'Qual comando insere um novo cliente?',
-      ["`INSERT INTO clientes (nome, email) VALUES ('Ana', 'ana@email.com');`", "`ADD clientes (nome, email) = ('Ana', 'ana@email.com');`", "`CREATE clientes VALUES ('Ana', 'ana@email.com');`", "`UPDATE clientes SET nome = 'Ana';`"], 0,
+      ["`INSERT INTO clientes (nome, email) VALUES ('Ana', 'ana@email.com');`", "`ADD INTO clientes (nome, email) VALUES ('Ana', 'ana@email.com');`", "`CREATE clientes (nome, email) VALUES ('Ana', 'ana@email.com');`", "`UPDATE clientes SET nome = 'Ana', email = 'ana@email.com';`"], 0,
       'INSERT INTO tabela (colunas) VALUES (valores) adiciona uma nova linha.'),
     Q('s6q2', 6, 2, 'O que acontece ao executar `UPDATE produtos SET preco = 0;` **sem** cláusula WHERE?',
-      ['Nada, pois falta o WHERE', 'Apenas o primeiro produto é alterado', 'O preço de todos os produtos passa a ser 0', 'A tabela produtos é apagada'], 2,
+      ["Nada acontece, pois falta a cláusula WHERE", "Somente o primeiro produto é alterado", "O preço de todos os produtos passa a ser 0", "A tabela produtos é apagada do banco"], 2,
       'Sem WHERE, o UPDATE atinge todas as linhas. Sempre confira o filtro antes de executar!'),
     Q('s6q3', 6, 1, 'Qual comando remove somente o cliente de id 7?',
-      ['`DROP TABLE clientes WHERE id = 7;`', '`DELETE FROM clientes WHERE id = 7;`', '`TRUNCATE TABLE clientes;`', '`DELETE clientes;`'], 1,
+      ["`DROP TABLE clientes WHERE id = 7;`", "`DELETE FROM clientes WHERE id = 7;`", "`TRUNCATE TABLE clientes WHERE id = 7;`", "`REMOVE FROM clientes WHERE id = 7;`"], 1,
       'DELETE FROM … WHERE remove só as linhas que atendem à condição.'),
     Q('s6q4', 6, 1, 'Qual comando altera o e-mail do cliente de id 3?',
-      ["`UPDATE clientes SET email = 'novo@email.com' WHERE id = 3;`", "`ALTER clientes SET email = 'novo@email.com' WHERE id = 3;`", "`INSERT INTO clientes email = 'novo@email.com';`", "`SELECT email = 'novo@email.com' FROM clientes;`"], 0,
+      ["`UPDATE clientes SET email = 'novo@email.com' WHERE id = 3;`", "`ALTER clientes SET email = 'novo@email.com' WHERE id = 3;`", "`INSERT INTO clientes SET email = 'novo@email.com' WHERE id = 3;`", "`SELECT email = 'novo@email.com' FROM clientes WHERE id = 3;`"], 0,
       'UPDATE tabela SET coluna = valor WHERE condição.'),
     Q('s6q5', 6, 1, 'Qual grupo contém apenas comandos de manipulação de dados (DML)?',
-      ['CREATE, ALTER e DROP', 'INSERT, UPDATE e DELETE', 'GRANT, REVOKE e CREATE', 'TRUNCATE, DROP e ALTER'], 1,
+      ["CREATE, ALTER e TRUNCATE", "INSERT, UPDATE e DELETE", "GRANT, REVOKE e CREATE", "TRUNCATE, DROP e ALTER"], 1,
       'CREATE/ALTER/DROP/TRUNCATE são DDL; GRANT/REVOKE são DCL; INSERT/UPDATE/DELETE são DML.'),
     // Sala 7 — Consultas
     Q('s7q1', 7, 1, 'Qual consulta retorna apenas o nome e o e-mail de todos os clientes?',
-      ['`SELECT nome, email FROM clientes;`', '`SELECT * FROM nome, email;`', '`GET nome, email FROM clientes;`', '`FROM clientes SELECT ALL;`'], 0,
+      ["`SELECT nome, email FROM clientes;`", "`SELECT * FROM clientes (nome, email);`", "`GET nome, email FROM TABLE clientes;`", "`FROM clientes SELECT nome, email;`"], 0,
       'SELECT colunas FROM tabela. O asterisco (*) traria todas as colunas.'),
     Q('s7q2', 7, 1, 'Qual consulta lista os clientes da cidade de Recife?',
-      ["`SELECT * FROM clientes WHERE cidade = 'Recife';`", "`SELECT * FROM clientes HAVING 'Recife';`", "`SELECT cidade FROM clientes = 'Recife';`", "`FILTER clientes BY cidade = 'Recife';`"], 0,
+      ["`SELECT * FROM clientes WHERE cidade='Recife';`", "`SELECT * FROM clientes IF cidade = 'Recife';`", "`SELECT * FROM clientes.cidade = 'Recife';`", "`FILTER * FROM clientes BY cidade = 'Recife';`"], 0,
       'WHERE filtra as linhas antes do resultado ser exibido.'),
     Q('s7q3', 7, 1, 'Qual consulta informa quantos pedidos existem?',
-      ['`SELECT SUM(*) FROM pedidos;`', '`SELECT COUNT(*) FROM pedidos;`', '`SELECT MAX(*) FROM pedidos;`', '`COUNT pedidos;`'], 1,
+      ["`SELECT SUM(*) FROM pedidos;`", "`SELECT COUNT(*) FROM pedidos;`", "`SELECT MAX(*) FROM pedidos;`", "`SELECT NUM(*) FROM pedidos;`"], 1,
       'COUNT(*) conta linhas. SUM soma valores de uma coluna; MAX retorna o maior valor.'),
     Q('s7q4', 7, 2, 'O **INNER JOIN** entre duas tabelas retorna:',
-      ['Todas as linhas das duas tabelas, combinadas ou não', 'Somente as linhas que têm correspondência nas duas tabelas, segundo a condição de junção', 'Apenas as linhas da tabela da esquerda', 'O produto de todas as colunas, sem condições'], 1,
+      ["Todas as linhas das duas tabelas, combinadas ou não", "Só as linhas que têm correspondência nas duas tabelas", "Apenas as linhas da tabela da esquerda, mesmo sem par", "O produto de todas as linhas, sem usar condições"], 1,
       'INNER JOIN mantém só o que casa pela condição (ex.: pedido.id_cliente = cliente.id).'),
     Q('s7q5', 7, 3, 'Qual consulta mostra o total de pedidos de cada cliente?',
-      ['`SELECT id_cliente, COUNT(*) FROM pedidos GROUP BY id_cliente;`', '`SELECT id_cliente, COUNT(*) FROM pedidos ORDER BY COUNT;`', '`SELECT COUNT(*) FROM pedidos WHERE id_cliente;`', '`SELECT DISTINCT id_cliente, pedidos;`'], 0,
+      ["`SELECT id_cliente, COUNT(*) FROM pedidos GROUP BY id_cliente;`", "`SELECT id_cliente, COUNT(*) FROM pedidos ORDER BY id_cliente;`", "`SELECT COUNT(*) FROM pedidos WHERE id_cliente IS NOT NULL;`", "`SELECT DISTINCT id_cliente, COUNT(*) FROM pedidos;`"], 0,
       'GROUP BY agrupa as linhas; a função agregada COUNT(*) é calculada por grupo.')
   ];
 
@@ -841,6 +888,7 @@ function ruido(d, v, freq = 800, t0 = 0) {
 const SFX = {
   ok: () => [523, 659, 784, 1047].forEach((f, i) => tom(f, .3, 'triangle', .08, i * .09)),
   erro: () => { tom(220, .35, 'sawtooth', .05, 0, 110); tom(165, .4, 'sawtooth', .045, .13, 80); },
+  perda: () => [440, 330, 247].forEach((f, i) => tom(f, .3, 'sawtooth', .05, i * .11, f * .8)),
   ferr: () => [392, 494, 587, 784, 988].forEach((f, i) => tom(f, .4, 'triangle', .07, i * .08)),
   passo: () => ruido(.05, .05, 500),
   clique: () => tom(660, .05, 'square', .025),
@@ -932,7 +980,7 @@ function abrirComoJogar() {
       <ul class="como kbdl">
         <li>Ande pela mansão com as <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> ou <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> (no celular, use o direcional na tela).</li>
         <li>Aproxime-se do símbolo dourado <b style="color:var(--ouro2)">◆</b> de cada sala e pressione <kbd>E</kbd> para investigar.</li>
-        <li>Cada sala propõe desafios de Banco de Dados. <b>Cada resposta correta</b> rende uma <b>ferramenta</b> — e a ferramenta revela uma <b>pista</b>.</li>
+        <li>Cada sala propõe desafios de Banco de Dados. <b>Cada resposta correta</b> rende uma <b>ferramenta</b> — e a ferramenta revela uma <b>pista</b>. Mas <b>cada resposta errada</b> faz você <b>perder uma ferramenta</b> já conquistada (e a pista dela some do caderno).</li>
         <li>Errar custa pontos, mas você pode tentar de novo com outro desafio. Quanto menos tentativas, mais pontos.</li>
         <li>Consulte o <b>Caderno</b> (<kbd>C</kbd>) para reler as pistas e descartar suspeitos.</li>
         <li>Quando todas as salas forem investigadas, a <b>Sala dos Servidores</b> será destrancada: faça sua acusação final.</li>
@@ -963,7 +1011,7 @@ function abrirImportar() {
    ===================================================================== */
 const salasQ = () => [1, 2, 3, 4, 5, 6, 7];
 function novoEstado(perfil) {
-  const st = { v: 1, caso: CASO.id, rid: uid(), missao: MISSAO.hash, perfil, inicio: Date.now(), tempo: 0, pontos: 0, x: 600, y: 412, salas: {}, ferr: [], log: [], tent: {}, acusacoes: 0, descartados: [], fim: null, finalAberto: false };
+  const st = { v: 1, caso: CASO.id, rid: uid(), missao: MISSAO.hash, perfil, inicio: Date.now(), tempo: 0, pontos: 0, x: 600, y: 412, salas: {}, ferr: [], perdidas: [], log: [], tent: {}, acusacoes: 0, descartados: [], fim: null, finalAberto: false };
   salasQ().forEach(id => {
     const pool = shuffle(MISSAO.pac.questoes.filter(q => q.sala === id).map(q => q.id));
     st.salas[id] = { pool, ptr: 0, ac: [], alvo: Math.min(Math.max(1, Math.min(2, MISSAO.cfg.porSala | 0 || 2)), pool.length) };
@@ -1487,8 +1535,10 @@ function mostrarPergunta(sid) {
       bOk.onclick = () => { removeEventListener('keydown', teclaQ); bg.fechar(); entregarFerramenta(sid, st.ac.length - 1); };
     } else {
       st.errAtual = (st.errAtual || 0) + 1; ops[sel].classList.add('errada'); SFX.erro();
+      const perdida = perderFerramenta(); if (perdida) setTimeout(SFX.perda, 350);
       const rev = MISSAO.cfg.revelarGabarito; if (rev) ops[iCerta].classList.add('certa');
-      fb.className = 'feedback v no'; fb.innerHTML = `<strong>✘ Não foi desta vez… (próximo acerto vale menos)</strong>${rev ? fmt(q.e || '') : 'Revise o conteúdo e tente outro desafio.'}`;
+      fb.className = 'feedback v no'; const tp = perdida ? SALAS[perdida.sala - 1].ferr[perdida.idx] : null;
+      fb.innerHTML = `<strong>✘ Não foi desta vez… (próximo acerto vale menos)</strong>${tp ? `<div class="perda">💨 Você perdeu uma ferramenta: <b>${tp.ico} ${esc(tp.nome)}</b> saiu do seu caderno, junto com a pista.</div>` : ''}${rev ? fmt(q.e || '') : 'Revise o conteúdo e tente outro desafio.'}`;
       bOk.textContent = 'Tentar outro desafio ▸'; bOk.disabled = false;
       bOk.onclick = () => { removeEventListener('keydown', teclaQ); bg.fechar(); avancarPergunta(sid); salvar(true); mostrarPergunta(sid); };
     }
@@ -1496,6 +1546,16 @@ function mostrarPergunta(sid) {
   };
   bg.addEventListener('remove', () => removeEventListener('keydown', teclaQ));
   const obs = new MutationObserver(() => { if (!bg.isConnected) { removeEventListener('keydown', teclaQ); obs.disconnect(); } }); obs.observe(modalRoot, { childList: true });
+}
+function ordenados(lista, chave) {
+  const campo = chave === 's' ? 'ordS' : 'ordM', ids = lista.map(x => x.id);
+  if (!S[campo] || S[campo].length !== ids.length || !ids.every(i => S[campo].includes(i))) { S[campo] = shuffle(ids); salvar(true); }
+  return S[campo].map(i => lista.find(x => x.id === i));
+}
+function perderFerramenta() {
+  if (!S.ferr.length) return null;
+  const i = Math.floor(Math.random() * S.ferr.length), [f] = S.ferr.splice(i, 1);
+  (S.perdidas = S.perdidas || []).push(f); return f;
 }
 function entregarFerramenta(sid, idx) {
   const sala = SALAS[sid - 1], f = sala.ferr[idx]; if (!f) { aposSala(sid); return; }
@@ -1523,8 +1583,9 @@ function abrirCaderno(aba = 'pistas', voltar) {
   const render = () => {
     const pistas = S.ferr.length ? S.ferr.map(f => { const t = SALAS[f.sala - 1].ferr[f.idx]; return `<div class="item-p"><div class="i">${t.ico}</div><div><h4>${esc(t.nome)} <span style="color:var(--mut);font-weight:400;font-family:var(--f-ui);font-size:.72rem">· ${esc(SALAS[f.sala - 1].nome)}</span></h4><p>${esc(DTP.pistaDe(CASO, f.sala, f.idx))}</p></div></div>`; }).join('')
       : '<div class="vazio">Nenhuma pista ainda. Resolva os desafios das salas para conquistar ferramentas.</div>';
-    const sus = CASO.suspeitos.map(s => `<div class="sus ${S.descartados.includes(s.id) ? 'desc' : ''}"><div class="f">${s.ico}</div><h4>${esc(s.nome)}</h4><div class="pp">${esc(s.papel)}</div><p>${esc(s.desc)}</p><label><input type="checkbox" data-id="${s.id}" ${S.descartados.includes(s.id) ? 'checked' : ''}> Descartar suspeito</label></div>`).join('');
-    return aba === 'pistas' ? `<div class="lista-p">${pistas}</div>` : `<div class="sus-grid">${sus}</div>`;
+    const nper = (S.perdidas || []).length; const perd = nper ? `<div class="vazio" style="color:#e0614f">Ferramentas perdidas por erros: ${nper}</div>` : '';
+    const sus = ordenados(CASO.suspeitos, 's').map(s => `<div class="sus ${S.descartados.includes(s.id) ? 'desc' : ''}"><div class="f">${s.ico}</div><h4>${esc(s.nome)}</h4><div class="pp">${esc(s.papel)}</div><p>${esc(s.desc)}</p><label><input type="checkbox" data-id="${s.id}" ${S.descartados.includes(s.id) ? 'checked' : ''}> Descartar suspeito</label></div>`).join('');
+    return aba === 'pistas' ? `<div class="lista-p">${pistas}${perd}</div>` : `<div class="sus-grid">${sus}</div>`;
   };
   const bg = abrirModal(`<div class="painel"><h3>📓 Caderno do Detetive <button class="fechar" aria-label="Fechar">×</button></h3>
     <div class="abas"><button class="aba ${aba === 'pistas' ? 'at' : ''}" data-a="pistas">Pistas (${S.ferr.length})</button><button class="aba ${aba === 'sus' ? 'at' : ''}" data-a="sus">Suspeitos</button></div>
@@ -1539,9 +1600,9 @@ function abrirAcusacao() {
   const bg = abrirModal(`<div class="painel" style="width:min(900px,94vw)"><h3>⚖ Acusação final <button class="fechar" aria-label="Fechar">×</button></h3>
     <p class="aviso" style="margin-top:-4px">${fmt(CASO.cena)} Com base nas pistas do seu caderno, aponte o culpado e o comando usado.</p>
     <div class="sec-t">1. ${esc(CASO.pergunta)}</div>
-    <div class="sus-grid">${CASO.suspeitos.map(s => `<div class="sus escolha ${S.descartados.includes(s.id) ? 'desc' : ''}" data-id="${s.id}" tabindex="0" role="button"><div class="f">${s.ico}</div><h4>${esc(s.nome)}</h4><div class="pp">${esc(s.papel)}</div><p>${esc(s.desc)}</p></div>`).join('')}</div>
+    <div class="sus-grid">${ordenados(CASO.suspeitos, 's').map(s => `<div class="sus escolha ${S.descartados.includes(s.id) ? 'desc' : ''}" data-id="${s.id}" tabindex="0" role="button"><div class="f">${s.ico}</div><h4>${esc(s.nome)}</h4><div class="pp">${esc(s.papel)}</div><p>${esc(s.desc)}</p></div>`).join('')}</div>
     <div class="sec-t">2. Qual comando foi executado?</div>
-    <div class="metodos">${CASO.metodos.map(m => `<button class="met" data-id="${m.id}">${esc(m.cmd)}</button>`).join('')}</div>
+    <div class="metodos">${ordenados(CASO.metodos, 'm').map(m => `<button class="met" data-id="${m.id}">${esc(m.cmd)}</button>`).join('')}</div>
     <div class="msg-acus" id="ac-msg"></div>
     <div class="linha-fl" style="justify-content:space-between;margin-top:16px"><button class="btn" id="ac-cad">📓 Ver caderno</button><button class="btn primario" id="ac-ok" disabled>Acusar</button></div></div>`, { fechavel: true });
   bg.querySelector('.fechar').onclick = bg.fechar;
@@ -1621,7 +1682,7 @@ function hud(novo) {
   $('#hud-pontos').textContent = S.pontos;
   $('#prog').innerHTML = `Salas investigadas: <b>${salasConcluidas()}/7</b>`;
   const slots = []; salasQ().forEach(id => { for (let i = 0; i < S.salas[id].alvo; i++) slots.push([id, i]); });
-  $('#inv').innerHTML = slots.map(([id, i]) => { const f = S.ferr.find(x => x.sala === id && x.idx === i), t = SALAS[id - 1].ferr[i]; const ultimo = novo && f && S.ferr[S.ferr.length - 1] === f; return f ? `<div class="slot cheio ${ultimo ? 'novo' : ''}" title="${esc(t.nome)}">${t.ico}</div>` : `<div class="slot" title="${esc(SALAS[id - 1].nome)}: ferramenta ainda não conquistada" style="opacity:.35">❔</div>`; }).join('');
+  $('#inv').innerHTML = slots.map(([id, i]) => { const f = S.ferr.find(x => x.sala === id && x.idx === i), t = SALAS[id - 1].ferr[i]; const ultimo = novo && f && S.ferr[S.ferr.length - 1] === f; return f ? `<div class="slot cheio ${ultimo ? 'novo' : ''}" title="${esc(t.nome)}">${t.ico}</div>` : ((S.perdidas || []).some(x => x.sala === id && x.idx === i) ? `<div class="slot perdida" title="${esc(t.nome)}: ferramenta perdida após um erro" style="opacity:.5;filter:grayscale(1)">${t.ico}<i style="position:absolute;inset:0;display:grid;place-items:center;color:#e0614f;font-style:normal;font-weight:700;font-size:1.3em">✖</i></div>` : `<div class="slot" title="${esc(SALAS[id - 1].nome)}: ferramenta ainda não conquistada" style="opacity:.35">❔</div>`); }).join('');
   $$('#inv .slot').forEach(s => s.onclick = () => abrirCaderno());
 }
 function abrirMenu() {
@@ -1690,7 +1751,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && S &
 /* ---------- Início ---------- */
 DTP.ligarTelaCheia();
 carregarMissao().then(() => { rotuloMissao(); requestAnimationFrame(loop); });
-window.__dtp = { get AC() { return AC; }, get mestre() { return mestre; }, get S() { return S; }, livre, GEO, alvoProximo, qAtualId, get MISSAO() { return MISSAO; } };
+window.__dtp = { get AC() { return AC; }, get mestre() { return mestre; }, get S() { return S; }, livre, GEO, alvoProximo, qAtualId, get MISSAO() { return MISSAO; }, mostrarPergunta, abrirCaderno, abrirAcusacao };
 })();
 
 </script>
