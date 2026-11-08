@@ -29,6 +29,7 @@ document.documentElement.setAttribute('data-theme',t)})();
   --battle:#2B45C9;
   --mystery:#7A4B14;
   --central:#1F5F4A;
+  --cave:#3F4768;
   --folder:#F2B632;
   --red:#E5484D;
   --blue:#3E63DD;
@@ -59,9 +60,9 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:16p
 header.top .actions{margin-left:auto}
 
 /* hero */
-.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:end;padding:48px 0 72px}
-h1{font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,5.2vw,3.7rem);line-height:1.08;letter-spacing:-.03em;margin:0 0 20px}
-.lead{font-size:1.2rem;color:var(--soft);max-width:36ch;margin:0}
+.hero{display:grid;grid-template-columns:1fr 300px;gap:48px;align-items:end;padding:48px 0 72px}
+h1{text-wrap:balance;font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,5.2vw,3.7rem);line-height:1.08;letter-spacing:-.03em;margin:0 0 20px}
+.lead{font-size:min(1.2rem,calc((100vw - 400px)/33));color:var(--soft);white-space:nowrap;margin:0}
 .menu{list-style:none;margin:0;padding:0;border-top:2px solid var(--ink)}
 .menu li{border-bottom:2px solid var(--ink)}
 .menu a{display:flex;align-items:center;gap:16px;padding:18px 4px;text-decoration:none;font-family:var(--display);font-weight:600;font-size:1.25rem;letter-spacing:-.02em}
@@ -111,6 +112,7 @@ body:has(dialog[open]){overflow:hidden}
 .band.mist{background:var(--mystery)}
 .band.exp{background:var(--graph)}
 .band.central{background:var(--central)}
+.band.cave{background:var(--cave)}
 .band.clock{background:var(--crimson)}
 .inner{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
 .band.flip .copy{order:2}
@@ -135,6 +137,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
 @media (max-width:860px){
   .hero{grid-template-columns:1fr;gap:36px;padding-bottom:56px}
+  .lead{font-size:1.2rem;white-space:normal;max-width:36ch}
   .inner{grid-template-columns:1fr;gap:36px}
   .band{padding:64px 0}
   .band.flip .copy{order:0}
@@ -177,7 +180,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
       <ul class="menu" id="ferramentas" aria-label="Escolha uma categoria">
         <li><a class="m-video" href="#video-aulas"><i aria-hidden="true"></i>Vídeo aulas<small>Em breve</small></a></li>
         <li><a class="m-pod" href="#podcasts"><i aria-hidden="true"></i>Podcasts<small>1 episódio</small></a></li>
-        <li><a class="m-games" href="#jogos"><i aria-hidden="true"></i>Jogos<small>4 jogos</small></a></li>
+        <li><a class="m-games" href="#jogos"><i aria-hidden="true"></i>Jogos<small>5 jogos</small></a></li>
         <li><a class="m-util" href="#utilitarios"><i aria-hidden="true"></i>Utilitários<small>3 utilitários</small></a></li>
       </ul>
     </div>
@@ -227,6 +230,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
       <li><a href="#batalha-do-saber">Batalha do Saber</a></li>
       <li><a href="#misterios-da-mansao">Mistérios da Mansão</a></li>
       <li><a href="#o-arquivo-central">O Arquivo Central</a></li>
+      <li><a href="#o-desafio-da-caverna">O Desafio da Caverna</a></li>
     </ul>
   </div>
 </section>
@@ -435,6 +439,50 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
           <text x="270" y="176">SELECT codigo</text>
           <text x="270" y="196">FROM chaves</text>
           <text x="270" y="216">WHERE ativa = 1;</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="band cave" id="o-desafio-da-caverna" aria-labelledby="h-cave">
+  <div class="wrap inner">
+    <div class="copy">
+      <h2 id="h-cave">O Desafio da Caverna</h2>
+      <p class="tag">Duas passagens, uma fera.</p>
+      <p class="d">Jogo em 3D para avaliar o que a turma aprendeu. O aluno escolhe um herói, entra na caverna e, em cada sala, responde a uma pergunta escolhendo entre duas passagens, A ou B. Ele tem três vidas.</p>
+      <ul>
+        <li>O aluno informa o nome e a turma e escolhe o desafio que vai jogar</li>
+        <li>O placar mostra as salas, as vidas, o tempo e os pontos, com ranking online</li>
+        <li>O professor, com um PIN, cadastra os desafios e configura o ranking</li>
+        <li>Já vem com perguntas de Introdução a Banco de Dados, como conceitos básicos e DER</li>
+        <li>Precisa de um navegador atualizado, com 3D (WebGL) ligado</li>
+      </ul>
+      <div class="btns">
+        <a class="btn" href="https://fredlucena.com.br/desafiodacaverna/professor.html">Versão do professor</a>
+        <a class="btn alt" href="https://fredlucena.com.br/desafiodacaverna/aluno.html">Versão do aluno</a>
+      </div>
+    </div>
+    <div class="art">
+      <svg viewBox="0 0 440 280" role="img" aria-label="Entrada de uma caverna com duas passagens, A e B, uma tocha no meio e três vidas no canto">
+        <rect x="8" y="8" width="424" height="264" rx="14" fill="#1B1F33"/>
+        <path d="M40 272 V120 Q40 36 220 36 Q400 36 400 120 V272 Z" fill="#2A2F4D"/>
+        <path d="M80 250 V150 a50 50 0 0 1 100 0 V250 Z" fill="#0B0D18" stroke="#8E96C8" stroke-width="3"/>
+        <path d="M260 250 V150 a50 50 0 0 1 100 0 V250 Z" fill="#0B0D18" stroke="#8E96C8" stroke-width="3"/>
+        <rect x="8" y="250" width="424" height="22" fill="#14172B"/>
+        <g font-size="24" font-weight="800" fill="#FFD23F" text-anchor="middle">
+          <text x="130" y="88">A</text>
+          <text x="310" y="88">B</text>
+        </g>
+        <rect x="216" y="150" width="8" height="50" rx="2" fill="#6B4F2A"/>
+        <path d="M220 116 C206 134 206 148 220 154 C234 148 234 134 220 116 Z" fill="#FFB224"/>
+        <path d="M220 134 C214 142 214 148 220 151 C226 148 226 142 220 134 Z" fill="#FF6B6B"/>
+        <circle cx="220" cy="224" r="8" fill="#3DDBB0" stroke="#14172B" stroke-width="2"/>
+        <rect x="211" y="232" width="18" height="18" rx="4" fill="#3DDBB0" stroke="#14172B" stroke-width="2"/>
+        <g fill="#FF6B6B">
+          <path d="M34 26 C28 18 18 24 24 32 L34 42 L44 32 C50 24 40 18 34 26 Z"/>
+          <path d="M66 26 C60 18 50 24 56 32 L66 42 L76 32 C82 24 72 18 66 26 Z"/>
+          <path d="M98 26 C92 18 82 24 88 32 L98 42 L108 32 C114 24 104 18 98 26 Z"/>
         </g>
       </svg>
     </div>
