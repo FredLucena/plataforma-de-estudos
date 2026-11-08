@@ -99,6 +99,8 @@ select option { background: #1d1428; }
 .selo.on { color: var(--bom); border-color: rgba(94,224,138,.5); background: rgba(94,224,138,.1); }
 .selo.off { color: var(--tocha); border-color: rgba(255,179,71,.5); background: rgba(255,179,71,.1); }
 
+.creditos { position: fixed; left: 12px; bottom: 8px; z-index: 40; font-size: .72rem; color: rgba(235,225,205,.62); text-shadow: 0 1px 3px rgba(0,0,0,.9); pointer-events: none; letter-spacing: .02em; }
+
 </style>
 <style>
   html, body { height: 100%; overflow: hidden; }
@@ -369,7 +371,7 @@ window.CAVERNA_CONFIG = {
   function exemplos() {
     return [
     {
-      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Conceitos Básicos sobre Banco de Dados", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      id: uid(), disciplina: "Desafios da Caverna", titulo: "Conceitos Básicos sobre Banco de Dados", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
       perguntas: [
         { enunciado: "Qual é a definição mais adequada de banco de dados?", correta: "Coleção organizada de dados inter-relacionados", errada: "Programa usado apenas para criar planilhas" },
         { enunciado: "O que significa a sigla SGBD?", correta: "Sistema Gerenciador de Banco de Dados", errada: "Sistema Geral de Bytes e Dados" },
@@ -384,7 +386,7 @@ window.CAVERNA_CONFIG = {
       ]
     },
     {
-      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Modelagem Conceitual", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      id: uid(), disciplina: "Desafios da Caverna", titulo: "Modelagem Conceitual", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
       perguntas: [
         { enunciado: "O que representa a modelagem conceitual?", correta: "Visão de alto nível do negócio, independente de SGBD", errada: "Os comandos SQL que criam as tabelas no SGBD" },
         { enunciado: "No DER (notação de Chen), o retângulo representa normalmente:", correta: "Uma entidade", errada: "Um relacionamento" },
@@ -399,7 +401,7 @@ window.CAVERNA_CONFIG = {
       ]
     },
     {
-      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Modelagem Lógica", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      id: uid(), disciplina: "Desafios da Caverna", titulo: "Modelagem Lógica", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
       perguntas: [
         { enunciado: "O que faz a modelagem lógica?", correta: "Traduz o modelo conceitual para a estrutura de tabelas", errada: "Define espaço em disco e configurações do servidor" },
         { enunciado: "No modelo relacional, uma entidade do DER normalmente vira:", correta: "Uma tabela", errada: "Uma chave estrangeira" },
@@ -414,7 +416,7 @@ window.CAVERNA_CONFIG = {
       ]
     },
     {
-      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Normalização de Dados", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      id: uid(), disciplina: "Desafios da Caverna", titulo: "Normalização de Dados", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
       perguntas: [
         { enunciado: "Qual é o objetivo da normalização?", correta: "Reduzir redundâncias e anomalias nos dados", errada: "Aumentar a duplicação para acelerar consultas" },
         { enunciado: "O que a 1ª Forma Normal (1FN) exige?", correta: "Valores atômicos, sem atributos multivalorados", errada: "Que toda tabela possua chave estrangeira" },
@@ -429,7 +431,7 @@ window.CAVERNA_CONFIG = {
       ]
     },
     {
-      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Modelagem Física - SQL", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      id: uid(), disciplina: "Desafios da Caverna", titulo: "Modelagem Física - SQL", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
       perguntas: [
         { enunciado: "Qual comando SQL cria uma tabela?", correta: "CREATE TABLE", errada: "INSERT TABLE" },
         { enunciado: "Qual comando SQL insere um novo registro?", correta: "INSERT INTO", errada: "UPDATE SET" },
@@ -1800,5 +1802,6 @@ window.CAVERNA_CONFIG = {
   boot();
 })();
 </script>
+<div class="creditos">Criado por Prof. Fred Lucena em 2026</div>
 </body>
 </html>

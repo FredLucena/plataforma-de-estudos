@@ -99,6 +99,8 @@ select option { background: #1d1428; }
 .selo.on { color: var(--bom); border-color: rgba(94,224,138,.5); background: rgba(94,224,138,.1); }
 .selo.off { color: var(--tocha); border-color: rgba(255,179,71,.5); background: rgba(255,179,71,.1); }
 
+.creditos { position: fixed; left: 12px; bottom: 8px; z-index: 40; font-size: .72rem; color: rgba(235,225,205,.62); text-shadow: 0 1px 3px rgba(0,0,0,.9); pointer-events: none; letter-spacing: .02em; }
+
 </style>
 <style>
   body { background: radial-gradient(1200px 600px at 50% -10%, #3a2210 0%, #140c1c 55%, #07040b 100%) fixed; min-height: 100vh; }
@@ -315,7 +317,7 @@ grant execute on function public.prof_excluir_resultado(text, uuid) to anon, aut
 
 -- 5) (Opcional) Desafios de exemplo -----------------------------------
 insert into public.desafios (disciplina, titulo, retorno, embaralhar, perguntas)
-select 'Introdução a Banco de Dados', 'Conceitos Básicos sobre Banco de Dados', 'inicio', true,
+select 'Desafios da Caverna', 'Conceitos Básicos sobre Banco de Dados', 'inicio', true,
 $q$[
   {"enunciado": "Qual é a definição mais adequada de banco de dados?", "correta": "Coleção organizada de dados inter-relacionados", "errada": "Programa usado apenas para criar planilhas"},
   {"enunciado": "O que significa a sigla SGBD?", "correta": "Sistema Gerenciador de Banco de Dados", "errada": "Sistema Geral de Bytes e Dados"},
@@ -331,7 +333,7 @@ $q$[
 where not exists (select 1 from public.desafios where titulo = 'Conceitos Básicos sobre Banco de Dados');
 
 insert into public.desafios (disciplina, titulo, retorno, embaralhar, perguntas)
-select 'Introdução a Banco de Dados', 'Modelagem Conceitual', 'inicio', true,
+select 'Desafios da Caverna', 'Modelagem Conceitual', 'inicio', true,
 $q$[
   {"enunciado": "O que representa a modelagem conceitual?", "correta": "Visão de alto nível do negócio, independente de SGBD", "errada": "Os comandos SQL que criam as tabelas no SGBD"},
   {"enunciado": "No DER (notação de Chen), o retângulo representa normalmente:", "correta": "Uma entidade", "errada": "Um relacionamento"},
@@ -347,7 +349,7 @@ $q$[
 where not exists (select 1 from public.desafios where titulo = 'Modelagem Conceitual');
 
 insert into public.desafios (disciplina, titulo, retorno, embaralhar, perguntas)
-select 'Introdução a Banco de Dados', 'Modelagem Lógica', 'inicio', true,
+select 'Desafios da Caverna', 'Modelagem Lógica', 'inicio', true,
 $q$[
   {"enunciado": "O que faz a modelagem lógica?", "correta": "Traduz o modelo conceitual para a estrutura de tabelas", "errada": "Define espaço em disco e configurações do servidor"},
   {"enunciado": "No modelo relacional, uma entidade do DER normalmente vira:", "correta": "Uma tabela", "errada": "Uma chave estrangeira"},
@@ -363,7 +365,7 @@ $q$[
 where not exists (select 1 from public.desafios where titulo = 'Modelagem Lógica');
 
 insert into public.desafios (disciplina, titulo, retorno, embaralhar, perguntas)
-select 'Introdução a Banco de Dados', 'Normalização de Dados', 'inicio', true,
+select 'Desafios da Caverna', 'Normalização de Dados', 'inicio', true,
 $q$[
   {"enunciado": "Qual é o objetivo da normalização?", "correta": "Reduzir redundâncias e anomalias nos dados", "errada": "Aumentar a duplicação para acelerar consultas"},
   {"enunciado": "O que a 1ª Forma Normal (1FN) exige?", "correta": "Valores atômicos, sem atributos multivalorados", "errada": "Que toda tabela possua chave estrangeira"},
@@ -379,7 +381,7 @@ $q$[
 where not exists (select 1 from public.desafios where titulo = 'Normalização de Dados');
 
 insert into public.desafios (disciplina, titulo, retorno, embaralhar, perguntas)
-select 'Introdução a Banco de Dados', 'Modelagem Física - SQL', 'inicio', true,
+select 'Desafios da Caverna', 'Modelagem Física - SQL', 'inicio', true,
 $q$[
   {"enunciado": "Qual comando SQL cria uma tabela?", "correta": "CREATE TABLE", "errada": "INSERT TABLE"},
   {"enunciado": "Qual comando SQL insere um novo registro?", "correta": "INSERT INTO", "errada": "UPDATE SET"},
@@ -403,7 +405,7 @@ where not exists (select 1 from public.desafios where titulo = 'Modelagem Físic
     <div class="modal-head"><h2 id="edTitulo">Novo desafio</h2><button class="x" id="edFechar" aria-label="Fechar">✕</button></div>
     <div class="linha2">
       <label class="campo">Disciplina
-        <input type="text" id="edDisc" list="listaDisc" maxlength="80" placeholder="Ex.: Introdução a Banco de Dados">
+        <input type="text" id="edDisc" list="listaDisc" maxlength="80" placeholder="Ex.: Desafios da Caverna">
         <datalist id="listaDisc"></datalist>
       </label>
       <label class="campo">Título do desafio
@@ -516,7 +518,7 @@ window.CAVERNA_CONFIG = {
   function exemplos() {
     return [
     {
-      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Conceitos Básicos sobre Banco de Dados", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      id: uid(), disciplina: "Desafios da Caverna", titulo: "Conceitos Básicos sobre Banco de Dados", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
       perguntas: [
         { enunciado: "Qual é a definição mais adequada de banco de dados?", correta: "Coleção organizada de dados inter-relacionados", errada: "Programa usado apenas para criar planilhas" },
         { enunciado: "O que significa a sigla SGBD?", correta: "Sistema Gerenciador de Banco de Dados", errada: "Sistema Geral de Bytes e Dados" },
@@ -531,7 +533,7 @@ window.CAVERNA_CONFIG = {
       ]
     },
     {
-      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Modelagem Conceitual", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      id: uid(), disciplina: "Desafios da Caverna", titulo: "Modelagem Conceitual", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
       perguntas: [
         { enunciado: "O que representa a modelagem conceitual?", correta: "Visão de alto nível do negócio, independente de SGBD", errada: "Os comandos SQL que criam as tabelas no SGBD" },
         { enunciado: "No DER (notação de Chen), o retângulo representa normalmente:", correta: "Uma entidade", errada: "Um relacionamento" },
@@ -546,7 +548,7 @@ window.CAVERNA_CONFIG = {
       ]
     },
     {
-      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Modelagem Lógica", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      id: uid(), disciplina: "Desafios da Caverna", titulo: "Modelagem Lógica", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
       perguntas: [
         { enunciado: "O que faz a modelagem lógica?", correta: "Traduz o modelo conceitual para a estrutura de tabelas", errada: "Define espaço em disco e configurações do servidor" },
         { enunciado: "No modelo relacional, uma entidade do DER normalmente vira:", correta: "Uma tabela", errada: "Uma chave estrangeira" },
@@ -561,7 +563,7 @@ window.CAVERNA_CONFIG = {
       ]
     },
     {
-      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Normalização de Dados", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      id: uid(), disciplina: "Desafios da Caverna", titulo: "Normalização de Dados", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
       perguntas: [
         { enunciado: "Qual é o objetivo da normalização?", correta: "Reduzir redundâncias e anomalias nos dados", errada: "Aumentar a duplicação para acelerar consultas" },
         { enunciado: "O que a 1ª Forma Normal (1FN) exige?", correta: "Valores atômicos, sem atributos multivalorados", errada: "Que toda tabela possua chave estrangeira" },
@@ -576,7 +578,7 @@ window.CAVERNA_CONFIG = {
       ]
     },
     {
-      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Modelagem Física - SQL", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      id: uid(), disciplina: "Desafios da Caverna", titulo: "Modelagem Física - SQL", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
       perguntas: [
         { enunciado: "Qual comando SQL cria uma tabela?", correta: "CREATE TABLE", errada: "INSERT TABLE" },
         { enunciado: "Qual comando SQL insere um novo registro?", correta: "INSERT INTO", errada: "UPDATE SET" },
@@ -983,5 +985,6 @@ window.CAVERNA_CONFIG = {
   };
 })();
 </script>
+<div class="creditos">Criado por Prof. Fred Lucena em 2026</div>
 </body>
 </html>
