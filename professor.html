@@ -151,7 +151,7 @@ select option { background: #1d1428; }
     </label>
     <div id="loginErro"></div>
     <button class="btn" id="btnEntrar" style="width:100%">Entrar</button>
-    <p style="margin:1rem 0 0"><a href="aluno.html">Ir para o módulo do aluno →</a></p>
+    <p style="margin:1rem 0 0"><a href="aluno.html">Ir para o módulo do aluno →</a> &nbsp;·&nbsp; <a href="#" id="telaLogin" data-tela data-rotulo="Tela cheia" style="text-decoration:none"></a></p>
     <p id="avisoLocal" style="margin-top:.8rem;font-size:.78rem" hidden>Modo local: o PIN padrão é <b>1234</b> (<code>pinLocal</code>, no bloco CONFIGURAÇÃO do arquivo).</p>
   </div>
 </section>
@@ -163,6 +163,7 @@ select option { background: #1d1428; }
       <span class="selo" id="selo"></span>
       <button class="btn small ghost" id="btnRanking">🏆 Ranking online</button>
       <button class="btn small" id="btnNovo">＋ Novo desafio</button>
+      <button class="btn small ghost" data-tela data-rotulo="Tela cheia"></button>
       <button class="btn small ghost" id="btnConfig">⚙ Ranking online</button>
       <a class="btn small ghost" href="aluno.html">Módulo do aluno</a>
       <button class="btn small ghost" id="btnSair">Sair</button>
@@ -662,7 +663,29 @@ window.CAVERNA_CONFIG = {
     return salas * 100 + (concluido ? 100 + vidas * 100 : 0);
   }
 
-  global.Caverna = { DB, LS, uid, esc, fmtTempo, toast, abrirRanking, calcularPontos, online: ONLINE };
+  /* ---------- tela cheia ---------- */
+  function emTelaCheia() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function alternarTelaCheia() {
+    const d = document, el = d.documentElement;
+    try {
+      if (emTelaCheia()) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+      else (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+    } catch (e) {}
+  }
+  function ligarTelaCheia() {
+    const bs = Array.prototype.slice.call(document.querySelectorAll('[data-tela]'));
+    const ok = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+    const atualizar = () => bs.forEach((b) => {
+      const on = emTelaCheia(), rot = b.dataset.rotulo ? ' ' + b.dataset.rotulo : '';
+      b.textContent = (on ? '🗗' : '⛶') + rot; b.title = on ? 'Sair da tela cheia' : 'Tela cheia';
+    });
+    bs.forEach((b) => { if (!ok) b.hidden = true; else b.onclick = alternarTelaCheia; });
+    document.addEventListener('fullscreenchange', atualizar);
+    document.addEventListener('webkitfullscreenchange', atualizar);
+    atualizar();
+  }
+
+  global.Caverna = { ligarTelaCheia, alternarTelaCheia, DB, LS, uid, esc, fmtTempo, toast, abrirRanking, calcularPontos, online: ONLINE };
 })(window);
 
 </script>
@@ -676,6 +699,7 @@ window.CAVERNA_CONFIG = {
   let ed = null; // desafio em edição
 
   /* ---------- login ---------- */
+  Caverna.ligarTelaCheia();
   $('selo').className = 'selo ' + (Caverna.online ? 'on' : 'off');
   $('selo').textContent = Caverna.online ? '● Online' : '● Modo local';
   if (!Caverna.online) $('avisoLocal').hidden = false;

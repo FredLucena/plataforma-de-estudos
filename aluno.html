@@ -137,6 +137,7 @@ select option { background: #1d1428; }
   }
 
   /* ---------- HUD do jogo ---------- */
+  .tela-setup { position: absolute; top: .7rem; left: .8rem; pointer-events: auto; z-index: 2; font-size: 1.1rem; }
   #hud { position: fixed; inset: 0; z-index: 6; pointer-events: none; }
   #hud > * { pointer-events: auto; }
   .hud-barra { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; gap: .6rem; padding: .6rem .8rem; background: linear-gradient(180deg, rgba(0,0,0,.65), transparent); pointer-events: none; }
@@ -205,6 +206,7 @@ select option { background: #1d1428; }
 
 <!-- Preparação -->
 <div id="setup" hidden>
+  <button class="ib tela-setup" data-tela title="Tela cheia"></button>
   <header class="titulo"><h1>O DESAFIO<br>DA CAVERNA</h1><p>Escolha seu herói. Duas passagens, uma fera. Você tem três vidas.</p></header>
   <section class="painel card">
     <div id="testeBanner" hidden>🧪 Modo de teste — o resultado desta partida não será enviado ao ranking.</div>
@@ -235,6 +237,7 @@ select option { background: #1d1428; }
     <div class="centro-info"><div class="sala">Sala <span id="hSala">1</span> de <span id="hTotal">1</span></div><div class="pts">⭐ <span id="hPts">0</span> pontos</div></div>
     <div class="hud-btns">
       <button class="ib" id="btnRank" title="Ranking online">🏆</button>
+      <button class="ib" data-tela title="Tela cheia"></button>
       <button class="ib" id="btnSom" title="Som">🔊</button>
       <button class="ib" id="btnSair" title="Abandonar">✕</button>
     </div>
@@ -583,7 +586,29 @@ window.CAVERNA_CONFIG = {
     return salas * 100 + (concluido ? 100 + vidas * 100 : 0);
   }
 
-  global.Caverna = { DB, LS, uid, esc, fmtTempo, toast, abrirRanking, calcularPontos, online: ONLINE };
+  /* ---------- tela cheia ---------- */
+  function emTelaCheia() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function alternarTelaCheia() {
+    const d = document, el = d.documentElement;
+    try {
+      if (emTelaCheia()) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+      else (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+    } catch (e) {}
+  }
+  function ligarTelaCheia() {
+    const bs = Array.prototype.slice.call(document.querySelectorAll('[data-tela]'));
+    const ok = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+    const atualizar = () => bs.forEach((b) => {
+      const on = emTelaCheia(), rot = b.dataset.rotulo ? ' ' + b.dataset.rotulo : '';
+      b.textContent = (on ? '🗗' : '⛶') + rot; b.title = on ? 'Sair da tela cheia' : 'Tela cheia';
+    });
+    bs.forEach((b) => { if (!ok) b.hidden = true; else b.onclick = alternarTelaCheia; });
+    document.addEventListener('fullscreenchange', atualizar);
+    document.addEventListener('webkitfullscreenchange', atualizar);
+    atualizar();
+  }
+
+  global.Caverna = { ligarTelaCheia, alternarTelaCheia, DB, LS, uid, esc, fmtTempo, toast, abrirRanking, calcularPontos, online: ONLINE };
 })(window);
 
 </script>
@@ -1171,15 +1196,64 @@ window.CAVERNA_CONFIG = {
      ========================================================= */
   const Som = (function () {
     let ctx = null, master = null, mudo = !!LS.get('caverna_mudo', false), pingo = null;
+    let msc = null;
+    const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+    function reverb() {
+      const len = Math.floor(ctx.sampleRate * 3), buf = ctx.createBuffer(2, len, ctx.sampleRate);
+      for (let c = 0; c < 2; c++) { const d = buf.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+      const cv = ctx.createConvolver(); cv.buffer = buf; return cv;
+    }
+    /* Música de mistério: pad sombrio em lá menor + caixa de música com eco + baixo grave */
+    function iniciarMusica() {
+      const bus = ctx.createGain(); bus.gain.value = 0.9; bus.connect(master);
+      const rev = reverb(), revG = ctx.createGain(); revG.gain.value = 0.7; rev.connect(revG); revG.connect(master); bus.connect(rev);
+      const eco = ctx.createDelay(1.5); eco.delayTime.value = 0.52;
+      const fb = ctx.createGain(); fb.gain.value = 0.42; eco.connect(fb); fb.connect(eco); eco.connect(rev);
+      const bell = ctx.createGain(); bell.gain.value = 1; bell.connect(bus); bell.connect(eco);
+      const acordes = [[57, 60, 64], [53, 57, 60, 64], [50, 53, 57, 62], [52, 56, 59, 62]];  // Am · Fmaj7 · Dm(add9) · E7
+      const escala = [69, 71, 72, 74, 76, 77, 80, 81, 83, 84, 86, 88];                          // lá menor harmônica
+      const motivo = [0, 2, 4, 3, 1, 2, 5, 4, 2, 0, 6, 5];
+      function pad(notas, t, dur) {
+        notas.forEach((m) => [-9, 9].forEach((det) => {
+          const o = ctx.createOscillator(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+          o.type = 'sawtooth'; o.frequency.value = hz(m - 12); o.detune.value = det;
+          f.type = 'lowpass'; f.frequency.setValueAtTime(260, t); f.frequency.linearRampToValueAtTime(720, t + dur * 0.5); f.frequency.linearRampToValueAtTime(240, t + dur);
+          g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.03, t + dur * 0.45); g.gain.linearRampToValueAtTime(0.0001, t + dur + 1.2);
+          o.connect(f); f.connect(g); g.connect(bus); o.start(t); o.stop(t + dur + 1.3);
+        }));
+      }
+      function grave(m, t, dur) {
+        const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = hz(m - 24);
+        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.16, t + 1.2); g.gain.linearRampToValueAtTime(0.0001, t + dur + 0.8);
+        o.connect(g); g.connect(bus); o.start(t); o.stop(t + dur + 1);
+      }
+      function sino(m, t, vol) {
+        [[1, 1], [2.01, 0.28], [3.97, 0.1]].forEach((h) => {
+          const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = hz(m) * h[0];
+          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol * h[1], t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.4);
+          o.connect(g); g.connect(bell); o.start(t); o.stop(t + 2.5);
+        });
+      }
+      let proxima = ctx.currentTime + 0.3, barra = 0;
+      function agendar(t, b) {
+        const ac = acordes[b % acordes.length];
+        pad(ac, t, 8); grave(ac[0], t, 8);
+        for (let k = 0; k < 8; k++) {
+          if (k === 0 || k === 4 || Math.random() < 0.5) {
+            let idx = motivo[(b * 5 + k) % motivo.length]; if (Math.random() < 0.25) idx = Math.min(escala.length - 1, idx + 2);
+            sino(escala[idx], t + k + (Math.random() < 0.3 ? 0.5 : 0), 0.05 + Math.random() * 0.03);
+          }
+        }
+      }
+      const tick = () => { while (proxima < ctx.currentTime + 12) { agendar(proxima, barra++); proxima += 8; } };
+      tick(); msc = setInterval(tick, 2000);
+    }
     function init() {
       if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
       try {
         ctx = new (window.AudioContext || window.webkitAudioContext)();
         master = ctx.createGain(); master.gain.value = mudo ? 0 : 0.55; master.connect(ctx.destination);
-        [55, 55.7, 82.4].forEach((f, i) => {
-          const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.value = i === 2 ? 0.012 : 0.03;
-          o.connect(g); g.connect(master); o.start();
-        });
+        iniciarMusica();
         pingo = setInterval(() => { if (ctx.state === 'running') tom(1400 + Math.random() * 500, 0.18, 'sine', 0.05, 0, 700); }, 3500 + Math.random() * 3000);
       } catch (e) { ctx = null; }
     }
@@ -1464,10 +1538,10 @@ window.CAVERNA_CONFIG = {
         cave.lanterna.position.set(pos.x, 3.6, pos.z + 0.8);
         if (run.lado === run.ladoCerto) {
           if (pos.z < -25) { ir('saindo'); passouDaSala(); }
-        } else if (pos.z < -11) {
+        } else if (pos.z < -23.2) {
           const cx = run.lado === 'L' ? -5 : 5;
-          fera.group.position.set(cx, 0, -37); fera.group.rotation.set(0, 0, 0); fera.group.visible = true;
-          cave.luzFera.position.set(cx, 3.2, -33);
+          fera.group.position.set(cx, 0, -35); fera.group.rotation.set(0, 0, 0); fera.group.visible = true;
+          cave.luzFera.position.set(cx, 3.2, -31);
           Som.rugido(); ir('fera_acorda');
         }
         seguirCamera(dt, false);
@@ -1478,12 +1552,12 @@ window.CAVERNA_CONFIG = {
       }
       case 'fera_acorda': {
         Avatares.animarAvatar(av, T, 0, 'susto');
-        const k = Math.min(1, tEstado / 0.9);
+        const k = Math.min(1, tEstado / 0.7);
         cave.luzFera.intensity = 2.8 * k;
         fera.mandibula.rotation.x = 0.5 * k; fera.olhoMat.color.setHex(Math.sin(T * 40) > 0 ? 0xff2a14 : 0xffa070);
         shake = Math.max(shake, 0.08);
         av.group.rotation.y += (0 - av.group.rotation.y) * Math.min(1, dt * 6);
-        if (tEstado > 0.9) ir('fera_ataca');
+        if (tEstado > 0.7) ir('fera_ataca');
         seguirCamera(dt, false);
         break;
       }
@@ -1549,6 +1623,8 @@ window.CAVERNA_CONFIG = {
   /* =========================================================
      ENTRADAS
      ========================================================= */
+  Caverna.ligarTelaCheia();
+  window.addEventListener('pointerdown', () => Som.init(), { once: true });
   $('btnIniciar').onclick = iniciar;
   ['nome', 'turma'].forEach((id) => $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') iniciar(); }));
   $('escL').onclick = () => escolher('L');
