@@ -365,28 +365,85 @@ window.CAVERNA_CONFIG = {
   }
   const rpc = (fn, args) => sb('rpc/' + fn, { method: 'POST', body: args });
 
-  /* ---------- desafio de exemplo (modo local) ---------- */
-  function exemplo() {
-    return {
-      id: uid(),
-      disciplina: 'Introdução a Banco de Dados',
-      titulo: 'Fundamentos de Banco de Dados',
-      retorno: 'inicio',
-      embaralhar: true,
-      criado_em: new Date().toISOString(),
+  /* ---------- desafios de exemplo (modo local) ---------- */
+  function exemplos() {
+    return [
+    {
+      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Conceitos Básicos sobre Banco de Dados", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
       perguntas: [
+        { enunciado: "Qual é a definição mais adequada de banco de dados?", correta: "Coleção organizada de dados inter-relacionados", errada: "Programa usado apenas para criar planilhas" },
         { enunciado: "O que significa a sigla SGBD?", correta: "Sistema Gerenciador de Banco de Dados", errada: "Sistema Geral de Bytes e Dados" },
-        { enunciado: "No modelo relacional, o que identifica de forma única cada linha de uma tabela?", correta: "Chave primária", errada: "Chave estrangeira" },
-        { enunciado: "Qual elemento cria o vínculo entre duas tabelas relacionadas?", correta: "Chave estrangeira", errada: "Índice de ordenação" },
-        { enunciado: "Qual comando SQL é usado para consultar dados de uma tabela?", correta: "SELECT", errada: "INSERT" },
-        { enunciado: "Qual comando SQL insere um novo registro em uma tabela?", correta: "INSERT INTO", errada: "UPDATE SET" },
-        { enunciado: "Qual cláusula SQL filtra as linhas retornadas por uma consulta?", correta: "WHERE", errada: "ORDER BY" },
-        { enunciado: "No DER (modelo entidade-relacionamento), o retângulo representa normalmente:", correta: "Uma entidade", errada: "Um relacionamento" },
-        { enunciado: "Uma cardinalidade 1:N entre as entidades A e B significa que:", correta: "Um registro de A se liga a vários de B", errada: "Cada registro de A se liga a um só de B" },
-        { enunciado: "Qual propriedade garante que uma transação seja concluída por inteiro ou totalmente desfeita?", correta: "Atomicidade", errada: "Redundância" },
-        { enunciado: "Qual é o principal objetivo da normalização de um banco de dados?", correta: "Reduzir redundâncias e inconsistências", errada: "Aumentar a duplicação dos dados" }
+        { enunciado: "Qual é a diferença entre dado e informação?", correta: "Informação é o dado processado, com significado", errada: "Dado é sempre mais completo que a informação" },
+        { enunciado: "Qual problema dos sistemas de arquivos os bancos de dados ajudam a reduzir?", correta: "Redundância e inconsistência de dados", errada: "Lentidão da conexão com a internet" },
+        { enunciado: "Qual é uma função típica do administrador de banco de dados (DBA)?", correta: "Cuidar de segurança, desempenho e backup", errada: "Desenhar apenas a interface dos sistemas" },
+        { enunciado: "Qual modelo organiza os dados em tabelas com linhas e colunas?", correta: "Modelo relacional", errada: "Modelo hierárquico" },
+        { enunciado: "O que é uma tabela em um banco de dados relacional?", correta: "Estrutura que guarda registros em linhas e colunas", errada: "Comando que remove dados do banco" },
+        { enunciado: "O que é um registro (ou tupla) de uma tabela?", correta: "Uma linha, com os dados de uma ocorrência", errada: "O nome de uma coluna da tabela" },
+        { enunciado: "Qual é a finalidade do backup?", correta: "Permitir recuperar os dados após falhas ou perdas", errada: "Aumentar a velocidade das consultas SQL" },
+        { enunciado: "Qual destes é um exemplo de SGBD relacional?", correta: "MySQL", errada: "Planilha do Excel" }
       ]
-    };
+    },
+    {
+      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Modelagem Conceitual", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      perguntas: [
+        { enunciado: "O que representa a modelagem conceitual?", correta: "Visão de alto nível do negócio, independente de SGBD", errada: "Os comandos SQL que criam as tabelas no SGBD" },
+        { enunciado: "No DER (notação de Chen), o retângulo representa normalmente:", correta: "Uma entidade", errada: "Um relacionamento" },
+        { enunciado: "No DER (notação de Chen), o losango representa normalmente:", correta: "Um relacionamento", errada: "Um atributo" },
+        { enunciado: "O que é um atributo em um DER?", correta: "Uma propriedade que descreve uma entidade", errada: "Um vínculo entre duas entidades" },
+        { enunciado: "O que é um atributo identificador (chave)?", correta: "Atributo cujo valor distingue cada ocorrência", errada: "Atributo que se repete em todas as ocorrências" },
+        { enunciado: "Qual é um exemplo de atributo multivalorado?", correta: "Telefones de um cliente (vários por pessoa)", errada: "CPF de um cliente" },
+        { enunciado: "Uma cardinalidade 1:N entre A e B significa que:", correta: "Uma ocorrência de A se liga a várias de B", errada: "Cada ocorrência de A se liga a uma só de B" },
+        { enunciado: "O que caracteriza uma cardinalidade N:N?", correta: "Várias ocorrências de A se ligam a várias de B", errada: "Uma ocorrência de A se liga a uma só de B" },
+        { enunciado: "Qual é um exemplo típico de relacionamento N:N?", correta: "Aluno cursa Disciplina", errada: "Pessoa possui CPF" },
+        { enunciado: "O que é uma entidade fraca?", correta: "Entidade que depende de outra para ser identificada", errada: "Entidade que não possui nenhum atributo" }
+      ]
+    },
+    {
+      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Modelagem Lógica", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      perguntas: [
+        { enunciado: "O que faz a modelagem lógica?", correta: "Traduz o modelo conceitual para a estrutura de tabelas", errada: "Define espaço em disco e configurações do servidor" },
+        { enunciado: "No modelo relacional, uma entidade do DER normalmente vira:", correta: "Uma tabela", errada: "Uma chave estrangeira" },
+        { enunciado: "Como um atributo de uma entidade é representado na tabela?", correta: "Como uma coluna", errada: "Como uma linha" },
+        { enunciado: "O que é uma chave primária (PK)?", correta: "Coluna(s) que identificam unicamente cada linha", errada: "Coluna que referencia outra tabela" },
+        { enunciado: "O que é uma chave estrangeira (FK)?", correta: "Coluna que referencia a chave primária de outra tabela", errada: "Coluna que identifica unicamente a própria tabela" },
+        { enunciado: "Como mapear um relacionamento 1:N?", correta: "A PK do lado 1 vira FK na tabela do lado N", errada: "A PK do lado N vira FK na tabela do lado 1" },
+        { enunciado: "Como mapear um relacionamento N:N?", correta: "Criando uma tabela associativa com as duas chaves", errada: "Colocando a FK em apenas uma das tabelas" },
+        { enunciado: "O que garante a integridade referencial?", correta: "Toda FK aponta para um valor existente na tabela referenciada", errada: "O banco possui backup automático todos os dias" },
+        { enunciado: "Como tratar um atributo multivalorado no modelo lógico?", correta: "Criando uma tabela separada ligada à original", errada: "Guardando os valores separados por vírgula na mesma coluna" },
+        { enunciado: "O que é uma chave composta?", correta: "Chave primária formada por duas ou mais colunas", errada: "Chave formada por colunas de tabelas diferentes" }
+      ]
+    },
+    {
+      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Normalização de Dados", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      perguntas: [
+        { enunciado: "Qual é o objetivo da normalização?", correta: "Reduzir redundâncias e anomalias nos dados", errada: "Aumentar a duplicação para acelerar consultas" },
+        { enunciado: "O que a 1ª Forma Normal (1FN) exige?", correta: "Valores atômicos, sem atributos multivalorados", errada: "Que toda tabela possua chave estrangeira" },
+        { enunciado: "Quando uma tabela está na 2FN?", correta: "Está na 1FN e não tem dependência parcial da chave", errada: "Está na 1FN e todas as colunas são numéricas" },
+        { enunciado: "O que é dependência parcial?", correta: "Coluna que depende de apenas parte da chave composta", errada: "Coluna que depende de toda a chave primária" },
+        { enunciado: "Quando uma tabela está na 3FN?", correta: "Está na 2FN e não tem dependência transitiva", errada: "Está na 2FN e possui apenas uma coluna" },
+        { enunciado: "O que é dependência transitiva?", correta: "Coluna não-chave que depende de outra coluna não-chave", errada: "Coluna que depende só da chave primária" },
+        { enunciado: "O que é uma anomalia de atualização?", correta: "Alterar um dado repetido em um lugar e esquecer os demais", errada: "Não conseguir criar um índice na tabela" },
+        { enunciado: "Uma coluna \"telefones\" com vários números na mesma célula viola qual forma normal?", correta: "Primeira forma normal (1FN)", errada: "Terceira forma normal (3FN)" },
+        { enunciado: "Como eliminar uma dependência parcial?", correta: "Separar em novas tabelas as colunas que dependem de parte da chave", errada: "Unir todas as tabelas em uma só" },
+        { enunciado: "Qual é um possível efeito do excesso de normalização?", correta: "Mais tabelas e mais junções nas consultas", errada: "Aumento da redundância dos dados" }
+      ]
+    },
+    {
+      id: uid(), disciplina: "Introdução a Banco de Dados", titulo: "Modelagem Física - SQL", retorno: 'inicio', embaralhar: true, criado_em: new Date().toISOString(),
+      perguntas: [
+        { enunciado: "Qual comando SQL cria uma tabela?", correta: "CREATE TABLE", errada: "INSERT TABLE" },
+        { enunciado: "Qual comando SQL insere um novo registro?", correta: "INSERT INTO", errada: "UPDATE SET" },
+        { enunciado: "Qual comando SQL altera dados já existentes em uma tabela?", correta: "UPDATE", errada: "ALTER" },
+        { enunciado: "Qual comando SQL remove linhas de uma tabela?", correta: "DELETE FROM", errada: "DROP TABLE" },
+        { enunciado: "Qual cláusula filtra as linhas de uma consulta?", correta: "WHERE", errada: "GROUP BY" },
+        { enunciado: "Qual cláusula ordena o resultado de uma consulta?", correta: "ORDER BY", errada: "GROUP BY" },
+        { enunciado: "Qual cláusula declara uma chave estrangeira na criação da tabela?", correta: "FOREIGN KEY ... REFERENCES", errada: "PRIMARY KEY ... UNIQUE" },
+        { enunciado: "Qual restrição impede que uma coluna receba valor nulo?", correta: "NOT NULL", errada: "UNIQUE" },
+        { enunciado: "Qual função SQL conta o número de linhas?", correta: "COUNT()", errada: "SUM()" },
+        { enunciado: "Qual junção retorna apenas as linhas com correspondência nas duas tabelas?", correta: "INNER JOIN", errada: "LEFT JOIN" }
+      ]
+    }
+    ];
   }
 
   /* ---------- API de dados ---------- */
@@ -399,7 +456,7 @@ window.CAVERNA_CONFIG = {
         lista = await sb('desafios?select=*&order=disciplina.asc,titulo.asc');
       } else {
         lista = LS.get('caverna_desafios', null);
-        if (!lista) { lista = [exemplo()]; LS.set('caverna_desafios', lista); }
+        if (!lista) { lista = exemplos(); LS.set('caverna_desafios', lista); }
       }
       return (lista || []).map((d) => Object.assign({}, d, {
         perguntas: Array.isArray(d.perguntas) ? d.perguntas : []
