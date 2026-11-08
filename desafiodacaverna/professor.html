@@ -138,6 +138,7 @@ select option { background: #1d1428; }
   #edErro { color: var(--ruim); min-height: 1.2rem; margin: .4rem 0; font-size: .9rem; }
   .ed-rodape { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: space-between; align-items: center; margin-top: .6rem; }
   .dica { font-size: .8rem; color: var(--suave); }
+
 </style>
 </head>
 <body>
@@ -151,7 +152,7 @@ select option { background: #1d1428; }
     </label>
     <div id="loginErro"></div>
     <button class="btn" id="btnEntrar" style="width:100%">Entrar</button>
-    <p style="margin:1rem 0 0"><a href="aluno.html">Ir para o módulo do aluno →</a></p>
+    <p style="margin:1rem 0 0"><a href="aluno.html">Ir para o módulo do aluno →</a> &nbsp;·&nbsp; <a href="#" id="telaLogin" data-tela data-rotulo="Tela cheia" style="text-decoration:none"></a></p>
     <p id="avisoLocal" style="margin-top:.8rem;font-size:.78rem" hidden>Modo local: o PIN padrão é <b>1234</b> (<code>pinLocal</code>, no bloco CONFIGURAÇÃO do arquivo).</p>
   </div>
 </section>
@@ -163,6 +164,7 @@ select option { background: #1d1428; }
       <span class="selo" id="selo"></span>
       <button class="btn small ghost" id="btnRanking">🏆 Ranking online</button>
       <button class="btn small" id="btnNovo">＋ Novo desafio</button>
+      <button class="btn small ghost" data-tela data-rotulo="Tela cheia"></button>
       <button class="btn small ghost" id="btnConfig">⚙ Ranking online</button>
       <a class="btn small ghost" href="aluno.html">Módulo do aluno</a>
       <button class="btn small ghost" id="btnSair">Sair</button>
@@ -313,13 +315,18 @@ grant execute on function public.prof_excluir_resultado(text, uuid) to anon, aut
 
 -- 5) (Opcional) Desafio de exemplo -----------------------------------
 insert into public.desafios (disciplina, titulo, retorno, embaralhar, perguntas)
-select 'Introdução a Banco de Dados', 'Exemplo — Primeiros passos', 'inicio', true,
+select 'Introdução a Banco de Dados', 'Fundamentos de Banco de Dados', 'inicio', true,
 '[
-  {"enunciado":"Qual sigla representa a linguagem padrão para consultar bancos de dados relacionais?","correta":"SQL","errada":"HTML"},
-  {"enunciado":"No modelo relacional, o que identifica de forma única cada linha de uma tabela?","correta":"Chave primária","errada":"Nome da coluna"},
-  {"enunciado":"Qual comando SQL insere um novo registro em uma tabela?","correta":"INSERT INTO","errada":"DROP TABLE"},
-  {"enunciado":"No DER (modelo entidade-relacionamento), o retângulo representa normalmente:","correta":"Uma entidade","errada":"Um relacionamento"},
-  {"enunciado":"O que significa a sigla SGBD?","correta":"Sistema Gerenciador de Banco de Dados","errada":"Sistema Geral de Bytes e Dados"}
+  {"enunciado": "O que significa a sigla SGBD?", "correta": "Sistema Gerenciador de Banco de Dados", "errada": "Sistema Geral de Bytes e Dados"},
+  {"enunciado": "No modelo relacional, o que identifica de forma única cada linha de uma tabela?", "correta": "Chave primária", "errada": "Chave estrangeira"},
+  {"enunciado": "Qual elemento cria o vínculo entre duas tabelas relacionadas?", "correta": "Chave estrangeira", "errada": "Índice de ordenação"},
+  {"enunciado": "Qual comando SQL é usado para consultar dados de uma tabela?", "correta": "SELECT", "errada": "INSERT"},
+  {"enunciado": "Qual comando SQL insere um novo registro em uma tabela?", "correta": "INSERT INTO", "errada": "UPDATE SET"},
+  {"enunciado": "Qual cláusula SQL filtra as linhas retornadas por uma consulta?", "correta": "WHERE", "errada": "ORDER BY"},
+  {"enunciado": "No DER (modelo entidade-relacionamento), o retângulo representa normalmente:", "correta": "Uma entidade", "errada": "Um relacionamento"},
+  {"enunciado": "Uma cardinalidade 1:N entre as entidades A e B significa que:", "correta": "Um registro de A se liga a vários de B", "errada": "Cada registro de A se liga a um só de B"},
+  {"enunciado": "Qual propriedade garante que uma transação seja concluída por inteiro ou totalmente desfeita?", "correta": "Atomicidade", "errada": "Redundância"},
+  {"enunciado": "Qual é o principal objetivo da normalização de um banco de dados?", "correta": "Reduzir redundâncias e inconsistências", "errada": "Aumentar a duplicação dos dados"}
 ]'::jsonb
 where not exists (select 1 from public.desafios);
 </textarea>
@@ -446,16 +453,21 @@ window.CAVERNA_CONFIG = {
     return {
       id: uid(),
       disciplina: 'Introdução a Banco de Dados',
-      titulo: 'Exemplo — Primeiros passos',
+      titulo: 'Fundamentos de Banco de Dados',
       retorno: 'inicio',
       embaralhar: true,
       criado_em: new Date().toISOString(),
       perguntas: [
-        { enunciado: 'Qual sigla representa a linguagem padrão para consultar bancos de dados relacionais?', correta: 'SQL', errada: 'HTML' },
-        { enunciado: 'No modelo relacional, o que identifica de forma única cada linha de uma tabela?', correta: 'Chave primária', errada: 'Nome da coluna' },
-        { enunciado: 'Qual comando SQL insere um novo registro em uma tabela?', correta: 'INSERT INTO', errada: 'DROP TABLE' },
-        { enunciado: 'No DER (modelo entidade-relacionamento), o retângulo representa normalmente:', correta: 'Uma entidade', errada: 'Um relacionamento' },
-        { enunciado: 'O que significa a sigla SGBD?', correta: 'Sistema Gerenciador de Banco de Dados', errada: 'Sistema Geral de Bytes e Dados' }
+        { enunciado: "O que significa a sigla SGBD?", correta: "Sistema Gerenciador de Banco de Dados", errada: "Sistema Geral de Bytes e Dados" },
+        { enunciado: "No modelo relacional, o que identifica de forma única cada linha de uma tabela?", correta: "Chave primária", errada: "Chave estrangeira" },
+        { enunciado: "Qual elemento cria o vínculo entre duas tabelas relacionadas?", correta: "Chave estrangeira", errada: "Índice de ordenação" },
+        { enunciado: "Qual comando SQL é usado para consultar dados de uma tabela?", correta: "SELECT", errada: "INSERT" },
+        { enunciado: "Qual comando SQL insere um novo registro em uma tabela?", correta: "INSERT INTO", errada: "UPDATE SET" },
+        { enunciado: "Qual cláusula SQL filtra as linhas retornadas por uma consulta?", correta: "WHERE", errada: "ORDER BY" },
+        { enunciado: "No DER (modelo entidade-relacionamento), o retângulo representa normalmente:", correta: "Uma entidade", errada: "Um relacionamento" },
+        { enunciado: "Uma cardinalidade 1:N entre as entidades A e B significa que:", correta: "Um registro de A se liga a vários de B", errada: "Cada registro de A se liga a um só de B" },
+        { enunciado: "Qual propriedade garante que uma transação seja concluída por inteiro ou totalmente desfeita?", correta: "Atomicidade", errada: "Redundância" },
+        { enunciado: "Qual é o principal objetivo da normalização de um banco de dados?", correta: "Reduzir redundâncias e inconsistências", errada: "Aumentar a duplicação dos dados" }
       ]
     };
   }
@@ -648,12 +660,13 @@ window.CAVERNA_CONFIG = {
     if (!rk) criarRanking();
     rk.opts = opts || {};
     rk.primeira = true;
+    rk.back.querySelector('#rkTodas').checked = !!rk.opts.todas;
     rk.back.querySelector('#rkTurma').value = '';
     rk.back.querySelector('#rkDesafio').value = '';
     rk.back.hidden = false;
     carregarRanking(true);
     clearInterval(rk.timer);
-    rk.timer = setInterval(() => carregarRanking(), 20000);
+    rk.timer = setInterval(() => carregarRanking(), 10000);
   }
 
   /* ---------- pontuação (compartilhada) ---------- */
@@ -661,7 +674,29 @@ window.CAVERNA_CONFIG = {
     return salas * 100 + (concluido ? 100 + vidas * 100 : 0);
   }
 
-  global.Caverna = { DB, LS, uid, esc, fmtTempo, toast, abrirRanking, calcularPontos, online: ONLINE };
+  /* ---------- tela cheia ---------- */
+  function emTelaCheia() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function alternarTelaCheia() {
+    const d = document, el = d.documentElement;
+    try {
+      if (emTelaCheia()) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+      else (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+    } catch (e) {}
+  }
+  function ligarTelaCheia() {
+    const bs = Array.prototype.slice.call(document.querySelectorAll('[data-tela]'));
+    const ok = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+    const atualizar = () => bs.forEach((b) => {
+      const on = emTelaCheia(), rot = b.dataset.rotulo ? ' ' + b.dataset.rotulo : '';
+      b.textContent = (on ? '🗗' : '⛶') + rot; b.title = on ? 'Sair da tela cheia' : 'Tela cheia';
+    });
+    bs.forEach((b) => { if (!ok) b.hidden = true; else b.onclick = alternarTelaCheia; });
+    document.addEventListener('fullscreenchange', atualizar);
+    document.addEventListener('webkitfullscreenchange', atualizar);
+    atualizar();
+  }
+
+  global.Caverna = { ligarTelaCheia, alternarTelaCheia, DB, LS, uid, esc, fmtTempo, toast, abrirRanking, calcularPontos, online: ONLINE };
 })(window);
 
 </script>
@@ -675,6 +710,7 @@ window.CAVERNA_CONFIG = {
   let ed = null; // desafio em edição
 
   /* ---------- login ---------- */
+  Caverna.ligarTelaCheia();
   $('selo').className = 'selo ' + (Caverna.online ? 'on' : 'off');
   $('selo').textContent = Caverna.online ? '● Online' : '● Modo local';
   if (!Caverna.online) $('avisoLocal').hidden = false;
@@ -799,6 +835,7 @@ window.CAVERNA_CONFIG = {
     ed.perguntas.push(novaPergunta()); desenharPerguntas();
     const ult = $('edPerguntas').lastElementChild; if (ult) { ult.scrollIntoView({ behavior: 'smooth', block: 'center' }); ult.querySelector('textarea').focus(); }
   };
+
 
   $('edSalvar').onclick = async () => {
     ed.disciplina = $('edDisc').value.trim(); ed.titulo = $('edTit').value.trim();

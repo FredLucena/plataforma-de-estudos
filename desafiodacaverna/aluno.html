@@ -137,6 +137,7 @@ select option { background: #1d1428; }
   }
 
   /* ---------- HUD do jogo ---------- */
+  .tela-setup { position: absolute; top: .7rem; left: .8rem; pointer-events: auto; z-index: 2; font-size: 1.1rem; }
   #hud { position: fixed; inset: 0; z-index: 6; pointer-events: none; }
   #hud > * { pointer-events: auto; }
   .hud-barra { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; gap: .6rem; padding: .6rem .8rem; background: linear-gradient(180deg, rgba(0,0,0,.65), transparent); pointer-events: none; }
@@ -205,6 +206,7 @@ select option { background: #1d1428; }
 
 <!-- Preparação -->
 <div id="setup" hidden>
+  <button class="ib tela-setup" data-tela title="Tela cheia"></button>
   <header class="titulo"><h1>O DESAFIO<br>DA CAVERNA</h1><p>Escolha seu herói. Duas passagens, uma fera. Você tem três vidas.</p></header>
   <section class="painel card">
     <div id="testeBanner" hidden>🧪 Modo de teste — o resultado desta partida não será enviado ao ranking.</div>
@@ -235,6 +237,7 @@ select option { background: #1d1428; }
     <div class="centro-info"><div class="sala">Sala <span id="hSala">1</span> de <span id="hTotal">1</span></div><div class="pts">⭐ <span id="hPts">0</span> pontos</div></div>
     <div class="hud-btns">
       <button class="ib" id="btnRank" title="Ranking online">🏆</button>
+      <button class="ib" data-tela title="Tela cheia"></button>
       <button class="ib" id="btnSom" title="Som">🔊</button>
       <button class="ib" id="btnSair" title="Abandonar">✕</button>
     </div>
@@ -367,16 +370,21 @@ window.CAVERNA_CONFIG = {
     return {
       id: uid(),
       disciplina: 'Introdução a Banco de Dados',
-      titulo: 'Exemplo — Primeiros passos',
+      titulo: 'Fundamentos de Banco de Dados',
       retorno: 'inicio',
       embaralhar: true,
       criado_em: new Date().toISOString(),
       perguntas: [
-        { enunciado: 'Qual sigla representa a linguagem padrão para consultar bancos de dados relacionais?', correta: 'SQL', errada: 'HTML' },
-        { enunciado: 'No modelo relacional, o que identifica de forma única cada linha de uma tabela?', correta: 'Chave primária', errada: 'Nome da coluna' },
-        { enunciado: 'Qual comando SQL insere um novo registro em uma tabela?', correta: 'INSERT INTO', errada: 'DROP TABLE' },
-        { enunciado: 'No DER (modelo entidade-relacionamento), o retângulo representa normalmente:', correta: 'Uma entidade', errada: 'Um relacionamento' },
-        { enunciado: 'O que significa a sigla SGBD?', correta: 'Sistema Gerenciador de Banco de Dados', errada: 'Sistema Geral de Bytes e Dados' }
+        { enunciado: "O que significa a sigla SGBD?", correta: "Sistema Gerenciador de Banco de Dados", errada: "Sistema Geral de Bytes e Dados" },
+        { enunciado: "No modelo relacional, o que identifica de forma única cada linha de uma tabela?", correta: "Chave primária", errada: "Chave estrangeira" },
+        { enunciado: "Qual elemento cria o vínculo entre duas tabelas relacionadas?", correta: "Chave estrangeira", errada: "Índice de ordenação" },
+        { enunciado: "Qual comando SQL é usado para consultar dados de uma tabela?", correta: "SELECT", errada: "INSERT" },
+        { enunciado: "Qual comando SQL insere um novo registro em uma tabela?", correta: "INSERT INTO", errada: "UPDATE SET" },
+        { enunciado: "Qual cláusula SQL filtra as linhas retornadas por uma consulta?", correta: "WHERE", errada: "ORDER BY" },
+        { enunciado: "No DER (modelo entidade-relacionamento), o retângulo representa normalmente:", correta: "Uma entidade", errada: "Um relacionamento" },
+        { enunciado: "Uma cardinalidade 1:N entre as entidades A e B significa que:", correta: "Um registro de A se liga a vários de B", errada: "Cada registro de A se liga a um só de B" },
+        { enunciado: "Qual propriedade garante que uma transação seja concluída por inteiro ou totalmente desfeita?", correta: "Atomicidade", errada: "Redundância" },
+        { enunciado: "Qual é o principal objetivo da normalização de um banco de dados?", correta: "Reduzir redundâncias e inconsistências", errada: "Aumentar a duplicação dos dados" }
       ]
     };
   }
@@ -569,12 +577,13 @@ window.CAVERNA_CONFIG = {
     if (!rk) criarRanking();
     rk.opts = opts || {};
     rk.primeira = true;
+    rk.back.querySelector('#rkTodas').checked = !!rk.opts.todas;
     rk.back.querySelector('#rkTurma').value = '';
     rk.back.querySelector('#rkDesafio').value = '';
     rk.back.hidden = false;
     carregarRanking(true);
     clearInterval(rk.timer);
-    rk.timer = setInterval(() => carregarRanking(), 20000);
+    rk.timer = setInterval(() => carregarRanking(), 10000);
   }
 
   /* ---------- pontuação (compartilhada) ---------- */
@@ -582,7 +591,29 @@ window.CAVERNA_CONFIG = {
     return salas * 100 + (concluido ? 100 + vidas * 100 : 0);
   }
 
-  global.Caverna = { DB, LS, uid, esc, fmtTempo, toast, abrirRanking, calcularPontos, online: ONLINE };
+  /* ---------- tela cheia ---------- */
+  function emTelaCheia() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function alternarTelaCheia() {
+    const d = document, el = d.documentElement;
+    try {
+      if (emTelaCheia()) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+      else (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+    } catch (e) {}
+  }
+  function ligarTelaCheia() {
+    const bs = Array.prototype.slice.call(document.querySelectorAll('[data-tela]'));
+    const ok = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+    const atualizar = () => bs.forEach((b) => {
+      const on = emTelaCheia(), rot = b.dataset.rotulo ? ' ' + b.dataset.rotulo : '';
+      b.textContent = (on ? '🗗' : '⛶') + rot; b.title = on ? 'Sair da tela cheia' : 'Tela cheia';
+    });
+    bs.forEach((b) => { if (!ok) b.hidden = true; else b.onclick = alternarTelaCheia; });
+    document.addEventListener('fullscreenchange', atualizar);
+    document.addEventListener('webkitfullscreenchange', atualizar);
+    atualizar();
+  }
+
+  global.Caverna = { ligarTelaCheia, alternarTelaCheia, DB, LS, uid, esc, fmtTempo, toast, abrirRanking, calcularPontos, online: ONLINE };
 })(window);
 
 </script>
@@ -660,6 +691,10 @@ window.CAVERNA_CONFIG = {
     const sorriso = new T.Mesh(new T.TorusGeometry(0.1, 0.018, 6, 14, Math.PI), mat(0x5a2a2a, 0.5));
     sorriso.position.set(0, -0.1, -0.475); sorriso.rotation.z = Math.PI;
     head.add(sorriso);
+    // boca aberta (usada no grito de terror)
+    const boca = new T.Mesh(new T.SphereGeometry(0.11, 14, 10), mat(0x2a0a0e, 0.4));
+    boca.position.set(0, -0.14, -0.46); boca.scale.set(1.15, 1.7, 0.45); boca.visible = false;
+    head.add(boca);
     // orelhas
     const orelha = new T.SphereGeometry(0.09, 8, 8);
     head.add(meshAt(orelha, pele, -0.5, -0.02, 0), meshAt(orelha, pele, 0.5, -0.02, 0));
@@ -712,12 +747,14 @@ window.CAVERNA_CONFIG = {
     sombra.rotation.x = -Math.PI / 2; sombra.position.y = 0.02;
     g.add(sombra);
 
-    return { group: g, legL, legR, armL, armR, head, corpo, sombra, cfg };
+    return { group: g, legL, legR, armL, armR, head, corpo, sombra, sorriso, boca, cfg };
   }
 
   /* anima o boneco: vel>0 = andando; pose = 'susto' levanta os braços */
   function animarAvatar(av, t, vel, pose) {
+    av.boca.visible = pose === 'susto'; av.sorriso.visible = pose !== 'susto';
     if (pose === 'susto') {
+      av.boca.scale.set(1.15, 1.5 + Math.abs(Math.sin(t * 16)) * 0.6, 0.45);
       av.armL.rotation.set(-2.6, 0, -0.35); av.armR.rotation.set(-2.6, 0, 0.35);
       av.legL.rotation.x = 0.25; av.legR.rotation.x = -0.25;
       av.head.rotation.x = 0.2; return;
@@ -1170,15 +1207,64 @@ window.CAVERNA_CONFIG = {
      ========================================================= */
   const Som = (function () {
     let ctx = null, master = null, mudo = !!LS.get('caverna_mudo', false), pingo = null;
+    let msc = null;
+    const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+    function reverb() {
+      const len = Math.floor(ctx.sampleRate * 3), buf = ctx.createBuffer(2, len, ctx.sampleRate);
+      for (let c = 0; c < 2; c++) { const d = buf.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+      const cv = ctx.createConvolver(); cv.buffer = buf; return cv;
+    }
+    /* Música de mistério: pad sombrio em lá menor + caixa de música com eco + baixo grave */
+    function iniciarMusica() {
+      const bus = ctx.createGain(); bus.gain.value = 0.9; bus.connect(master);
+      const rev = reverb(), revG = ctx.createGain(); revG.gain.value = 0.7; rev.connect(revG); revG.connect(master); bus.connect(rev);
+      const eco = ctx.createDelay(1.5); eco.delayTime.value = 0.52;
+      const fb = ctx.createGain(); fb.gain.value = 0.42; eco.connect(fb); fb.connect(eco); eco.connect(rev);
+      const bell = ctx.createGain(); bell.gain.value = 1; bell.connect(bus); bell.connect(eco);
+      const acordes = [[57, 60, 64], [53, 57, 60, 64], [50, 53, 57, 62], [52, 56, 59, 62]];  // Am · Fmaj7 · Dm(add9) · E7
+      const escala = [69, 71, 72, 74, 76, 77, 80, 81, 83, 84, 86, 88];                          // lá menor harmônica
+      const motivo = [0, 2, 4, 3, 1, 2, 5, 4, 2, 0, 6, 5];
+      function pad(notas, t, dur) {
+        notas.forEach((m) => [-9, 9].forEach((det) => {
+          const o = ctx.createOscillator(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+          o.type = 'sawtooth'; o.frequency.value = hz(m - 12); o.detune.value = det;
+          f.type = 'lowpass'; f.frequency.setValueAtTime(260, t); f.frequency.linearRampToValueAtTime(720, t + dur * 0.5); f.frequency.linearRampToValueAtTime(240, t + dur);
+          g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.03, t + dur * 0.45); g.gain.linearRampToValueAtTime(0.0001, t + dur + 1.2);
+          o.connect(f); f.connect(g); g.connect(bus); o.start(t); o.stop(t + dur + 1.3);
+        }));
+      }
+      function grave(m, t, dur) {
+        const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = hz(m - 24);
+        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.16, t + 1.2); g.gain.linearRampToValueAtTime(0.0001, t + dur + 0.8);
+        o.connect(g); g.connect(bus); o.start(t); o.stop(t + dur + 1);
+      }
+      function sino(m, t, vol) {
+        [[1, 1], [2.01, 0.28], [3.97, 0.1]].forEach((h) => {
+          const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = hz(m) * h[0];
+          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol * h[1], t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.4);
+          o.connect(g); g.connect(bell); o.start(t); o.stop(t + 2.5);
+        });
+      }
+      let proxima = ctx.currentTime + 0.3, barra = 0;
+      function agendar(t, b) {
+        const ac = acordes[b % acordes.length];
+        pad(ac, t, 8); grave(ac[0], t, 8);
+        for (let k = 0; k < 8; k++) {
+          if (k === 0 || k === 4 || Math.random() < 0.5) {
+            let idx = motivo[(b * 5 + k) % motivo.length]; if (Math.random() < 0.25) idx = Math.min(escala.length - 1, idx + 2);
+            sino(escala[idx], t + k + (Math.random() < 0.3 ? 0.5 : 0), 0.05 + Math.random() * 0.03);
+          }
+        }
+      }
+      const tick = () => { while (proxima < ctx.currentTime + 12) { agendar(proxima, barra++); proxima += 8; } };
+      tick(); msc = setInterval(tick, 2000);
+    }
     function init() {
       if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
       try {
         ctx = new (window.AudioContext || window.webkitAudioContext)();
         master = ctx.createGain(); master.gain.value = mudo ? 0 : 0.55; master.connect(ctx.destination);
-        [55, 55.7, 82.4].forEach((f, i) => {
-          const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.value = i === 2 ? 0.012 : 0.03;
-          o.connect(g); g.connect(master); o.start();
-        });
+        iniciarMusica();
         pingo = setInterval(() => { if (ctx.state === 'running') tom(1400 + Math.random() * 500, 0.18, 'sine', 0.05, 0, 700); }, 3500 + Math.random() * 3000);
       } catch (e) { ctx = null; }
     }
@@ -1202,7 +1288,65 @@ window.CAVERNA_CONFIG = {
     return {
       init,
       acerto() { tom(523, 0.18, 'triangle', 0.25); tom(659, 0.18, 'triangle', 0.25, 0.1); tom(784, 0.3, 'triangle', 0.25, 0.2); },
-      rugido() { tom(150, 1.1, 'sawtooth', 0.32, 0, 48); tom(95, 1.2, 'square', 0.14, 0.05, 38); ruido(1.1, 0.5, 900); },
+      /* Rugido de urso: grave, rouco, com modulação "rasgada" e sopro de ar */
+      rugido() {
+        if (!ctx) return;
+        const t0 = ctx.currentTime, dur = 2.0;
+        const env = ctx.createGain(); env.gain.setValueAtTime(0.0001, t0); env.gain.exponentialRampToValueAtTime(0.55, t0 + 0.12);
+        env.gain.setValueAtTime(0.55, t0 + 1.2); env.gain.exponentialRampToValueAtTime(0.0001, t0 + dur); env.connect(master);
+        const rasgo = ctx.createGain(); rasgo.gain.value = 0.62; rasgo.connect(env);
+        const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.type = 'sawtooth'; lfo.frequency.value = 26; lg.gain.value = 0.38; lfo.connect(lg); lg.connect(rasgo.gain);
+        const dist = ctx.createWaveShaper(), curva = new Float32Array(512);
+        for (let k = 0; k < 512; k++) { const x = k / 256 - 1; curva[k] = Math.tanh(x * 7); }
+        dist.curve = curva; dist.oversample = '2x';
+        [[300, 2, 1], [820, 3, 0.9], [1700, 4, 0.35]].forEach((f) => {
+          const b = ctx.createBiquadFilter(), g = ctx.createGain(); b.type = 'bandpass'; b.frequency.value = f[0]; b.Q.value = f[1]; g.gain.value = f[2];
+          dist.connect(b); b.connect(g); g.connect(rasgo);
+        });
+        [0, 30].forEach((det) => {
+          const o = ctx.createOscillator(); o.type = 'sawtooth'; o.detune.value = det;
+          o.frequency.setValueAtTime(70, t0); o.frequency.linearRampToValueAtTime(125, t0 + 0.25);
+          o.frequency.linearRampToValueAtTime(100, t0 + 1.1); o.frequency.exponentialRampToValueAtTime(52, t0 + dur);
+          const jit = new Float32Array(40); for (let k = 0; k < 40; k++) jit[k] = (Math.random() - 0.5) * 90;
+          o.detune.setValueCurveAtTime(jit, t0, dur);
+          o.connect(dist); o.start(t0); o.stop(t0 + dur + 0.05);
+        });
+        lfo.start(t0); lfo.stop(t0 + dur + 0.05);
+        ruido(1.6, 0.5, 1300); ruido(0.5, 0.35, 3500, 0.05);
+      },
+      /* Grito de pessoa aterrorizada: voz aguda com vogal "aaah", tremor, falha de voz e fôlego */
+      grito() {
+        if (!ctx) return;
+        const t0 = ctx.currentTime, dur = 1.8;
+        const env = ctx.createGain(); env.gain.setValueAtTime(0.0001, t0); env.gain.exponentialRampToValueAtTime(0.42, t0 + 0.04);
+        env.gain.setValueAtTime(0.42, t0 + 1.1); env.gain.exponentialRampToValueAtTime(0.0001, t0 + dur); env.connect(master);
+        const trem = ctx.createGain(); trem.gain.value = 0.85; trem.connect(env);
+        const tl = ctx.createOscillator(), tg = ctx.createGain(); tl.frequency.value = 11; tg.gain.value = 0.15; tl.connect(tg); tg.connect(trem.gain);
+        const voz = ctx.createGain(); voz.connect(trem);
+        [[830, 9, 1], [1350, 11, 0.75], [2950, 14, 0.4], [3800, 14, 0.15]].forEach((f) => {
+          const b = ctx.createBiquadFilter(), g = ctx.createGain(); b.type = 'bandpass'; b.frequency.value = f[0]; b.Q.value = f[1]; g.gain.value = f[2] * 2.2;
+          voz.connect(b); b.connect(g); g.connect(trem);
+        });
+        const vib = ctx.createOscillator(), vg = ctx.createGain(); vib.frequency.value = 6.5; vg.gain.value = 28; vib.connect(vg);
+        const fonte = ctx.createGain(); fonte.gain.value = 0.5; fonte.connect(voz);
+        [0, 9].forEach((det) => {
+          const o = ctx.createOscillator(); o.type = 'sawtooth'; o.detune.value = det;
+          o.frequency.setValueAtTime(520, t0); o.frequency.exponentialRampToValueAtTime(1180, t0 + 0.16);
+          o.frequency.linearRampToValueAtTime(1240, t0 + 0.7); o.frequency.setValueAtTime(1500, t0 + 0.74);   // "falha" de voz
+          o.frequency.linearRampToValueAtTime(1320, t0 + 1.2); o.frequency.exponentialRampToValueAtTime(720, t0 + dur);
+          const jit = new Float32Array(60); for (let k = 0; k < 60; k++) jit[k] = (Math.random() - 0.5) * 60;
+          o.detune.setValueCurveAtTime(jit, t0, dur);
+          vg.connect(o.frequency); o.connect(fonte); o.start(t0); o.stop(t0 + dur + 0.05);
+        });
+        vib.start(t0); vib.stop(t0 + dur + 0.05); tl.start(t0); tl.stop(t0 + dur + 0.05);
+        // fôlego/rouquidão de quem grita com muito ar
+        const n = Math.floor(ctx.sampleRate * dur), buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0);
+        for (let k = 0; k < n; k++) d[k] = Math.random() * 2 - 1;
+        const src = ctx.createBufferSource(); src.buffer = buf;
+        const hp = ctx.createBiquadFilter(); hp.type = 'bandpass'; hp.frequency.value = 3200; hp.Q.value = 0.7;
+        const ng = ctx.createGain(); ng.gain.setValueAtTime(0.0001, t0); ng.gain.linearRampToValueAtTime(0.22, t0 + 0.1); ng.gain.linearRampToValueAtTime(0.0001, t0 + dur);
+        src.connect(hp); hp.connect(ng); ng.connect(master); src.start(t0);
+      },
       mordida() { ruido(0.5, 0.7, 1400); tom(70, 0.5, 'sawtooth', 0.4, 0, 30); },
       derrota() { [330, 277, 233, 175].forEach((f, i) => tom(f, 0.45, 'triangle', 0.22, i * 0.28)); },
       vitoria() { [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tom(f, 0.3, 'triangle', 0.22, i * 0.14)); },
@@ -1391,7 +1535,7 @@ window.CAVERNA_CONFIG = {
     $('fSalas').textContent = run.salas + '/' + run.total; $('fVidas').textContent = ok ? '❤'.repeat(run.vidas) : '—';
     $('fTempo').textContent = Caverna.fmtTempo(tempo); $('fPontos').textContent = pontos;
     $('fim').hidden = false;
-    enviarResultado();
+    run.envio = enviarResultado();
   }
 
   async function enviarResultado() {
@@ -1463,10 +1607,10 @@ window.CAVERNA_CONFIG = {
         cave.lanterna.position.set(pos.x, 3.6, pos.z + 0.8);
         if (run.lado === run.ladoCerto) {
           if (pos.z < -25) { ir('saindo'); passouDaSala(); }
-        } else if (pos.z < -11) {
+        } else if (pos.z < -23.2) {
           const cx = run.lado === 'L' ? -5 : 5;
-          fera.group.position.set(cx, 0, -37); fera.group.rotation.set(0, 0, 0); fera.group.visible = true;
-          cave.luzFera.position.set(cx, 3.2, -33);
+          fera.group.position.set(cx, 0, -35); fera.group.rotation.set(0, 0, 0); fera.group.visible = true;
+          cave.luzFera.position.set(cx, 3.2, -31);
           Som.rugido(); ir('fera_acorda');
         }
         seguirCamera(dt, false);
@@ -1477,12 +1621,12 @@ window.CAVERNA_CONFIG = {
       }
       case 'fera_acorda': {
         Avatares.animarAvatar(av, T, 0, 'susto');
-        const k = Math.min(1, tEstado / 0.9);
+        const k = Math.min(1, tEstado / 0.7);
         cave.luzFera.intensity = 2.8 * k;
         fera.mandibula.rotation.x = 0.5 * k; fera.olhoMat.color.setHex(Math.sin(T * 40) > 0 ? 0xff2a14 : 0xffa070);
         shake = Math.max(shake, 0.08);
         av.group.rotation.y += (0 - av.group.rotation.y) * Math.min(1, dt * 6);
-        if (tEstado > 0.9) ir('fera_ataca');
+        if (tEstado > 0.7) { Som.grito(); ir('fera_ataca'); }
         seguirCamera(dt, false);
         break;
       }
@@ -1548,6 +1692,8 @@ window.CAVERNA_CONFIG = {
   /* =========================================================
      ENTRADAS
      ========================================================= */
+  Caverna.ligarTelaCheia();
+  window.addEventListener('pointerdown', () => Som.init(), { once: true });
   $('btnIniciar').onclick = iniciar;
   ['nome', 'turma'].forEach((id) => $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') iniciar(); }));
   $('escL').onclick = () => escolher('L');
@@ -1566,9 +1712,9 @@ window.CAVERNA_CONFIG = {
   });
   canvas.addEventListener('click', (e) => { if (estado === 'espera') { const l = cave.escolher(e.clientX, e.clientY); if (l) escolher(l); } });
 
-  $('btnRank').onclick = () => Caverna.abrirRanking({ nome: run && run.nome, turma: run && run.turma, desafioId: run && run.d.id });
+  $('btnRank').onclick = () => Caverna.abrirRanking({ nome: run && run.nome, turma: run && run.turma, desafioId: run && run.d.id, todas: true });
   $('btnRankingSetup').onclick = () => Caverna.abrirRanking({});
-  $('btnRankFim').onclick = () => Caverna.abrirRanking({ nome: run.nome, turma: run.turma, desafioId: run.d.id });
+  $('btnRankFim').onclick = async () => { try { await run.envio; } catch (e) {} Caverna.abrirRanking({ nome: run.nome, turma: run.turma, desafioId: run.d.id, todas: true }); };
   $('btnSom').onclick = () => { Som.init(); $('btnSom').textContent = Som.alternar() ? '🔇' : '🔊'; };
   $('btnSom').textContent = Som.mudo ? '🔇' : '🔊';
   $('btnSair').onclick = async () => {
