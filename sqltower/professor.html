@@ -1,1 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL Tower Professor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: página de administração em coluna única (máx. 1000px): acesso por PIN, depois abas Desafios / Pontuações / Tabelas. Tema único, o mesmo do jogo. */
+:root{
+  color-scheme: dark;
+  --fundo:#0f2a33;
+  --painel:#17404b;
+  --linha:#2f6170;
+  --texto:#eef6f4;
+  --texto-2:#a9c6c9;
+  --destaque:#ffb347;
+  --holo:#7ff0ff;
+  --erro:#ffb39a;
+  --ok:#8dffa8;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --corpo:"Nunito Sans","Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--fundo);color:var(--texto);font-family:var(--corpo);font-size:16px;line-height:1.45;min-height:100vh;display:flex;flex-direction:column}
+.topo{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;border-bottom:2px solid var(--linha);flex-wrap:wrap}
+h1{font-family:var(--display);font-size:28px;margin:0;line-height:1.1}
+h1 span{font-family:var(--corpo);font-size:15px;font-weight:400;color:var(--texto-2);margin-left:8px}
+h2{font-family:var(--display);font-size:22px;margin:0 0 6px;line-height:1.15}
+h3{font-family:var(--display);font-size:18px;margin:0;color:var(--destaque)}
+main{flex:1;width:100%;max-width:1000px;margin:0 auto;padding:18px 16px 28px;display:flex;flex-direction:column;gap:16px}
+footer{text-align:center;font-size:12px;color:var(--texto-2);padding:10px 16px}
+.cartao{background:var(--painel);border:2px solid var(--linha);border-radius:16px;padding:16px 18px}
+p{margin:0 0 10px;max-width:70ch}
+.nota{font-size:14px;color:var(--texto-2)}
+button{font:inherit;font-weight:700;border-radius:10px;cursor:pointer;padding:8px 14px;border:2px solid var(--linha);background:#1f5260;color:var(--texto)}
+button:hover{background:#2a6a7b}
+button.primario{background:var(--destaque);border-color:#b86f00;color:#3a2500}
+button.primario:hover{background:#ffc470}
+button.perigo{border-color:#c9614a;color:var(--erro);background:transparent}
+button.perigo.confirmar{background:#c9614a;color:#fff}
+button.pequeno{font-size:13px;padding:5px 10px}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #fff;outline-offset:2px}
+label{font-size:13px;font-weight:700;color:var(--holo);display:flex;flex-direction:column;gap:4px}
+label.marca{flex-direction:row;align-items:center;gap:8px;color:var(--texto);font-size:15px;font-weight:400}
+input[type=text],input[type=password],select,textarea{font:inherit;background:#03161e;color:#eaffff;border:2px solid #2c8fa6;border-radius:10px;padding:8px 10px;width:100%}
+textarea{resize:vertical;min-height:70px}
+textarea.sql{font-family:var(--mono);font-size:14px}
+.linha{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.linha > label{flex:1 1 200px}
+.abas{display:flex;gap:8px;flex-wrap:wrap}
+.abas button[aria-pressed="true"]{background:var(--destaque);border-color:#b86f00;color:#3a2500}
+.andar{display:flex;flex-direction:column;gap:8px}
+.andar-cab{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.pergunta{background:#0f2f39;border:1px solid var(--linha);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.pergunta .meta{font-size:12px;color:var(--texto-2);font-family:var(--mono)}
+.pergunta code{font-family:var(--mono);font-size:13px;color:#d9fbff;white-space:pre-wrap;overflow-wrap:anywhere;display:block;background:#03161e;border-radius:8px;padding:6px 8px}
+.pergunta .acoes{display:flex;gap:8px;flex-wrap:wrap}
+.vazio{font-size:14px;color:var(--texto-2);font-style:italic}
+.tab{border:1px solid #2c8fa6;border-radius:10px;background:rgba(40,160,200,.08);overflow:auto;max-height:300px}
+.tab table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+.tab th{position:sticky;top:0;background:#0d3f52;color:var(--holo);text-align:left;font-weight:400}
+.tab th,.tab td{padding:4px 10px;border-top:1px solid rgba(79,216,240,.22);white-space:nowrap}
+.grade-tabelas{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+#editor-fundo{position:fixed;inset:0;background:rgba(3,14,20,.8);display:none;align-items:flex-start;justify-content:center;padding:16px;overflow:auto}
+#editor-fundo.aberto{display:flex}
+#editor{background:#072633;border:2px solid #4fd8f0;border-radius:18px;padding:18px 20px;width:min(760px,100%);display:flex;flex-direction:column;gap:12px}
+#f-teste{font-size:14px;min-height:1.3em}
+#f-teste.ok{color:var(--ok)}#f-teste.erro{color:var(--erro)}
+.msg{font-weight:700;font-size:14px;min-height:1.3em}
+.msg.erro{color:var(--erro)}.msg.ok{color:var(--ok)}
+#aviso{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:rgba(10,30,38,.96);border:2px solid var(--destaque);padding:9px 18px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .25s;max-width:calc(100% - 32px);text-align:center}
+#aviso.ativo{opacity:1}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header class="topo">
+  <h1>SQL Tower <span>Módulo do Professor</span></h1>
+  <button id="sair" type="button" hidden>Sair</button>
+</header>
 
+<main>
+  <section id="login" class="cartao">
+    <h2>Acesso do professor</h2>
+    <p>Informe o PIN do professor, o mesmo usado no módulo do professor do Desafio da Caverna.</p>
+    <form id="form-login" class="linha">
+      <label for="pin">PIN<input id="pin" type="password" autocomplete="off"></label>
+      <button class="primario" type="submit" id="entrar">Entrar</button>
+    </form>
+    <div class="msg erro" id="login-msg" aria-live="polite"></div>
+  </section>
+
+  <section id="app" hidden>
+    <nav class="abas" aria-label="Seções">
+      <button type="button" data-aba="desafios" aria-pressed="true">Desafios</button>
+      <button type="button" data-aba="pontos" aria-pressed="false">Pontuações</button>
+      <button type="button" data-aba="tabelas" aria-pressed="false">Tabelas do jogo</button>
+    </nav>
+
+    <div id="aba-desafios" style="display:flex;flex-direction:column;gap:14px;margin-top:14px">
+      <div class="cartao">
+        <h2>Conjunto de perguntas</h2>
+        <p class="nota">O aluno recebe o conjunto cujo nome é igual ao nome da turma que ele digita na entrada do jogo (maiúsculas e minúsculas não importam). Turmas sem conjunto próprio recebem o conjunto <b>padrao</b>. Andar sem pergunta cadastrada usa a pergunta original do jogo. Com mais de uma pergunta no mesmo andar, o jogo sorteia uma a cada partida.</p>
+        <div class="linha">
+          <label for="sel-conjunto">Conjunto em edição<select id="sel-conjunto"></select></label>
+          <label for="novo-nome">Novo conjunto (nome da turma)<input id="novo-nome" type="text" maxlength="40" autocomplete="off"></label>
+          <button type="button" id="criar-conjunto">Criar</button>
+        </div>
+        <div class="linha" style="margin-top:10px">
+          <button type="button" id="copiar-padrao">Copiar as 6 perguntas originais para este conjunto</button>
+          <span class="msg" id="conj-msg" aria-live="polite"></span>
+        </div>
+      </div>
+      <div id="lista" style="display:flex;flex-direction:column;gap:14px"></div>
+    </div>
+
+    <div id="aba-pontos" hidden style="margin-top:14px">
+      <div class="cartao" style="display:flex;flex-direction:column;gap:12px">
+        <h2>Pontuações registradas</h2>
+        <div class="linha">
+          <label for="sel-turma">Turma<select id="sel-turma"></select></label>
+          <button type="button" id="atualizar-pontos">Atualizar</button>
+        </div>
+        <div class="msg" id="pontos-msg" aria-live="polite"></div>
+        <div id="placar"></div>
+      </div>
+    </div>
+
+    <div id="aba-tabelas" hidden style="margin-top:14px">
+      <div class="cartao">
+        <h2>Tabelas do jogo</h2>
+        <p class="nota">As consultas dos alunos e as suas consultas de referência rodam sobre estas três tabelas, que são fixas no jogo.</p>
+        <div class="grade-tabelas" id="tabelas"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="editor-fundo">
+  <form id="editor" role="dialog" aria-modal="true" aria-labelledby="ed-titulo" novalidate>
+    <h2 id="ed-titulo">Pergunta</h2>
+    <div class="linha">
+      <label for="f-conjunto">Conjunto<input id="f-conjunto" type="text" maxlength="40" autocomplete="off"></label>
+      <label for="f-andar">Andar<select id="f-andar"></select></label>
+    </div>
+    <label for="f-conceito">Conceito avaliado (aparece no topo do desafio)<input id="f-conceito" type="text" maxlength="80" autocomplete="off"></label>
+    <label for="f-enunciado">Enunciado<textarea id="f-enunciado" maxlength="600" rows="3"></textarea></label>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--holo);margin-bottom:4px">Tabelas mostradas no holograma</div>
+      <div class="linha" style="align-items:center">
+        <label class="marca" for="f-tab-alunos"><input type="checkbox" id="f-tab-alunos"> alunos</label>
+        <label class="marca" for="f-tab-turmas"><input type="checkbox" id="f-tab-turmas"> turmas</label>
+        <label class="marca" for="f-tab-salas"><input type="checkbox" id="f-tab-salas"> salas</label>
+      </div>
+    </div>
+    <label for="f-resposta">Consulta de referência (o resultado dela é o gabarito)<textarea id="f-resposta" class="sql" maxlength="1000" rows="4" spellcheck="false"></textarea></label>
+    <label class="marca" for="f-ordem"><input type="checkbox" id="f-ordem"> A ordem das linhas faz parte da resposta (use quando o enunciado pede ORDER BY)</label>
+    <label for="f-dica">Dica (aparece depois de dois erros; opcional)<textarea id="f-dica" maxlength="300" rows="2"></textarea></label>
+    <div class="linha">
+      <button type="button" id="f-testar">Testar consulta</button>
+      <button type="submit" class="primario" id="f-salvar">Salvar pergunta</button>
+      <button type="button" id="f-cancelar">Cancelar</button>
+    </div>
+    <div id="f-teste" aria-live="polite"></div>
+    <div id="f-resultado"></div>
+  </form>
+</div>
+<div id="aviso" role="status"></div>
+<footer>Desenvolvido por Prof. Fred Lucena em 2026</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-asm.js"></script>
+<script>
+(() => {
+'use strict';
+const ONLINE = {url:'https://wrhbybddpzgvepxhvscd.supabase.co', chave:'sb_publishable_kMp8OY6GbYue7PhxiCpjLA_h4G5G1bk'};
+const ANDARES = ['Térreo · Educação Infantil', '1º andar · Fundamental, Anos Iniciais', '2º andar · Fundamental, Anos Finais', '3º andar · Ensino Médio', '4º andar · Ensino Superior', '5º andar · Pós-graduação'];
+const DADOS = {
+  alunos: {cols:['id','nome','idade','turma_id'], rows:[
+    [1,'Ana',3,1],[2,'Bento',2,1],[3,'Clara',5,2],[4,'Davi',5,2],[5,'Elisa',4,2],
+    [6,'Fábio',8,3],[7,'Gabi',9,3],[8,'Heitor',8,3],[9,'Íris',9,3],
+    [10,'João',12,4],[11,'Karen',13,4],[12,'Lucas',12,4],
+    [13,'Marina',16,5],[14,'Nuno',17,5],[15,'Olívia',16,5],[16,'Paulo',15,5],
+    [17,'Quésia',19,6],[18,'Rafael',22,6],[19,'Sofia',20,6],[20,'Tiago',31,6],[21,'Úrsula',24,6],
+    [22,'Vítor',28,7],[23,'Wanda',35,7]]},
+  turmas: {cols:['id','nome','etapa','andar'], rows:[
+    [1,'Creche A','Educação Infantil',0],[2,'Pré-escola B','Educação Infantil',0],[3,'3º Ano A','Fundamental I',1],[4,'7º Ano A','Fundamental II',2],
+    [5,'2ª Série A','Ensino Médio',3],[6,'ADS 1º Período','Ensino Superior',4],[7,'Pós em Dados','Pós-graduação',5]]},
+  salas: {cols:['id','nome','tipo','andar','capacidade'], rows:[
+    [1,'Brinquedoteca da Creche','Brinquedoteca',0,20],[2,'Brinquedoteca da Pré-escola','Brinquedoteca',0,25],
+    [3,'Sala 101','Sala de aula',1,30],[4,'Sala 102','Sala de aula',1,40],[5,'Laboratório 101','Laboratório',1,24],
+    [6,'Sala 201','Sala de aula',2,35],[7,'Sala 202','Sala de aula',2,45],[8,'Laboratório 201','Laboratório',2,24],
+    [9,'Sala 301','Sala de aula',3,38],[10,'Sala 401','Sala de aula',4,50],[11,'Laboratório 401','Laboratório',4,30],[12,'Sala 501','Sala de aula',5,28]]}
+};
+const ORIGINAIS = [
+  {conceito:'SELECT com WHERE', tabelas:['alunos'], ordem:false, enunciado:'Liste o nome dos alunos que têm 5 anos de idade.', resposta:"SELECT nome FROM alunos WHERE idade = 5", dica:'Escolha a coluna nome e filtre as linhas com WHERE idade = 5.'},
+  {conceito:'WHERE com AND e ORDER BY', tabelas:['salas'], ordem:true, enunciado:"Liste o nome e a capacidade (nesta ordem) das salas do tipo 'Sala de aula' com capacidade acima de 30, da maior capacidade para a menor.", resposta:"SELECT nome, capacidade FROM salas WHERE tipo = 'Sala de aula' AND capacidade > 30 ORDER BY capacidade DESC", dica:'Combine duas condições com AND e ordene com ORDER BY capacidade DESC.'},
+  {conceito:'Funções de agregação e GROUP BY', tabelas:['alunos'], ordem:false, enunciado:'Para cada turma, mostre o turma_id, a quantidade de alunos e a média de idade (nesta ordem).', resposta:"SELECT turma_id, COUNT(*), AVG(idade) FROM alunos GROUP BY turma_id", dica:'Agrupe com GROUP BY turma_id e use COUNT(*) e AVG(idade).'},
+  {conceito:'JOIN entre duas tabelas', tabelas:['alunos','turmas'], ordem:false, enunciado:'Liste o nome de cada aluno do Ensino Médio e o nome da sua turma (nesta ordem).', resposta:"SELECT a.nome, t.nome FROM alunos a JOIN turmas t ON t.id = a.turma_id WHERE t.etapa = 'Ensino Médio'", dica:'Junte alunos e turmas com JOIN ... ON turmas.id = alunos.turma_id e filtre pela etapa.'},
+  {conceito:'JOIN com GROUP BY e HAVING', tabelas:['alunos','turmas'], ordem:false, enunciado:'Mostre o nome das turmas que têm mais de 3 alunos e a quantidade de alunos de cada uma (nesta ordem).', resposta:"SELECT t.nome, COUNT(*) FROM turmas t JOIN alunos a ON a.turma_id = t.id GROUP BY t.id HAVING COUNT(*) > 3", dica:'Depois de juntar e agrupar por turma, filtre os grupos com HAVING COUNT(*) > 3.'},
+  {conceito:'Subconsulta', tabelas:['alunos'], ordem:false, enunciado:'Liste o nome e a idade (nesta ordem) dos alunos com idade acima da média de idade de todos os alunos.', resposta:"SELECT nome, idade FROM alunos WHERE idade > (SELECT AVG(idade) FROM alunos)", dica:'Use uma subconsulta no WHERE: idade > (SELECT AVG(idade) FROM alunos).'}
+];
+
+/* ---------- utilidades ---------- */
+const $ = id => document.getElementById(id);
+const esc = v => String(v === null || v === undefined ? '' : v).replace(/[&<>"]/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;'}[c]));
+let tAviso = 0;
+function aviso(m) { const el = $('aviso'); el.textContent = m; el.classList.add('ativo'); clearTimeout(tAviso); tAviso = setTimeout(() => el.classList.remove('ativo'), 2800); }
+function htmlTabela(cols, rows) {
+  return `<div class="tab"><table><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>` +
+    rows.map(r => `<tr>${r.map(v => `<td>${esc(typeof v === 'number' && !Number.isInteger(v) ? Math.round(v * 100) / 100 : v === null ? 'NULL' : v)}</td>`).join('')}</tr>`).join('') + `</tbody></table></div>`;
+}
+function rpc(fn, corpo) {
+  return fetch(`${ONLINE.url}/rest/v1/rpc/${fn}`, {method:'POST', headers:{apikey:ONLINE.chave, Authorization:'Bearer ' + ONLINE.chave, 'Content-Type':'application/json'}, body:JSON.stringify(corpo)})
+    .then(async r => {
+      const txt = await r.text(); let j = null; try { j = txt ? JSON.parse(txt) : null; } catch (e) { j = null; }
+      if (!r.ok) throw new Error(j && j.message ? j.message : 'Erro ' + r.status);
+      return j;
+    }, () => { throw new Error('Sem conexão com o servidor. Verifique a internet.'); });
+}
+
+/* ---------- banco local para testar as consultas ---------- */
+let db = null;
+if (window.initSqlJs) window.initSqlJs().then(SQL => {
+  const d = new SQL.Database();
+  for (const [nome, t] of Object.entries(DADOS)) {
+    d.run(`CREATE TABLE ${nome} (${t.cols.map((c, i) => c + (typeof t.rows[0][i] === 'number' ? ' INTEGER' : ' TEXT')).join(', ')})`);
+    for (const r of t.rows) d.run(`INSERT INTO ${nome} VALUES (${r.map(() => '?').join(',')})`, r);
+  }
+  db = d;
+}).catch(() => {});
+function testar(sql) {
+  if (!db) return {ok:false, msg:'O motor de SQL ainda não carregou. Aguarde alguns segundos e tente de novo.'};
+  const txt = sql.trim().replace(/;+\s*$/, '');
+  if (!txt) return {ok:false, msg:'Escreva a consulta de referência.'};
+  if (!/^(select|with)\b/i.test(txt) || txt.includes(';')) return {ok:false, msg:'A consulta de referência precisa ser uma única instrução SELECT.'};
+  let r; try { r = db.exec(txt)[0]; } catch (e) { return {ok:false, msg:'Erro de SQL: ' + e.message}; }
+  if (!r || !r.values.length) return {ok:false, msg:'A consulta não retorna nenhuma linha. O gabarito precisa ter pelo menos uma.'};
+  return {ok:true, msg:`A consulta retorna ${r.values.length} linha(s) e ${r.columns.length} coluna(s). Este é o gabarito:`, res:r};
+}
+
+/* ---------- estado ---------- */
+let pin = '', desafios = [], conjunto = 'padrao', placar = [];
+const chave = s => String(s).trim().toLowerCase();
+function conjuntos() {
+  const m = new Map([['padrao', 'padrao']]);
+  for (const d of desafios) if (!m.has(chave(d.conjunto))) m.set(chave(d.conjunto), d.conjunto);
+  if (!m.has(chave(conjunto))) m.set(chave(conjunto), conjunto);
+  return [...m.values()];
+}
+
+/* ---------- acesso ---------- */
+$('form-login').addEventListener('submit', e => {
+  e.preventDefault();
+  const p = $('pin').value.trim(); if (!p) { $('login-msg').textContent = 'Informe o PIN.'; return; }
+  $('entrar').disabled = true; $('login-msg').textContent = '';
+  rpc('sqltower_prof_listar', {p_pin:p}).then(l => {
+    pin = p; desafios = l || []; $('pin').value = '';
+    $('login').hidden = true; $('app').hidden = false; $('sair').hidden = false;
+    desenharDesafios();
+  }).catch(err => { $('login-msg').textContent = err.message; }).then(() => { $('entrar').disabled = false; });
+});
+$('sair').addEventListener('click', () => { pin = ''; desafios = []; placar = []; $('app').hidden = true; $('login').hidden = false; $('sair').hidden = true; $('pin').focus(); });
+
+/* ---------- abas ---------- */
+document.querySelectorAll('.abas button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.abas button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  for (const a of ['desafios', 'pontos', 'tabelas']) { const el = $('aba-' + a); el.hidden = a !== b.dataset.aba; }
+  if (b.dataset.aba === 'pontos') carregarPlacar();
+}));
+$('tabelas').innerHTML = Object.entries(DADOS).map(([n, t]) => `<div><h3 style="margin-bottom:6px">${n}</h3>${htmlTabela(t.cols, t.rows)}</div>`).join('');
+
+/* ---------- desafios ---------- */
+function desenharDesafios() {
+  const sel = $('sel-conjunto');
+  sel.innerHTML = conjuntos().map(c => `<option value="${esc(c)}"${chave(c) === chave(conjunto) ? ' selected' : ''}>${esc(c)}</option>`).join('');
+  const meus = desafios.filter(d => chave(d.conjunto) === chave(conjunto));
+  $('lista').innerHTML = ANDARES.map((nome, i) => {
+    const qs = meus.filter(d => d.andar === i);
+    return `<div class="cartao andar"><div class="andar-cab"><h3>${esc(nome)}</h3><button type="button" class="pequeno" data-nova="${i}">Nova pergunta neste andar</button></div>` +
+      (qs.length ? qs.map(d => `<div class="pergunta"><div class="meta">${esc(d.conceito || 'sem conceito')} · tabelas: ${esc(d.tabelas.join(', '))}${d.ordem ? ' · ordem importa' : ''}</div>` +
+        `<div>${esc(d.enunciado)}</div><code>${esc(d.resposta)}</code>` +
+        `<div class="acoes"><button type="button" class="pequeno" data-editar="${esc(d.id)}">Editar</button><button type="button" class="pequeno perigo" data-excluir="${esc(d.id)}">Excluir</button></div></div>`).join('')
+        : `<div class="vazio">Sem pergunta cadastrada: o jogo usa a pergunta original deste andar.</div>`) + `</div>`;
+  }).join('');
+}
+$('sel-conjunto').addEventListener('change', e => { conjunto = e.target.value; $('conj-msg').textContent = ''; desenharDesafios(); });
+$('criar-conjunto').addEventListener('click', () => {
+  const n = $('novo-nome').value.trim().replace(/\s+/g, ' ');
+  if (!n) { $('conj-msg').className = 'msg erro'; $('conj-msg').textContent = 'Digite o nome da turma para criar o conjunto.'; return; }
+  conjunto = conjuntos().find(c => chave(c) === chave(n)) || n; $('novo-nome').value = '';
+  $('conj-msg').className = 'msg'; $('conj-msg').textContent = `Conjunto "${conjunto}" selecionado. Ele passa a existir quando a primeira pergunta for salva.`;
+  desenharDesafios();
+});
+$('copiar-padrao').addEventListener('click', async () => {
+  const b = $('copiar-padrao'); b.disabled = true; $('conj-msg').className = 'msg'; $('conj-msg').textContent = 'Copiando…';
+  try {
+    for (let i = 0; i < ORIGINAIS.length; i++) { const r = await rpc('sqltower_prof_salvar', {p_pin:pin, p_desafio:Object.assign({conjunto, andar:i}, ORIGINAIS[i])}); desafios.push(r); }
+    $('conj-msg').className = 'msg ok'; $('conj-msg').textContent = 'As 6 perguntas originais foram copiadas. Edite as que quiser.';
+  } catch (err) { $('conj-msg').className = 'msg erro'; $('conj-msg').textContent = 'Não foi possível copiar todas: ' + err.message; }
+  b.disabled = false; desenharDesafios();
+});
+$('lista').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.nova !== undefined) abrirEditor({conjunto, andar:+b.dataset.nova, conceito:'', enunciado:'', tabelas:['alunos'], resposta:'', ordem:false, dica:''});
+  else if (b.dataset.editar) abrirEditor(desafios.find(d => d.id === b.dataset.editar));
+  else if (b.dataset.excluir) {
+    if (!b.classList.contains('confirmar')) { b.classList.add('confirmar'); b.textContent = 'Confirmar exclusão'; setTimeout(() => { if (b.isConnected) { b.classList.remove('confirmar'); b.textContent = 'Excluir'; } }, 4000); return; }
+    b.disabled = true;
+    rpc('sqltower_prof_excluir', {p_pin:pin, p_id:b.dataset.excluir}).then(() => { desafios = desafios.filter(d => d.id !== b.dataset.excluir); aviso('Pergunta excluída.'); desenharDesafios(); })
+      .catch(err => { aviso(err.message); b.disabled = false; });
+  }
+});
+
+/* ---------- editor ---------- */
+$('f-andar').innerHTML = ANDARES.map((n, i) => `<option value="${i}">${esc(n)}</option>`).join('');
+let editando = null;
+function abrirEditor(d) {
+  if (!d) return;
+  editando = d.id || null;
+  $('ed-titulo').textContent = editando ? 'Editar pergunta' : 'Nova pergunta';
+  $('f-conjunto').value = d.conjunto; $('f-andar').value = d.andar; $('f-conceito').value = d.conceito || ''; $('f-enunciado').value = d.enunciado || '';
+  for (const t of ['alunos', 'turmas', 'salas']) $('f-tab-' + t).checked = d.tabelas.includes(t);
+  $('f-resposta').value = d.resposta || ''; $('f-ordem').checked = !!d.ordem; $('f-dica').value = d.dica || '';
+  $('f-teste').textContent = ''; $('f-teste').className = ''; $('f-resultado').innerHTML = '';
+  $('editor-fundo').classList.add('aberto'); $('f-enunciado').focus();
+}
+function fecharEditor() { $('editor-fundo').classList.remove('aberto'); editando = null; }
+function rodarTeste() {
+  const r = testar($('f-resposta').value);
+  $('f-teste').className = r.ok ? 'ok' : 'erro'; $('f-teste').textContent = r.msg;
+  $('f-resultado').innerHTML = r.res ? htmlTabela(r.res.columns, r.res.values.slice(0, 60)) : '';
+  return r.ok;
+}
+$('f-testar').addEventListener('click', rodarTeste);
+$('f-cancelar').addEventListener('click', fecharEditor);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('editor-fundo').classList.contains('aberto')) fecharEditor(); });
+$('editor').addEventListener('submit', e => {
+  e.preventDefault();
+  const d = {id:editando || '', conjunto:$('f-conjunto').value.trim().replace(/\s+/g, ' '), andar:+$('f-andar').value, conceito:$('f-conceito').value.trim(),
+    enunciado:$('f-enunciado').value.trim(), tabelas:['alunos', 'turmas', 'salas'].filter(t => $('f-tab-' + t).checked),
+    resposta:$('f-resposta').value.trim().replace(/;+\s*$/, ''), ordem:$('f-ordem').checked, dica:$('f-dica').value.trim()};
+  const falha = m => { $('f-teste').className = 'erro'; $('f-teste').textContent = m; };
+  if (!d.conjunto) return falha('Informe o conjunto (nome da turma ou padrao).');
+  if (!d.enunciado) return falha('Escreva o enunciado da pergunta.');
+  if (!d.tabelas.length) return falha('Marque pelo menos uma tabela para o holograma.');
+  if (!rodarTeste()) return;
+  $('f-salvar').disabled = true;
+  rpc('sqltower_prof_salvar', {p_pin:pin, p_desafio:d}).then(r => {
+    desafios = desafios.filter(x => x.id !== r.id); desafios.push(r); desafios.sort((a, b) => a.andar - b.andar || String(a.criado_em).localeCompare(String(b.criado_em)));
+    conjunto = r.conjunto; fecharEditor(); desenharDesafios(); aviso('Pergunta salva.');
+  }).catch(err => falha('Não foi possível salvar: ' + err.message)).then(() => { $('f-salvar').disabled = false; });
+});
+
+/* ---------- pontuações ---------- */
+function desenharPlacar() {
+  const turmas = [...new Map(placar.map(p => [chave(p.turma), p.turma])).values()].sort((a, b) => a.localeCompare(b));
+  const sel = $('sel-turma'), atual = sel.value;
+  sel.innerHTML = `<option value="">Todas as turmas</option>` + turmas.map(t => `<option value="${esc(t)}"${t === atual ? ' selected' : ''}>${esc(t)}</option>`).join('');
+  const linhas = placar.filter(p => !sel.value || chave(p.turma) === chave(sel.value)).sort((a, b) => b.pontos - a.pontos);
+  $('pontos-msg').className = 'msg'; $('pontos-msg').textContent = linhas.length ? `${linhas.length} registro(s)` : 'Nenhuma pontuação registrada.';
+  $('placar').innerHTML = linhas.length ? `<div class="tab" style="max-height:60vh"><table><thead><tr><th>#</th><th>nome</th><th>turma</th><th>pontos</th><th>andares</th><th>premios</th><th>atualizado</th><th></th></tr></thead><tbody>` +
+    linhas.map((p, i) => `<tr><td>${i + 1}</td><td>${esc(p.nome)}</td><td>${esc(p.turma)}</td><td>${esc(p.pontos)}</td><td>${esc(p.andares)} de 6</td><td>${esc(p.premios)}</td><td>${esc(new Date(p.atualizado_em).toLocaleString('pt-BR'))}</td>` +
+      `<td><button type="button" class="pequeno perigo" data-apagar="${esc(p.jogador_id)}">Excluir</button></td></tr>`).join('') + `</tbody></table></div>` : '';
+}
+function carregarPlacar() {
+  $('pontos-msg').className = 'msg'; $('pontos-msg').textContent = 'Carregando…';
+  rpc('sqltower_prof_placar', {p_pin:pin}).then(l => { placar = l || []; desenharPlacar(); }).catch(err => { $('pontos-msg').className = 'msg erro'; $('pontos-msg').textContent = err.message; });
+}
+$('atualizar-pontos').addEventListener('click', carregarPlacar);
+$('sel-turma').addEventListener('change', desenharPlacar);
+$('placar').addEventListener('click', e => {
+  const b = e.target.closest('button[data-apagar]'); if (!b) return;
+  if (!b.classList.contains('confirmar')) { b.classList.add('confirmar'); b.textContent = 'Confirmar'; setTimeout(() => { if (b.isConnected) { b.classList.remove('confirmar'); b.textContent = 'Excluir'; } }, 4000); return; }
+  b.disabled = true;
+  rpc('sqltower_prof_excluir_pontuacao', {p_pin:pin, p_jogador:b.dataset.apagar}).then(() => { placar = placar.filter(p => p.jogador_id !== b.dataset.apagar); desenharPlacar(); aviso('Pontuação excluída.'); })
+    .catch(err => { aviso(err.message); b.disabled = false; });
+});
+
+$('pin').focus();
+})();
+</script>
+</body>
+</html>

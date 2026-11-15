@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL Tower</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: cena 3D em tela cheia; por cima, mini torre (canto superior esquerdo), título do andar (topo), ficha do local (canto inferior esquerdo) e controles (canto inferior direito). Tema único. */
+:root{
+  color-scheme: dark;
+  --ceu:#bfe3f5;
+  --painel:rgba(16,44,53,.86);
+  --linha:#2f6170;
+  --texto:#eef6f4;
+  --texto-2:#a9c6c9;
+  --destaque:#ffb347;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --corpo:"Nunito Sans","Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--ceu);color:var(--texto);font-family:var(--corpo);overflow:hidden}
+#cena{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#cena:active{cursor:grabbing}
+.cartao{position:fixed;background:var(--painel);border:2px solid var(--linha);border-radius:16px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#torre{top:12px;left:12px;padding:8px 10px 10px;width:clamp(150px,17vw,220px)}
+#torre h1{font-family:var(--display);font-size:clamp(18px,2vw,26px);margin:0 0 2px;line-height:1.1}
+#mini{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+#mini text{font-family:var(--corpo)}
+.andar-mini{cursor:pointer}
+.andar-mini rect.corpo{fill:#1f5260;stroke:var(--linha);stroke-width:2;transition:fill .2s}
+.andar-mini:hover rect.corpo{fill:#2a6a7b}
+.andar-mini.atual rect.corpo{fill:var(--destaque);stroke:#fff3dc}
+.andar-mini text{fill:var(--texto);font-size:15px;font-weight:700}
+.andar-mini.atual text{fill:#3a2500}
+.andar-mini .janela{fill:#ffe9a8;opacity:.75}
+.andar-mini.atual .janela{fill:#fff;opacity:.9}
+.andar-mini:focus{outline:none}
+.andar-mini:focus-visible rect.corpo{stroke:#fff;stroke-width:4}
+#cabine{transition:transform .7s cubic-bezier(.5,0,.3,1)}
+
+#cabecalho{top:12px;left:50%;transform:translateX(-50%);padding:8px 18px;text-align:center;max-width:calc(100% - 2*clamp(170px,19vw,250px))}
+#titulo-andar{font-family:var(--display);font-size:clamp(16px,2.2vw,26px);line-height:1.15;text-wrap:balance}
+#sub-andar{font-size:clamp(12px,1.2vw,15px);color:var(--texto-2)}
+
+#ficha{left:12px;bottom:12px;padding:12px 16px;width:clamp(200px,22vw,280px)}
+#ficha .rot{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--texto-2)}
+#ficha .nome{font-family:var(--display);font-size:22px;color:var(--destaque);line-height:1.15;margin:2px 0 8px;overflow-wrap:anywhere}
+#ficha dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;border-top:2px solid var(--linha);padding-top:8px}
+#ficha dt{font-family:var(--mono);font-size:12px;color:var(--texto-2);align-self:center}
+#ficha dd{margin:0;font-weight:700;font-size:14px}
+
+#controles{right:12px;bottom:12px;padding:12px 14px;width:clamp(210px,23vw,290px)}
+#visao{width:100%;font:inherit;font-weight:700;font-size:15px;padding:9px 12px;border-radius:12px;border:2px solid #b86f00;background:var(--destaque);color:#3a2500;cursor:pointer}
+#visao:hover{background:#ffc470}
+.cheia{width:100%;margin-top:8px;font:inherit;font-weight:700;font-size:14px;padding:7px 12px;border-radius:12px;border:2px solid var(--linha);background:#1f5260;color:var(--texto);cursor:pointer}
+.cheia:hover{background:#2a6a7b}
+.cheia:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.cheia.destaque{border-color:var(--destaque);background:#0b3a4d;margin-top:10px}
+#visao:focus-visible,#fechar:focus-visible,#botoes button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+#controles ul{list-style:none;margin:10px 0 0;padding:0;font-size:13px;display:grid;gap:3px;color:var(--texto)}
+#controles b{font-family:var(--mono);font-weight:400;color:var(--texto-2)}
+@media (max-width:700px){#controles ul{display:none}}
+@media (max-height:640px){#controles ul{display:none}}
+
+.andar-mini.bloq{opacity:.42;cursor:not-allowed}
+#barra{position:fixed;top:12px;right:12px;z-index:5;display:flex;flex-direction:column;gap:6px;width:clamp(150px,17vw,220px)}
+#barra button{width:100%;font:inherit;font-weight:700;font-size:13px;padding:6px 10px;border-radius:10px;border:2px solid var(--destaque);background:#0b3a4d;color:var(--texto);cursor:pointer;margin:0}
+#barra button:hover{background:#14566f}
+#barra button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+body.festa #torre,body.festa #cabecalho,body.festa #ficha,body.festa #controles,body.festa #barra,body.festa #placar{display:none}
+body.sem-paineis #torre,body.sem-paineis #cabecalho,body.sem-paineis #ficha,body.sem-paineis #controles,body.sem-paineis #placar{display:none}
+#painel-fundo,#desafio-fundo,#ranking-fundo{z-index:10}
+#entrada-fundo{z-index:15;background:rgba(3,14,20,.86)}
+#viagem,#erro{z-index:20}
+#placar{top:128px;right:12px;padding:10px 16px;width:clamp(150px,17vw,220px)}
+#placar .rot,#desafio .rot,#ranking .rot,#entrada .rot{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--texto-2)}
+#p-pontos{font-family:var(--display);font-size:clamp(26px,3vw,38px);color:var(--destaque);line-height:1.05;font-variant-numeric:tabular-nums}
+#placar dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:6px 0 0;border-top:2px solid var(--linha);padding-top:6px}
+#placar dt{font-family:var(--mono);font-size:12px;color:var(--texto-2);align-self:center}
+#placar dd{margin:0;font-weight:700;font-size:14px}
+#credito{position:fixed;left:50%;bottom:6px;transform:translateX(-50%);font-size:12px;color:var(--texto);background:rgba(16,44,53,.78);padding:3px 12px;border-radius:10px;white-space:nowrap;pointer-events:none}
+#acao{position:fixed;left:50%;bottom:40px;transform:translateX(-50%);font:inherit;font-weight:700;font-size:16px;padding:11px 20px;border-radius:14px;border:2px solid #7ff0ff;background:#0b3a4d;color:#d9fbff;cursor:pointer;box-shadow:0 0 22px rgba(80,220,255,.45)}
+#acao:hover{background:#0f4d66}
+#acao:focus-visible,#desafio button:focus-visible,#d-sql:focus-visible{outline:3px solid #fff;outline-offset:2px}
+#aviso{position:fixed;left:50%;top:96px;transform:translateX(-50%);background:rgba(10,30,38,.94);border:2px solid var(--destaque);color:var(--texto);padding:9px 18px;border-radius:12px;font-weight:700;font-size:15px;opacity:0;pointer-events:none;transition:opacity .25s;max-width:min(520px,calc(100% - 32px));text-align:center}
+#aviso.ativo{opacity:1}
+#desafio-fundo,#ranking-fundo,#entrada-fundo{position:fixed;inset:0;background:rgba(3,14,20,.72);display:none;align-items:center;justify-content:center;padding:16px}
+#desafio-fundo.aberto,#ranking-fundo.aberto,#entrada-fundo.aberto{display:flex}
+#desafio,#ranking,#entrada{background:#072633;color:#d9fbff;border:2px solid #4fd8f0;border-radius:18px;padding:18px 20px;width:min(880px,100%);max-height:100%;overflow:auto;box-shadow:0 0 40px rgba(80,220,255,.35);display:flex;flex-direction:column;gap:12px}
+#desafio header,#ranking header,#entrada header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+#desafio h2,#ranking h2,#entrada h2{font-family:var(--display);font-size:24px;margin:0;line-height:1.15;color:#fff}
+#desafio p,#ranking p,#entrada p{margin:0;font-size:16px;line-height:1.45;max-width:70ch}
+#desafio button,#ranking button,#entrada button{font:inherit;font-weight:700;border-radius:10px;cursor:pointer;padding:8px 14px}
+#d-fechar,#r-fechar,#ranking .aba{background:transparent;border:2px solid #4fd8f0;color:#d9fbff;flex:none}
+#d-executar,#e-entrar,#ranking .aba[aria-pressed="true"]{background:var(--destaque);border:2px solid #b86f00;color:#3a2500}
+#d-tabelas{display:flex;gap:14px;flex-wrap:wrap}
+.tab-holo{flex:1 1 260px;min-width:0;border:1px solid #2c8fa6;border-radius:10px;background:rgba(40,160,200,.08);overflow:auto;max-height:230px}
+.tab-holo h3{margin:0;padding:6px 10px;font-family:var(--mono);font-size:13px;font-weight:400;color:#7ff0ff;position:sticky;left:0}
+.tab-holo table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+.tab-holo th{position:sticky;top:0;background:#0d3f52;color:#7ff0ff;text-align:left;font-weight:400}
+.tab-holo th,.tab-holo td{padding:3px 10px;border-top:1px solid rgba(79,216,240,.22);white-space:nowrap}
+#desafio label,#ranking label,#entrada label{font-size:13px;font-weight:700;color:#7ff0ff}
+#d-sql{width:100%;font-family:var(--mono);font-size:15px;line-height:1.4;background:#03161e;color:#eaffff;border:2px solid #2c8fa6;border-radius:10px;padding:10px;resize:vertical;min-height:86px}
+#desafio .linha,#ranking .linha,#entrada .linha{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+#d-pontos{font-size:13px;color:#a9dfe8}
+#d-retorno{font-weight:700;font-size:15px;min-height:1.3em}
+#d-retorno.ok{color:#8dffa8}#d-retorno.erro{color:#ffb39a}
+#d-dica{font-size:14px;color:#ffe9a8}
+#ranking{width:min(680px,100%)}
+#ranking .tab-holo{max-height:52vh;flex:1 1 100%}
+#ranking tr.eu td{color:#ffe08a;font-weight:700}
+#r-estado{font-size:14px;color:#a9dfe8;min-height:1.3em}
+#entrada{width:min(560px,100%)}
+#entrada h2{font-size:34px}
+#entrada input{width:100%;font:inherit;font-size:16px;background:#03161e;color:#eaffff;border:2px solid #2c8fa6;border-radius:10px;padding:9px 12px}
+#entrada input:focus-visible,#e-avatares button:focus-visible,#ranking button:focus-visible,#entrada button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+#entrada .campos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:480px){#entrada .campos{grid-template-columns:1fr}}
+#entrada .campo{display:flex;flex-direction:column;gap:4px}
+#e-avatares{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+@media (max-width:480px){#e-avatares{grid-template-columns:repeat(3,1fr)}}
+#e-avatares button{background:#03161e;border:2px solid #2c8fa6;padding:6px 2px 2px;border-radius:12px}
+#e-avatares button[aria-checked="true"]{border-color:var(--destaque);background:#0f4d66;box-shadow:0 0 14px rgba(255,179,71,.5)}
+#e-avatares svg{display:block;width:100%;height:auto}
+#e-erro{color:#ffb39a;font-weight:700;font-size:14px;min-height:1.2em}
+#e-entrar{font-size:17px;padding:11px 14px}
+#p-jogador{font-weight:700;font-size:14px;overflow-wrap:anywhere;margin-bottom:4px}
+#painel-fundo{position:fixed;inset:0;background:rgba(6,20,25,.6);display:none;align-items:center;justify-content:center;padding:16px}
+#painel-fundo.aberto{display:flex}
+#painel{background:#d9dee2;color:#1c2b31;border-radius:18px;padding:20px;width:min(340px,100%);border:6px solid #9aa7ae;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:100%;overflow:auto}
+#painel h2{font-family:var(--display);margin:0 0 4px;font-size:24px;line-height:1.1}
+#painel p{margin:0 0 14px;font-size:14px;color:#4a5b62}
+#botoes{display:flex;flex-direction:column;gap:8px}
+#botoes button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;font-size:15px;padding:8px 12px;border-radius:12px;border:2px solid #8b989f;background:#f6f8f9;color:#1c2b31;cursor:pointer}
+#botoes button:hover:not(:disabled){background:#fff;border-color:#24424d}
+#botoes button:disabled{opacity:.55;cursor:not-allowed}
+#botoes button.aqui:disabled{background:#ffb347;border-color:#b86f00;cursor:default;color:#3a2500;opacity:1}
+#botoes .num{font-family:var(--display);font-weight:700;font-size:18px;width:34px;height:34px;border-radius:50%;background:#24424d;color:#fff;display:grid;place-items:center;flex:none}
+#botoes small{display:block;color:#5b6a70;font-size:12px}
+#botoes button.aqui:disabled small{color:#5c3b00}
+#fechar{margin-top:14px;width:100%;font:inherit;font-weight:700;padding:9px;border-radius:12px;border:2px solid #24424d;background:#24424d;color:#fff;cursor:pointer}
+#painel #fechar:focus-visible,#painel #botoes button:focus-visible{outline-color:#d97b00}
+
+#viagem{position:fixed;inset:0;background:#0f2a33;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .35s;font-family:var(--display);font-size:clamp(22px,4vw,40px);text-align:center;padding:16px}
+#viagem.ativo{opacity:1;pointer-events:auto}
+#erro{position:fixed;inset:0;display:none;place-items:center;padding:24px;text-align:center;background:#0f2a33;font-size:18px}
+@media (prefers-reduced-motion:reduce){#viagem,#cabine{transition:none}}
+</style>
+</head>
+<body>
+<canvas id="cena" aria-label="SQL Tower: cena 3D do andar atual"></canvas>
+
+<div id="torre" class="cartao">
+  <h1>SQL Tower</h1>
+  <svg id="mini" viewBox="-284 14 278 404" role="group" aria-label="Mini torre: escolha um andar"></svg>
+</div>
+
+<div id="cabecalho" class="cartao">
+  <div id="titulo-andar"></div>
+  <div id="sub-andar"></div>
+</div>
+
+<div id="ficha" class="cartao" aria-live="polite">
+  <div class="rot">VOCÊ ESTÁ EM</div>
+  <div class="nome" id="f-nome"></div>
+  <dl>
+    <dt>andar</dt><dd id="f-andar"></dd>
+    <dt>ala</dt><dd id="f-ala"></dd>
+    <dt>faixa_etaria</dt><dd id="f-faixa"></dd>
+    <dt>avatar</dt><dd id="f-avatar"></dd>
+  </dl>
+</div>
+
+<div id="controles" class="cartao">
+  <button id="visao" type="button">Mudar para 1ª pessoa (V)</button>
+  <ul>
+    <li><b>W S / ↑ ↓</b> andar para frente e para trás</li>
+    <li><b>A D / ← →</b> virar</li>
+    <li><b>Arrastar</b> girar a visão</li>
+    <li><b>Roda do mouse</b> aproximar (3ª pessoa)</li>
+    <li><b>Clique no chão</b> ir até lá</li>
+    <li><b>E</b> perto do totem: desafio SQL</li>
+    <li><b>H</b> ocultar ou mostrar os painéis</li>
+    <li><b>F</b> tela cheia · <b>R</b> ranking</li>
+    <li><b>Elevador</b> abre após o desafio</li>
+  </ul>
+</div>
+
+<div id="barra">
+  <button class="cheia" type="button">Tela cheia (F)</button>
+  <button id="alternar-paineis" type="button">Ocultar painéis (H)</button>
+  <button id="abrir-ranking" type="button">Ranking (R)</button>
+</div>
+<div id="placar" class="cartao">
+  <div id="p-jogador"></div>
+  <div class="rot">PONTOS</div>
+  <div id="p-pontos">0</div>
+  <dl>
+    <dt>premios</dt><dd id="p-premios"></dd>
+    <dt>desafio</dt><dd id="p-desafio"></dd>
+    <dt>online</dt><dd id="p-online">Aguardando</dd>
+  </dl>
+</div>
+<div id="credito">Desenvolvido por Prof. Fred Lucena em 2026</div>
+<button id="acao" type="button" hidden>Abrir desafio do totem (E)</button>
+<div id="aviso" role="status"></div>
+
+<div id="desafio-fundo">
+  <div id="desafio" role="dialog" aria-modal="true" aria-labelledby="d-titulo">
+    <header>
+      <div><div class="rot" id="d-nivel"></div><h2 id="d-titulo"></h2></div>
+      <button id="d-fechar" type="button">Fechar (Esc)</button>
+    </header>
+    <p id="d-enunciado"></p>
+    <div id="d-tabelas"></div>
+    <label for="d-sql">Sua consulta SQL</label>
+    <textarea id="d-sql" spellcheck="false" autocomplete="off" autocapitalize="off" rows="4" placeholder="SELECT ..."></textarea>
+    <div class="linha"><button id="d-executar" type="button">Executar consulta (Ctrl+Enter)</button><span id="d-pontos"></span></div>
+    <div id="d-retorno" aria-live="polite"></div>
+    <div id="d-dica"></div>
+    <div id="d-resultado"></div>
+  </div>
+</div>
+
+<div id="ranking-fundo">
+  <div id="ranking" role="dialog" aria-modal="true" aria-labelledby="r-titulo">
+    <header>
+      <div><div class="rot">PONTUAÇÃO ONLINE</div><h2 id="r-titulo">Ranking da SQL Tower</h2></div>
+      <button id="r-fechar" type="button">Fechar (Esc)</button>
+    </header>
+    <div class="linha">
+      <button class="aba" id="r-turma" type="button" aria-pressed="true">Minha turma</button>
+      <button class="aba" id="r-geral" type="button" aria-pressed="false">Geral</button>
+      <span id="r-estado" aria-live="polite"></span>
+    </div>
+    <div id="r-lista"></div>
+  </div>
+</div>
+
+<div id="entrada-fundo" class="aberto">
+  <form id="entrada" role="dialog" aria-modal="true" aria-labelledby="e-titulo" novalidate>
+    <div><div class="rot">BEM-VINDO À</div><h2 id="e-titulo">SQL Tower</h2></div>
+    <p>Suba a torre resolvendo um desafio de SQL em cada andar e capture os prêmios pelo caminho.</p>
+    <div class="campos">
+      <div class="campo"><label for="e-nome">Seu nome</label><input id="e-nome" type="text" maxlength="40" autocomplete="off"></div>
+      <div class="campo"><label for="e-turma">Nome da turma</label><input id="e-turma" type="text" maxlength="40" autocomplete="off"></div>
+    </div>
+    <div class="rot" id="e-rot-avatar">ESCOLHA SEU AVATAR</div>
+    <div id="e-avatares" role="radiogroup" aria-labelledby="e-rot-avatar"></div>
+    <div id="e-erro" aria-live="polite"></div>
+    <button id="e-entrar" type="submit">Entrar na torre</button>
+  </form>
+</div>
+
+<div id="painel-fundo">
+  <div id="painel" role="dialog" aria-modal="true" aria-labelledby="painel-titulo">
+    <h2 id="painel-titulo">Elevador</h2>
+    <p>Escolha o andar de destino.</p>
+    <div id="botoes"></div>
+    <button id="fechar" type="button">Sair do painel (Esc)</button>
+  </div>
+</div>
+<div id="viagem" aria-live="polite"></div>
+<div id="erro">Não foi possível iniciar a cena 3D neste navegador. Verifique se o WebGL está ativado e recarregue a página.</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Reflector.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-asm.js"></script>
+<script>
+(() => {
+'use strict';
+if (!window.THREE) { document.getElementById('erro').style.display = 'grid'; return; }
+
+/* ================= Dados do ambiente (medidas em unidades de planta; 1 unidade = 4 cm) ================= */
+const ANDARES = [
+  {num:'T', rotulo:'Térreo',   curto:'Infantil', titulo:'Educação Infantil', sub:'Creche (0 a 3 anos) · Pré-escola (4 e 5 anos)', publico:'0 a 5 anos', pronto:true},
+  {num:'1', rotulo:'1º andar', curto:'Fund. I',  titulo:'Ensino Fundamental · Anos Iniciais', sub:'Andar em planejamento · ambientes a definir', publico:'6 a 10 anos'},
+  {num:'2', rotulo:'2º andar', curto:'Fund. II', titulo:'Ensino Fundamental · Anos Finais',   sub:'Andar em planejamento · ambientes a definir', publico:'11 a 14 anos'},
+  {num:'3', rotulo:'3º andar', curto:'Médio',    titulo:'Ensino Médio',      sub:'Andar em planejamento · ambientes a definir', publico:'15 a 17 anos'},
+  {num:'4', rotulo:'4º andar', curto:'Superior', titulo:'Ensino Superior',   sub:'Andar em planejamento · ambientes a definir', publico:'Adultos'},
+  {num:'5', rotulo:'5º andar', curto:'Pós',      titulo:'Pós-graduação',     sub:'Andar em planejamento · ambientes a definir', publico:'Adultos'}
+];
+/* lado: 'b' = porta na parede de baixo da planta (salas do lado norte); 't' = porta na parede de cima (salas do lado sul) */
+const AMBIENTES = [
+  {id:'brinq-creche', x:60,  y:60,  w:300, h:340, px:210,  lado:'b', tipo:'brinquedoteca', rot:'Brinquedoteca',   nome:'Brinquedoteca da Creche',     ala:'Creche'},
+  {id:'frald-1',      x:360, y:60,  w:130, h:340, px:425,  lado:'b', tipo:'fraldario',     rot:'Fraldário 1',     nome:'Fraldário 1',                 ala:'Creche'},
+  {id:'wc-creche',    x:490, y:60,  w:130, h:340, px:555,  lado:'b', tipo:'banheiro',      rot:'Banheiros',       nome:'Banheiros da Creche',         ala:'Creche'},
+  {id:'piscina',      x:620, y:60,  w:360, h:270, px:800,  lado:'b', tipo:'piscina',       rot:'Piscina',         nome:'Piscina',                     ala:'Comum'},
+  {id:'wc-pre',       x:980, y:60,  w:150, h:340, px:1055, lado:'b', tipo:'banheiro',      rot:'Banheiros',       nome:'Banheiros da Pré-escola',     ala:'Pré-escola'},
+  {id:'brinq-pre',    x:1130,y:60,  w:410, h:340, px:1335, lado:'b', tipo:'brinquedoteca', rot:'Brinquedoteca',   nome:'Brinquedoteca da Pré-escola', ala:'Pré-escola'},
+  {id:'parq-creche',  x:60,  y:500, w:380, h:340, px:250,  lado:'t', tipo:'parquinho',     rot:'Parquinho',       nome:'Parquinho da Creche',         ala:'Creche'},
+  {id:'frald-2',      x:440, y:500, w:180, h:340, px:530,  lado:'t', tipo:'fraldario',     rot:'Fraldário 2',     nome:'Fraldário 2',                 ala:'Creche'},
+  {id:'recepcao',     x:620, y:570, w:360, h:270, px:800,  lado:'t', tipo:'recepcao',      rot:'Recepção',        nome:'Recepção',                    ala:'Comum'},
+  {id:'wc-familia',   x:980, y:500, w:180, h:340, px:1070, lado:'t', tipo:'banheiro',      rot:'Banheiro família',nome:'Banheiro Família',            ala:'Comum'},
+  {id:'parq-pre',     x:1160,y:500, w:380, h:340, px:1350, lado:'t', tipo:'parquinho',     rot:'Parquinho',       nome:'Parquinho da Pré-escola',     ala:'Pré-escola'}
+];
+/* 1º ao 5º andar: salas de aula, laboratórios de computação e banheiros, nos mesmos espaços da planta */
+const mapaEscolar = n => ({
+  'brinq-creche':{tipo:'sala', rot:`Sala ${n}01`, nome:`Sala de aula ${n}01`},
+  'frald-1':     {tipo:'banheiro', genero:'m', rot:'WC masculino', nome:'Banheiro masculino'},
+  'wc-creche':   {tipo:'banheiro', genero:'f', rot:'WC feminino', nome:'Banheiro feminino'},
+  'piscina':     {tipo:'laboratorio', rot:'Laboratório 1', nome:'Laboratório de Computação 1'},
+  'wc-pre':      {tipo:'banheiro', genero:'m', rot:'WC masculino', nome:'Banheiro masculino'},
+  'brinq-pre':   {tipo:'sala', rot:`Sala ${n}02`, nome:`Sala de aula ${n}02`},
+  'parq-creche': {tipo:'sala', rot:`Sala ${n}03`, nome:`Sala de aula ${n}03`},
+  'frald-2':     {tipo:'sala', rot:`Sala ${n}04`, nome:`Sala de aula ${n}04`},
+  'recepcao':    {tipo:'laboratorio', rot:'Laboratório 2', nome:'Laboratório de Computação 2'},
+  'wc-familia':  {tipo:'banheiro', genero:'f', rot:'WC feminino', nome:'Banheiro feminino'},
+  'parq-pre':    {tipo:'sala', rot:`Sala ${n}05`, nome:`Sala de aula ${n}05`}
+});
+for (const n of [1, 2, 3, 4, 5]) { ANDARES[n].mapa = mapaEscolar(n); ANDARES[n].sub = 'Salas de aula · Laboratórios de computação · Banheiros · Bebedouros'; }
+function defAmb(a, i) {
+  const an = ANDARES[i];
+  if (an.pronto) return {tipo:a.tipo, rot:a.rot, nome:a.nome, ala:a.ala, faixa:FAIXA[a.ala]};
+  const ala = a.x < 620 ? 'Oeste' : a.x >= 980 ? 'Leste' : 'Central';
+  if (an.mapa) return Object.assign({ala, faixa:an.publico}, an.mapa[a.id]);
+  return {tipo:'vazio', rot:'A definir', nome:'Ambiente a definir', ala:'A definir', faixa:an.publico};
+}
+/* bebedouros: [x, y da parede, lado para onde ficam voltados] */
+const BEBEDOUROS = [[330, 400, 1], [1200, 400, 1], [700, 330, 1]];
+const FAIXA = {'Creche':'0 a 3 anos', 'Pré-escola':'4 e 5 anos', 'Comum':'0 a 5 anos'};
+const ELEV = {x1:772, y1:424, x2:828, y2:476}; /* cabine: 2,2 m x 2,1 m */
+const EIXO = 450;
+
+/* cabine do elevador (interior) e passagem da porta, na face sul */
+const CAB = {x1:782, y1:434, x2:818, y2:470}, PORTA = {x1:791, y1:470, x2:809, y2:492};
+let abertura = 0; /* 0 = portas fechadas, 1 = abertas */
+const AREAS = [
+  {x1:76, y1:416, x2:724, y2:484}, {x1:876, y1:416, x2:1524, y2:484},   /* corredores */
+  {x1:636, y1:346, x2:758, y2:554}, {x1:842, y1:346, x2:964, y2:554},   /* hall: laterais */
+  {x1:636, y1:346, x2:964, y2:410}, {x1:636, y1:490, x2:964, y2:554},   /* hall: norte e sul */
+  CAB
+];
+for (const a of AMBIENTES) {
+  AREAS.push({x1:a.x+16, y1:a.y+16, x2:a.x+a.w-16, y2:a.y+a.h-16});
+  const borda = a.lado === 'b' ? a.y + a.h : a.y;
+  AREAS.push({x1:a.px-18, y1:borda-28, x2:a.px+18, y2:borda+28});
+}
+const dentro = (p, r) => p.x >= r.x1 && p.x <= r.x2 && p.y >= r.y1 && p.y <= r.y2;
+const podePisar = p => AREAS.some(r => dentro(p, r)) || (abertura > 0.6 && portaPermitida() && dentro(p, PORTA));
+const ambienteEm = p => AMBIENTES.find(a => p.x > a.x && p.x < a.x+a.w && p.y > a.y && p.y < a.y+a.h) || null;
+const noElevador = p => dentro(p, CAB);
+
+/* ================= Jogo: banco de dados, desafios e prêmios ================= */
+const DADOS = {
+  alunos: {cols:['id','nome','idade','turma_id'], rows:[
+    [1,'Ana',3,1],[2,'Bento',2,1],[3,'Clara',5,2],[4,'Davi',5,2],[5,'Elisa',4,2],
+    [6,'Fábio',8,3],[7,'Gabi',9,3],[8,'Heitor',8,3],[9,'Íris',9,3],
+    [10,'João',12,4],[11,'Karen',13,4],[12,'Lucas',12,4],
+    [13,'Marina',16,5],[14,'Nuno',17,5],[15,'Olívia',16,5],[16,'Paulo',15,5],
+    [17,'Quésia',19,6],[18,'Rafael',22,6],[19,'Sofia',20,6],[20,'Tiago',31,6],[21,'Úrsula',24,6],
+    [22,'Vítor',28,7],[23,'Wanda',35,7]]},
+  turmas: {cols:['id','nome','etapa','andar'], rows:[
+    [1,'Creche A','Educação Infantil',0],[2,'Pré-escola B','Educação Infantil',0],[3,'3º Ano A','Fundamental I',1],[4,'7º Ano A','Fundamental II',2],
+    [5,'2ª Série A','Ensino Médio',3],[6,'ADS 1º Período','Ensino Superior',4],[7,'Pós em Dados','Pós-graduação',5]]},
+  salas: {cols:['id','nome','tipo','andar','capacidade'], rows:[
+    [1,'Brinquedoteca da Creche','Brinquedoteca',0,20],[2,'Brinquedoteca da Pré-escola','Brinquedoteca',0,25],
+    [3,'Sala 101','Sala de aula',1,30],[4,'Sala 102','Sala de aula',1,40],[5,'Laboratório 101','Laboratório',1,24],
+    [6,'Sala 201','Sala de aula',2,35],[7,'Sala 202','Sala de aula',2,45],[8,'Laboratório 201','Laboratório',2,24],
+    [9,'Sala 301','Sala de aula',3,38],[10,'Sala 401','Sala de aula',4,50],[11,'Laboratório 401','Laboratório',4,30],[12,'Sala 501','Sala de aula',5,28]]}
+};
+const DESAFIOS = [
+  {conceito:'SELECT com WHERE', tabelas:['alunos'],
+   enunciado:'Liste o nome dos alunos que têm 5 anos de idade.',
+   resposta:"SELECT nome FROM alunos WHERE idade = 5",
+   dica:'Escolha a coluna nome e filtre as linhas com WHERE idade = 5.'},
+  {conceito:'WHERE com AND e ORDER BY', tabelas:['salas'], ordem:true,
+   enunciado:"Liste o nome e a capacidade (nesta ordem) das salas do tipo 'Sala de aula' com capacidade acima de 30, da maior capacidade para a menor.",
+   resposta:"SELECT nome, capacidade FROM salas WHERE tipo = 'Sala de aula' AND capacidade > 30 ORDER BY capacidade DESC",
+   dica:'Combine duas condições com AND e ordene com ORDER BY capacidade DESC.'},
+  {conceito:'Funções de agregação e GROUP BY', tabelas:['alunos'],
+   enunciado:'Para cada turma, mostre o turma_id, a quantidade de alunos e a média de idade (nesta ordem).',
+   resposta:"SELECT turma_id, COUNT(*), AVG(idade) FROM alunos GROUP BY turma_id",
+   dica:'Agrupe com GROUP BY turma_id e use COUNT(*) e AVG(idade).'},
+  {conceito:'JOIN entre duas tabelas', tabelas:['alunos','turmas'],
+   enunciado:'Liste o nome de cada aluno do Ensino Médio e o nome da sua turma (nesta ordem).',
+   resposta:"SELECT a.nome, t.nome FROM alunos a JOIN turmas t ON t.id = a.turma_id WHERE t.etapa = 'Ensino Médio'",
+   dica:'Junte alunos e turmas com JOIN ... ON turmas.id = alunos.turma_id e filtre pela etapa.'},
+  {conceito:'JOIN com GROUP BY e HAVING', tabelas:['alunos','turmas'],
+   enunciado:'Mostre o nome das turmas que têm mais de 3 alunos e a quantidade de alunos de cada uma (nesta ordem).',
+   resposta:"SELECT t.nome, COUNT(*) FROM turmas t JOIN alunos a ON a.turma_id = t.id GROUP BY t.id HAVING COUNT(*) > 3",
+   dica:'Depois de juntar e agrupar por turma, filtre os grupos com HAVING COUNT(*) > 3.'},
+  {conceito:'Subconsulta', tabelas:['alunos'],
+   enunciado:'Liste o nome e a idade (nesta ordem) dos alunos com idade acima da média de idade de todos os alunos.',
+   resposta:"SELECT nome, idade FROM alunos WHERE idade > (SELECT AVG(idade) FROM alunos)",
+   dica:'Use uma subconsulta no WHERE: idade > (SELECT AVG(idade) FROM alunos).'}
+];
+const jogo = {pontos:0, resolvido:ANDARES.map(() => false), erros:ANDARES.map(() => 0), coletados:ANDARES.map(() => new Set())};
+const maxLib = () => { let k = 0; while (k < ANDARES.length && jogo.resolvido[k]) k++; return Math.min(k, ANDARES.length - 1); };
+const TOTEM = {x:850, y:500}, FRENTE_TOTEM = {x:850, y:528};
+/* um prêmio por ambiente; dois valem mais */
+const PREMIOS = AMBIENTES.map(a => ({id:a.id, x:a.x + a.w/2, y:a.id === 'piscina' ? a.y + a.h - 40 : a.y + a.h * 0.42, valor:(a.id === 'brinq-pre' || a.id === 'parq-creche') ? 25 : 10}));
+
+/* jogador e opções de avatar (tom de pele, cabelo e cor dos acessórios) */
+const AVATARES = [
+  {pele:0xf2c9a0, cabelo:0x3a2a1c, longo:false, cor:0xe4572e},
+  {pele:0x8d5a3b, cabelo:0x1c1410, longo:false, cor:0x2e86ab},
+  {pele:0xe9b990, cabelo:0x8a4b1f, longo:true,  cor:0x9b5de5},
+  {pele:0x5e3b26, cabelo:0x14100d, longo:true,  cor:0xf6ae2d},
+  {pele:0xf5d6b8, cabelo:0xd8b25a, longo:true,  cor:0x57a773},
+  {pele:0xc48a5c, cabelo:0x2a1d14, longo:false, cor:0x3fb8af}
+];
+const jogador = {nome:'', turma:'', avatar:0, id:''};
+/* pontuação online (Supabase). Sem url e chave, o jogo funciona só localmente. */
+const ONLINE = {url:'https://wrhbybddpzgvepxhvscd.supabase.co', chave:'sb_publishable_kMp8OY6GbYue7PhxiCpjLA_h4G5G1bk'};
+function rpc(fn, corpo) {
+  if (!ONLINE.url || !ONLINE.chave) return Promise.reject(new Error('desativado'));
+  return fetch(`${ONLINE.url}/rest/v1/rpc/${fn}`, {method:'POST', headers:{apikey:ONLINE.chave, Authorization:'Bearer ' + ONLINE.chave, 'Content-Type':'application/json'}, body:JSON.stringify(corpo)})
+    .then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.json().catch(() => null); });
+}
+/* perguntas cadastradas pelo professor: conjunto com o nome da turma ou, na falta dele, o conjunto "padrao" */
+const DESAFIOS_ORIGINAIS = DESAFIOS.slice();
+function carregarDesafios(turma) {
+  const limite = new Promise((_, rej) => setTimeout(() => rej(new Error('tempo')), 4500));
+  return Promise.race([rpc('sqltower_desafios_turma', {p_turma:turma}), limite]).then(linhas => {
+    const porAndar = {};
+    for (const l of linhas || []) if (l && l.andar >= 0 && l.andar < DESAFIOS.length && l.enunciado && l.resposta) (porAndar[l.andar] = porAndar[l.andar] || []).push(l);
+    for (const [a, lista] of Object.entries(porAndar)) {
+      const l = lista[Math.floor(Math.random() * lista.length)]; /* mais de uma pergunta no andar: sorteia */
+      const tabs = (l.tabelas || []).filter(t => DADOS[t]);
+      DESAFIOS[a] = {conceito:l.conceito || 'Consulta SQL', tabelas:tabs.length ? tabs : ['alunos'], ordem:!!l.ordem, enunciado:String(l.enunciado), resposta:String(l.resposta).trim().replace(/;+\s*$/, ''), dica:l.dica || '', remoto:true};
+    }
+    validarDesafios();
+  }).catch(() => {});
+}
+/* uma pergunta cadastrada cuja consulta de referência não roda ou não retorna linhas é trocada pela original do andar */
+function validarDesafios() {
+  if (!db) return;
+  DESAFIOS.forEach((d, i) => {
+    if (!d.remoto || d.validado) return;
+    let ok = false;
+    try { const r = /^(select|with)\b/i.test(d.resposta) && !d.resposta.includes(';') ? db.exec(d.resposta)[0] : null; ok = !!(r && r.values.length); } catch (err) { ok = false; }
+    if (ok) d.validado = true; else DESAFIOS[i] = DESAFIOS_ORIGINAIS[i];
+  });
+}
+let tEnvio = 0;
+function estadoOnline(t) { const el = document.getElementById('p-online'); if (el) el.textContent = t; }
+function enviarPontuacao() {
+  if (!jogador.id) return;
+  if (!ONLINE.url) { estadoOnline('Desativado'); return; }
+  clearTimeout(tEnvio);
+  tEnvio = setTimeout(() => {
+    rpc('sqltower_registrar', {p_jogador:jogador.id, p_nome:jogador.nome, p_turma:jogador.turma, p_avatar:jogador.avatar, p_pontos:jogo.pontos,
+      p_andares:jogo.resolvido.filter(Boolean).length, p_premios:jogo.coletados.reduce((n, c) => n + c.size, 0)})
+      .then(() => estadoOnline('Salvo')).catch(() => estadoOnline('Sem conexão'));
+  }, 900);
+}
+
+let db = null;
+if (window.initSqlJs) window.initSqlJs().then(SQL => {
+  const d = new SQL.Database();
+  for (const [nome, t] of Object.entries(DADOS)) {
+    d.run(`CREATE TABLE ${nome} (${t.cols.map((c, i) => c + (typeof t.rows[0][i] === 'number' ? ' INTEGER' : ' TEXT')).join(', ')})`);
+    for (const r of t.rows) d.run(`INSERT INTO ${nome} VALUES (${r.map(() => '?').join(',')})`, r);
+  }
+  db = d; validarDesafios(); if (typeof atualizarHolo === 'function') atualizarHolo();
+}).catch(() => {});
+
+function avaliar(i, sql) {
+  if (!db) return {ok:false, msg:'O motor de SQL ainda não carregou. Aguarde alguns segundos e tente de novo; se continuar, recarregue a página.'};
+  const txt = sql.trim().replace(/;+\s*$/, '');
+  if (!txt) return {ok:false, msg:'Escreva uma consulta antes de executar.', vazio:true};
+  if (!/^(select|with)\b/i.test(txt) || txt.includes(';')) return {ok:false, msg:'Use uma única instrução SELECT.', vazio:true};
+  let r;
+  try { r = db.exec(txt)[0] || {columns:[], values:[]}; } catch (e) { return {ok:false, msg:'Erro de SQL: ' + e.message}; }
+  const esp = db.exec(DESAFIOS[i].resposta)[0];
+  const nv = v => typeof v === 'number' ? Math.round(v * 100) / 100 : v;
+  const lin = t => t.values.map(l => JSON.stringify(l.map(nv)));
+  if (!r.values.length) return {ok:false, msg:'A consulta não retornou nenhuma linha.', res:r};
+  if (r.columns.length !== esp.columns.length) return {ok:false, msg:`Sua consulta retornou ${r.columns.length} coluna(s); o desafio pede ${esp.columns.length}.`, res:r};
+  const a = lin(r), b = lin(esp);
+  if (a.length !== b.length) return {ok:false, msg:`Sua consulta retornou ${a.length} linha(s); o resultado esperado tem ${b.length}.`, res:r};
+  const igualOrd = a.every((x, k) => x === b[k]);
+  const as = a.slice().sort(), bs = b.slice().sort(), igualConj = as.every((x, k) => x === bs[k]);
+  if (igualOrd || (igualConj && !DESAFIOS[i].ordem)) return {ok:true, res:r};
+  if (igualConj) return {ok:false, msg:'As linhas estão certas, mas a ordem pedida é outra.', res:r};
+  return {ok:false, msg:'A quantidade de linhas confere, mas os valores não são os esperados.', res:r};
+}
+
+/* ================= Cena 3D ================= */
+const S = 0.04, ALT = 2.7, PE_DIREITO = 3.2;
+const canvas = document.getElementById('cena');
+let renderer;
+try { renderer = new THREE.WebGLRenderer({canvas, antialias:true}); }
+catch (err) { document.getElementById('erro').style.display = 'grid'; return; }
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.82;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const cena = new THREE.Scene();
+cena.background = new THREE.Color(0xbfe3f5);
+cena.fog = new THREE.Fog(0xbfe3f5, 90, 260);
+const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 400);
+
+cena.add(new THREE.HemisphereLight(0xdcefff, 0xa8946f, 0.55));
+const sol = new THREE.DirectionalLight(0xfff1d6, 1.45);
+sol.position.set(32 + 22, 48, 18 + 16);
+sol.target.position.set(32, 0, 18);
+sol.castShadow = true;
+sol.shadow.mapSize.set(2048, 2048);
+Object.assign(sol.shadow.camera, {left:-40, right:40, top:26, bottom:-26, near:1, far:140});
+sol.shadow.bias = -0.0006; sol.shadow.normalBias = 0.03;
+cena.add(sol, sol.target);
+
+/* ---------- Texturas feitas em canvas ---------- */
+function tela(tam, fn) { const c = document.createElement('canvas'); c.width = c.height = tam; fn(c.getContext('2d'), tam); return c; }
+function ruido(g, t, n, cores, min, max) {
+  for (let i = 0; i < n; i++) { g.fillStyle = cores[i % cores.length]; const s = min + Math.random() * (max - min); g.fillRect(Math.random()*t, Math.random()*t, s, s); }
+}
+const TELAS = {
+  piso: tela(256, (g, t) => { g.fillStyle = '#eef0f1'; g.fillRect(0,0,t,t); ruido(g,t,900,['rgba(0,0,0,.025)','rgba(255,255,255,.35)'],2,7); g.strokeStyle = '#c3c9cc'; g.lineWidth = 3; g.strokeRect(0,0,t,t); }),
+  azulejo: tela(256, (g, t) => { g.fillStyle = '#f4f8f8'; g.fillRect(0,0,t,t); g.strokeStyle = '#b9c9cc'; g.lineWidth = 2; for (let i = 0; i <= 4; i++) { g.beginPath(); g.moveTo(i*t/4,0); g.lineTo(i*t/4,t); g.moveTo(0,i*t/4); g.lineTo(t,i*t/4); g.stroke(); } }),
+  madeira: tela(512, (g, t) => { const tons = ['#c99a66','#c08f5b','#d1a573','#b98654','#c7965f']; for (let i = 0; i < 8; i++) { g.fillStyle = tons[i % 5]; g.fillRect(0, i*t/8, t, t/8); g.strokeStyle = 'rgba(70,40,10,.35)'; g.lineWidth = 2; g.strokeRect(-2, i*t/8, t+4, t/8); const x = (i*173) % t; g.beginPath(); g.moveTo(x, i*t/8); g.lineTo(x, (i+1)*t/8); g.stroke(); } for (let i = 0; i < 260; i++) { g.strokeStyle = 'rgba(80,45,15,.10)'; g.lineWidth = 1; const y = Math.random()*t, x = Math.random()*t; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 30 + Math.random()*60, y); g.stroke(); } }),
+  grama: tela(256, (g, t) => { g.fillStyle = '#6fae52'; g.fillRect(0,0,t,t); ruido(g,t,5000,['#5e9d44','#82bf63','#679f4b','#8cc76d','#578f3f'],1,4); }),
+  concreto: tela(256, (g, t) => { g.fillStyle = '#b9bdbf'; g.fillRect(0,0,t,t); ruido(g,t,3500,['rgba(0,0,0,.05)','rgba(255,255,255,.08)'],1,5); }),
+  pedra: tela(256, (g, t) => { g.fillStyle = '#e3d6bb'; g.fillRect(0,0,t,t); ruido(g,t,2500,['rgba(120,90,40,.07)','rgba(255,255,255,.2)'],1,5); g.strokeStyle = '#c4b594'; g.lineWidth = 3; g.strokeRect(0,0,t,t); g.beginPath(); g.moveTo(t/2,0); g.lineTo(t/2,t); g.moveTo(0,t/2); g.lineTo(t,t/2); g.stroke(); }),
+  agua: tela(256, (g, t) => { g.fillStyle = '#3aa7d6'; g.fillRect(0,0,t,t); g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 3; for (let i = 0; i < 26; i++) { const x = Math.random()*t, y = Math.random()*t, r = 14 + Math.random()*26; g.beginPath(); g.arc(x, y, r, Math.random()*6, Math.random()*6 + 2.2); g.stroke(); } })
+};
+function matTextura(nome, ladoM, wM, dM, cor, extra) {
+  const tx = new THREE.CanvasTexture(TELAS[nome]);
+  tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(wM / ladoM, dM / ladoM);
+  tx.encoding = THREE.sRGBEncoding; tx.anisotropy = 8;
+  return new THREE.MeshStandardMaterial(Object.assign({map:tx, color:cor || 0xffffff, roughness:0.85, metalness:0}, extra || {}));
+}
+const mat = (cor, extra) => new THREE.MeshStandardMaterial(Object.assign({color:cor, roughness:0.75, metalness:0}, extra || {}));
+const MAT = {
+  parede: mat(0xf3efe6, {roughness:0.95}), rodape: mat(0x8a9aa3), teto: mat(0xfafafa, {roughness:1, side:THREE.DoubleSide}),
+  madeira: mat(0xb98a5b, {roughness:0.6}), branco: mat(0xffffff, {roughness:0.35}), louca: mat(0xffffff, {roughness:0.15}),
+  metal: mat(0xaab4ba, {roughness:0.3, metalness:0.8}), cinza: mat(0x8b979d), areia: mat(0xe8cf93, {roughness:1}),
+  tronco: mat(0x7a5632, {roughness:1}), folha: mat(0x4f9a45, {roughness:1}), vidro: mat(0x9fd6ee, {roughness:0.05, metalness:0.2, transparent:true, opacity:0.4}),
+  inox: mat(0xb9c2c8, {roughness:0.38, metalness:0.75}), portaElev: mat(0xd5dce0, {roughness:0.3, metalness:0.8}), espelho: mat(0xe3edf2, {roughness:0.06, metalness:1}),
+  borracha: mat(0x3b4347, {roughness:0.95}), luz: mat(0xfff2c9, {emissive:0xffe9a8, emissiveIntensity:1}), led: mat(0x9dffb0, {emissive:0x38e064, emissiveIntensity:1.2}),
+  tela: mat(0x7fc4ff, {emissive:0x3d8fe0, emissiveIntensity:0.9, roughness:0.2}), quadro: mat(0xfafcfc, {roughness:0.15}),
+  ouro: mat(0xffc93c, {emissive:0xff9d00, emissiveIntensity:0.55, roughness:0.25, metalness:0.6}), alerta: mat(0xff6b5a, {emissive:0xff2a12, emissiveIntensity:1.2}),
+  holoLuz: new THREE.MeshBasicMaterial({color:0x66e6ff, transparent:true, opacity:0.13, side:THREE.DoubleSide, depthWrite:false}),
+  roxo: mat(0x8e7cc3), verde: mat(0x57a773), azul: mat(0x2e86ab), vermelho: mat(0xe4572e), amarelo: mat(0xf6ae2d), lilas: mat(0x9b5de5),
+  rosa: mat(0xf7a8b8, {roughness:1}), mostarda: mat(0xf3c24f, {roughness:1}), ciano: mat(0x9ad1d4), predio: mat(0xe8e1d2, {roughness:0.95}), escuro: mat(0x24424d)
+};
+const CORES5 = [MAT.vermelho, MAT.azul, MAT.amarelo, MAT.verde, MAT.lilas];
+
+/* ---------- Primitivas ---------- */
+function caixa(g, x, y, z, w, h, d, m, sombra) { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x, y + h/2, z); o.castShadow = sombra !== false; o.receiveShadow = true; g.add(o); return o; }
+function cilindro(g, x, y, z, r, h, m, seg) { const o = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, seg || 24), m); o.position.set(x, y + h/2, z); o.castShadow = true; o.receiveShadow = true; g.add(o); return o; }
+function esfera(g, x, y, z, r, m) { const o = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 14), m); o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; g.add(o); return o; }
+function viga(g, p1, p2, w, t, m) { const o = new THREE.Mesh(new THREE.BoxGeometry(w, t, p1.distanceTo(p2)), m); o.position.copy(p1).add(p2).multiplyScalar(0.5); o.lookAt(p2); o.castShadow = true; o.receiveShadow = true; g.add(o); return o; }
+function chao(g, x, y, w, h, m, alt) { const o = new THREE.Mesh(new THREE.PlaneGeometry(w*S, h*S), m); o.rotation.x = -Math.PI/2; o.position.set((x + w/2)*S, alt, (y + h/2)*S); o.receiveShadow = true; g.add(o); return o; }
+function placa(texto, altM, fundo) {
+  const c = document.createElement('canvas'), g = c.getContext('2d'), f = '700 64px "Nunito Sans", "Segoe UI", sans-serif';
+  g.font = f; c.width = Math.ceil(g.measureText(texto).width) + 72; c.height = 104;
+  const g2 = c.getContext('2d'); g2.fillStyle = fundo || '#24424d';
+  const r = 30, w = c.width, h = c.height; g2.beginPath(); g2.moveTo(r,0); g2.arcTo(w,0,w,h,r); g2.arcTo(w,h,0,h,r); g2.arcTo(0,h,0,0,r); g2.arcTo(0,0,w,0,r); g2.fill();
+  g2.font = f; g2.fillStyle = '#fff'; g2.textBaseline = 'middle'; g2.fillText(texto, 36, h/2 + 4);
+  const tx = new THREE.CanvasTexture(c); tx.encoding = THREE.sRGBEncoding;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:tx, transparent:true}));
+  sp.scale.set(altM * w / h, altM, 1); return sp;
+}
+/* parede alinhada aos eixos, entre dois pontos da planta */
+const ESP = 6;
+function parede(g, x1, y1, x2, y2, y0, alt, m) {
+  const horiz = y1 === y2, comp = Math.abs(horiz ? x2 - x1 : y2 - y1);
+  if (comp <= 0) return;
+  caixa(g, (x1+x2)/2*S, y0, (y1+y2)/2*S, (horiz ? comp + ESP : ESP)*S, alt, (horiz ? ESP : comp + ESP)*S, m || MAT.parede);
+}
+
+/* ---------- Mobília por tipo de ambiente ---------- */
+let texAgua = null;
+function mobiliar(g, a, tipo, def) {
+  const fz = v => a.lado === 'b' ? a.y + v : a.y + a.h - v;
+  const X = u => (a.x + u) * S, Z = v => fz(v) * S;
+  const B = (u, v, w, hh, alt, m, y0) => caixa(g, X(u + w/2), y0 || 0, Z(v + hh/2), w*S, alt, hh*S, m);
+  const C = (u, v, r, alt, m, y0) => cilindro(g, X(u), y0 || 0, Z(v), r*S, alt, m);
+  const E = (u, v, rM, m, y) => esfera(g, X(u), y, Z(v), rM, m);
+  const P = (u, v, y) => new THREE.Vector3(X(u), y, Z(v));
+  const w = a.w, h = a.h;
+
+  if (tipo === 'brinquedoteca') {
+    const tap = a.ala === 'Creche' ? MAT.rosa : MAT.mostarda, cx = w/2, cv = h/2 + 6, r = Math.min(w, h) * 0.27;
+    C(cx, cv, r, 0.025, tap).castShadow = false;
+    B(12, 52, 18, h-130, 1.1, MAT.madeira);
+    for (let i = 0; i < 5; i++) B(13, 60 + i*38, 16, 24, 0.3, CORES5[i], 0.35 + (i % 2) * 0.4);
+    [[-0.5,-0.3],[0.35,-0.55],[0.6,0.2],[-0.2,0.5],[-0.75,0.25],[0.05,-0.05],[0.3,0.45]].forEach((o, i) => {
+      const b = B(cx + o[0]*r - 5, cv + o[1]*r - 5, 10, 10, 0.4, CORES5[i % 5]); b.rotation.y = i * 0.7;
+      if (i % 3 === 0) { const b2 = B(cx + o[0]*r - 4, cv + o[1]*r - 4, 8, 8, 0.32, CORES5[(i+2) % 5], 0.4); b2.rotation.y = i; }
+    });
+    C(w-62, 86, 17, 0.06, MAT.madeira, 0.5); C(w-62, 86, 3, 0.5, MAT.cinza);
+    [[-26,0],[26,0],[0,-26],[0,26]].forEach((o, i) => C(w-62+o[0], 86+o[1], 6, 0.3, CORES5[i]));
+    if (w > 350) { /* piscina de bolinhas */
+      B(w-152, h-100, 114, 6, 0.45, MAT.ciano); B(w-152, h-40, 114, 6, 0.45, MAT.ciano); B(w-152, h-100, 6, 66, 0.45, MAT.ciano); B(w-44, h-100, 6, 66, 0.45, MAT.ciano);
+      for (let i = 0; i < 46; i++) E(w-142 + (i*37 % 96), h-92 + (i*53 % 50), 0.11, CORES5[i % 5], 0.12 + (i % 3) * 0.09);
+    } else { /* berços */
+      for (const v of [h-150, h-90]) { B(w-70, v, 54, 34, 0.5, MAT.branco); B(w-68, v+2, 50, 30, 0.08, MAT.rosa, 0.5); }
+    }
+  }
+  else if (tipo === 'fraldario') {
+    for (const v of [52, 142]) { B(12, v, 46, 78, 0.9, MAT.madeira); B(15, v+6, 40, 60, 0.07, MAT.branco, 0.9); B(12, v, 4, 78, 0.12, MAT.branco, 0.9); B(54, v, 4, 78, 0.12, MAT.branco, 0.9); }
+    B(w-34, 56, 24, 50, 0.85, MAT.branco); C(w-22, 81, 7, 0.04, MAT.metal, 0.85); C(w-28, 68, 1.2, 0.25, MAT.metal, 0.85);
+    C(w-24, 150, 8, 0.6, MAT.cinza);
+    B(w-34, 190, 22, 56, 1.5, MAT.madeira); B(w-36, 196, 3, 20, 1.3, MAT.amarelo, 0.1); B(w-36, 222, 3, 20, 1.3, MAT.azul, 0.1);
+  }
+  else if (tipo === 'banheiro') {
+    const n = Math.floor((w - 20) / 54);
+    for (let i = 0; i < n; i++) {
+      const div = def && def.genero === 'm' ? MAT.azul : def && def.genero === 'f' ? MAT.lilas : MAT.ciano;
+      B(10 + i*54, 44, 3, 66, 1.5, div); B(57 + i*54, 44, 3, 66, 1.5, div);
+      C(35 + i*54, 72, 6.5, 0.32, MAT.louca); B(27 + i*54, 46, 16, 9, 0.6, MAT.louca);
+    }
+    const comp = Math.min(110, h - 230);
+    B(10, 150, 20, comp, 0.6, MAT.branco); C(20, 172, 6, 0.03, MAT.metal, 0.6); C(20, 150 + comp - 22, 6, 0.03, MAT.metal, 0.6);
+    B(8, 150, 2, comp, 0.7, MAT.vidro, 0.9).castShadow = false;
+  }
+  else if (tipo === 'parquinho') {
+    /* caixa de areia */
+    B(18, 50, 130, 104, 0.12, MAT.areia); B(14, 46, 138, 6, 0.22, MAT.madeira); B(14, 152, 138, 6, 0.22, MAT.madeira); B(14, 46, 6, 112, 0.22, MAT.madeira); B(146, 46, 6, 112, 0.22, MAT.madeira);
+    C(52, 86, 5, 0.2, MAT.vermelho, 0.12); C(110, 122, 4.5, 0.18, MAT.azul, 0.12);
+    /* escorregador */
+    B(w-74, 52, 44, 36, 0.1, MAT.madeira, 1.25); [[-72,54],[-34,54],[-72,84],[-34,84]].forEach(o => C(w+o[0], o[1], 1.6, 1.25, MAT.metal));
+    viga(g, P(w-52, 88, 1.3), P(w-52, 178, 0.12), 0.75, 0.06, MAT.vermelho);
+    viga(g, P(w-62, 88, 1.42), P(w-62, 178, 0.24), 0.05, 0.22, MAT.vermelho); viga(g, P(w-42, 88, 1.42), P(w-42, 178, 0.24), 0.05, 0.22, MAT.vermelho);
+    viga(g, P(w-90, 70, 0.05), P(w-76, 70, 1.25), 0.5, 0.05, MAT.amarelo);
+    /* balanço */
+    const bx = w/2 - 10;
+    viga(g, P(bx-62, 70, 2.1), P(bx+62, 70, 2.1), 0.09, 0.09, MAT.metal);
+    for (const dx of [-62, 62]) { viga(g, P(bx+dx, 70, 2.1), P(bx+dx, 48, 0), 0.07, 0.07, MAT.metal); viga(g, P(bx+dx, 70, 2.1), P(bx+dx, 92, 0), 0.07, 0.07, MAT.metal); }
+    [[-28, MAT.azul], [28, MAT.lilas]].forEach(o => { B(bx+o[0]-7, 66, 14, 8, 0.04, o[1], 0.5); for (const d of [-6, 6]) viga(g, P(bx+o[0]+d, 70, 2.1), P(bx+o[0]+d, 70, 0.54), 0.02, 0.02, MAT.cinza); });
+    /* gangorra */
+    viga(g, P(36, h-70, 0.75), P(136, h-110, 0.25), 0.3, 0.06, MAT.amarelo); C(86, h-90, 4, 0.5, MAT.cinza);
+    /* árvore */
+    C(w-46, h-60, 5, 1.6, MAT.tronco); E(w-46, h-60, 1.15, MAT.folha, 2.3); E(w-34, h-52, 0.8, MAT.folha, 1.9);
+    if (a.ala === 'Creche') { B(w-170, 200, 96, 62, 0.08, MAT.ciano); B(w-160, 210, 22, 22, 0.35, MAT.vermelho, 0.08); B(w-130, 226, 22, 22, 0.35, MAT.amarelo, 0.08); B(w-104, 208, 20, 40, 0.5, MAT.lilas, 0.08); }
+    else { E(w-130, 232, 0.16, MAT.branco, 0.16); for (const dx of [-28, 28]) { C(w-130+dx, 262, 1.2, 0.9, MAT.branco); } viga(g, P(w-158, 262, 0.9), P(w-102, 262, 0.9), 0.04, 0.04, MAT.branco); }
+  }
+  else if (tipo === 'piscina') {
+    const pw = w - 60, ph = h - 104;
+    B(26, 42, pw + 8, 6, 0.14, MAT.branco); B(26, 46 + ph - 2, pw + 8, 6, 0.14, MAT.branco); B(26, 42, 6, ph + 8, 0.14, MAT.branco); B(28 + pw, 42, 6, ph + 8, 0.14, MAT.branco);
+    const mAgua = matTextura('agua', 3, pw*S, ph*S, 0xffffff, {roughness:0.08, metalness:0.1, transparent:true, opacity:0.9});
+    texAgua = mAgua.map;
+    const agua = new THREE.Mesh(new THREE.PlaneGeometry(pw*S, ph*S), mAgua); agua.rotation.x = -Math.PI/2; agua.position.set(X(30 + pw/2), 0.09, Z(46 + ph/2)); agua.receiveShadow = true; g.add(agua);
+    for (let i = 1; i <= 2; i++) for (let k = 0; k < 9; k++) C(150 + k*18, 46 + i*ph/3, 2, 0.06, k % 2 ? MAT.vermelho : MAT.branco, 0.08);
+    [[90, 96, MAT.vermelho], [100, 150, MAT.amarelo]].forEach(o => { const t = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.13, 10, 24), o[2]); t.rotation.x = Math.PI/2; t.position.set(X(o[0]), 0.2, Z(o[1])); t.castShadow = true; g.add(t); });
+    for (const du of [-76, -58]) { C(w+du, 40, 0.9, 0.95, MAT.metal); C(w+du, 52, 0.9, 0.95, MAT.metal); viga(g, P(w+du, 40, 0.95), P(w+du, 52, 0.95), 0.04, 0.04, MAT.metal); }
+    for (const u of [70, 150]) { B(u, h-44, 60, 22, 0.08, MAT.branco, 0.28); B(u, h-44, 4, 22, 0.28, MAT.cinza); B(u+56, h-44, 4, 22, 0.28, MAT.cinza); }
+  }
+  else if (tipo === 'sala') {
+    const hm = estado.andar >= 2 ? 0.7 : 0.6, cores = [MAT.azul, MAT.verde, MAT.vermelho, MAT.amarelo];
+    B(w/2 - 70, 4, 140, 2, 1.2, MAT.quadro, 0.85).castShadow = false; B(w/2 - 72, 3.5, 144, 1.5, 1.28, MAT.cinza, 0.81).castShadow = false;
+    B(w/2 - 24, 44, 48, 20, 0.75, MAT.madeira); B(w/2 - 7, 26, 14, 12, 0.45, MAT.escuro);
+    let k = 0;
+    for (let v = 96; v <= h - 76; v += 54) for (let u = 24; u <= w - 50; u += 50) {
+      B(u, v, 28, 16, 0.04, MAT.madeira, hm); B(u + 11, v + 5, 6, 6, hm, MAT.cinza);
+      const c = cores[k++ % 4]; B(u + 7, v + 22, 14, 12, 0.04, c, hm * 0.62); B(u + 7, v + 32, 14, 2, hm * 0.62 + 0.3, c);
+    }
+    B(8, h - 60, 14, 40, 1.6, MAT.madeira);
+  }
+  else if (tipo === 'laboratorio') {
+    B(w/2 - 60, 4, 120, 2, 1.1, MAT.quadro, 0.9).castShadow = false;
+    B(w - 90, 36, 60, 20, 0.75, MAT.madeira); B(w - 70, 40, 16, 2, 0.3, MAT.escuro, 0.87);
+    for (let v = 84; v <= h - 70; v += 62) for (const u0 of [26, w/2 + 20]) {
+      const comp = w/2 - 46;
+      B(u0, v, comp, 22, 0.04, MAT.branco, 0.7); B(u0 + 2, v + 8, 3, 6, 0.7, MAT.cinza); B(u0 + comp - 5, v + 8, 3, 6, 0.7, MAT.cinza);
+      for (let u = u0 + 8; u <= u0 + comp - 22; u += 34) {
+        B(u, v + 3, 16, 1.5, 0.3, MAT.escuro, 0.84); B(u + 1, v + 4.6, 14, 0.4, 0.25, MAT.tela, 0.865).castShadow = false; B(u + 6.5, v + 3, 3, 3, 0.1, MAT.escuro, 0.74);
+        B(u + 1, v + 11, 14, 5, 0.02, MAT.escuro, 0.74); C(u + 8, v + 34, 5, 0.45, MAT.azul);
+      }
+    }
+  }
+  else if (tipo === 'recepcao') {
+    B(w/2-46, 8, 92, 34, 0.02, MAT.roxo).castShadow = false;
+    /* porta de vidro da entrada, na parede externa */
+    B(w/2-40, 3, 80, 2, 2.2, MAT.vidro).castShadow = false; B(w/2-42, 2, 3, 4, 2.25, MAT.escuro); B(w/2+39, 2, 3, 4, 2.25, MAT.escuro); B(w/2-1, 2, 2, 4, 2.2, MAT.escuro); B(w/2-42, 2, 84, 4, 0.08, MAT.escuro, 2.2);
+    B(w-170, 64, 140, 22, 1.05, MAT.madeira); B(w-174, 62, 148, 26, 0.05, MAT.branco, 1.05); B(w-52, 86, 22, 40, 1.05, MAT.madeira);
+    B(w-120, 70, 22, 3, 0.3, MAT.escuro, 1.1); C(w-100, 112, 6, 0.48, MAT.roxo);
+    for (const v of [64, 112]) { B(22, v, 110, 22, 0.42, MAT.roxo); B(22, v, 110, 5, 0.85, MAT.roxo); }
+    C(40, h-60, 7, 0.45, MAT.tronco); E(40, h-60, 0.5, MAT.folha, 0.95); E(46, h-56, 0.36, MAT.folha, 1.35);
+  }
+}
+
+/* ---------- Montagem do andar ---------- */
+let lampada = null, holo = null, premiosAtivos = [];
+/* holograma do totem: a(s) tabela(s) do desafio do andar */
+function telaHolo(i) {
+  const d = DESAFIOS[i], ok = jogo.resolvido[i], c = document.createElement('canvas'); c.width = 768; c.height = 448;
+  const g = c.getContext('2d'), cor = ok ? '#8dffa8' : '#7ff0ff';
+  g.fillStyle = ok ? 'rgba(8,52,28,.8)' : 'rgba(5,34,52,.8)'; g.fillRect(0, 0, 768, 448);
+  g.strokeStyle = cor; g.lineWidth = 4; g.strokeRect(4, 4, 760, 440);
+  g.fillStyle = cor; g.font = '700 26px ui-monospace, Menlo, Consolas, monospace'; g.textBaseline = 'middle';
+  g.fillText(`DESAFIO SQL · ${ANDARES[i].rotulo.toUpperCase()}` + (ok ? ' · RESOLVIDO' : ''), 22, 34);
+  g.fillRect(22, 56, 724, 2);
+  const n = d.tabelas.length, larg = (724 - (n - 1) * 20) / n;
+  d.tabelas.forEach((nome, k) => {
+    const t = DADOS[nome], x0 = 22 + k * (larg + 20), cols = t.cols.slice(0, n > 1 ? 3 : 5), cw = larg / cols.length, cab = Math.floor(cw / 12.5);
+    g.font = '700 21px ui-monospace, Menlo, Consolas, monospace'; g.fillStyle = '#ffffff'; g.fillText('tabela ' + nome, x0, 86);
+    g.fillStyle = ok ? 'rgba(141,255,168,.22)' : 'rgba(127,240,255,.22)'; g.fillRect(x0, 106, larg, 34);
+    g.font = '20px ui-monospace, Menlo, Consolas, monospace';
+    g.fillStyle = cor; cols.forEach((col, j) => g.fillText(String(col).slice(0, cab), x0 + 8 + j * cw, 124));
+    g.fillStyle = '#e8feff';
+    t.rows.slice(0, 6).forEach((r, li) => { cols.forEach((col, j) => g.fillText(String(r[j]).slice(0, cab), x0 + 8 + j * cw, 162 + li * 36)); g.fillStyle = 'rgba(127,240,255,.25)'; g.fillRect(x0, 180 + li * 36, larg, 1); g.fillStyle = '#e8feff'; });
+    g.fillStyle = cor; g.fillText(`… ${t.rows.length} linhas`, x0 + 8, 392);
+  });
+  g.fillStyle = 'rgba(255,255,255,.05)'; for (let y = 0; y < 448; y += 6) g.fillRect(0, y, 768, 2);
+  g.fillStyle = cor; g.font = '700 20px ui-monospace, Menlo, Consolas, monospace'; g.fillText(ok ? 'elevador liberado' : 'aproxime-se e pressione E', 22, 424);
+  const tx = new THREE.CanvasTexture(c); tx.encoding = THREE.sRGBEncoding; return tx;
+}
+function atualizarHolo() {
+  if (!holo) return;
+  if (holo.material.map) holo.material.map.dispose();
+  holo.material.map = telaHolo(estado.andar); holo.material.needsUpdate = true;
+  if (lampada) lampada.material = jogo.resolvido[estado.andar] ? MAT.led : MAT.alerta;
+}
+const portas = {e:null, d:null};
+const grupoAndar = new THREE.Group(), grupoTeto = new THREE.Group(), rot3 = new THREE.Group(), rot1 = new THREE.Group();
+cena.add(grupoAndar);
+function limpar(g) { g.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material && o.material.map && o.material.map !== undefined && !Object.values(MAT).includes(o.material)) { o.material.map.dispose(); o.material.dispose(); } }); while (g.children.length) g.remove(g.children[0]); }
+
+function construirAndar() {
+  limpar(grupoAndar); limpar(grupoTeto); limpar(rot3); limpar(rot1); texAgua = null; holo = null; lampada = null;
+  const andar = ANDARES[estado.andar], g = grupoAndar;
+  g.add(grupoTeto, rot3, rot1);
+
+  /* laje, corredor e hall */
+  chao(g, 54, 54, 1492, 792, matTextura('piso', 1.2, 1492*S, 792*S), 0);
+  chao(g, 640, 350, 320, 200, matTextura('piso', 1.2, 320*S, 200*S, 0xdfe9ee), 0.006);
+  if (estado.andar > 0) caixa(g, 800*S, -estado.andar*PE_DIREITO - 0.05, 450*S, 1500*S, estado.andar*PE_DIREITO, 800*S, MAT.predio);
+  else caixa(g, 800*S, -0.4, 450*S, 1500*S, 0.39, 800*S, MAT.predio, false);
+
+  /* paredes externas */
+  parede(g, 60, 60, 1540, 60, 0, ALT); parede(g, 60, 840, 1540, 840, 0, ALT); parede(g, 60, 60, 60, 840, 0, ALT); parede(g, 1540, 60, 1540, 840, 0, ALT);
+
+  for (const a of AMBIENTES) {
+    const d = defAmb(a, estado.andar), tipo = d.tipo, wM = a.w*S, dM = a.h*S;
+    let m;
+    if (tipo === 'brinquedoteca') m = matTextura('madeira', 2.4, wM, dM, a.ala === 'Creche' ? 0xffe9ec : 0xfff3d2);
+    else if (tipo === 'fraldario') m = matTextura('piso', 0.8, wM, dM, 0xdbe8ff);
+    else if (tipo === 'banheiro') m = matTextura('azulejo', 1.2, wM, dM, 0xe6f4f5);
+    else if (tipo === 'parquinho') m = matTextura('grama', 3, wM, dM);
+    else if (tipo === 'piscina') m = matTextura('pedra', 1.6, wM, dM);
+    else if (tipo === 'recepcao') m = matTextura('madeira', 2.4, wM, dM, 0xf2e6da);
+    else if (tipo === 'sala') m = matTextura('piso', 0.8, wM, dM, 0xefe6cf);
+    else if (tipo === 'laboratorio') m = matTextura('piso', 0.8, wM, dM, 0xd6e2ee);
+    else m = matTextura('concreto', 3, wM, dM);
+    chao(g, a.x, a.y, a.w, a.h, m, 0.004);
+
+    /* quatro paredes; a da porta tem vão e verga */
+    const yPorta = a.lado === 'b' ? a.y + a.h : a.y, yFundo = a.lado === 'b' ? a.y : a.y + a.h;
+    parede(g, a.x, yFundo, a.x + a.w, yFundo, 0, ALT);
+    parede(g, a.x, a.y, a.x, a.y + a.h, 0, ALT); parede(g, a.x + a.w, a.y, a.x + a.w, a.y + a.h, 0, ALT);
+    parede(g, a.x, yPorta, a.px - 29, yPorta, 0, ALT); parede(g, a.px + 29, yPorta, a.x + a.w, yPorta, 0, ALT);
+    caixa(g, a.px*S, 2.15, yPorta*S, 58*S, ALT - 2.15, ESP*S, MAT.parede);
+    /* batente */
+    const lc = a.lado === 'b' ? 1 : -1;
+    caixa(g, (a.px-25)*S, 0, yPorta*S, 0.08, 2.15, (ESP+2)*S, MAT.madeira); caixa(g, (a.px+25)*S, 0, yPorta*S, 0.08, 2.15, (ESP+2)*S, MAT.madeira);
+
+    mobiliar(g, a, tipo, d);
+
+    const coberto = !(tipo === 'parquinho' || tipo === 'piscina');
+    if (coberto) { const t = chao(grupoTeto, a.x, a.y, a.w, a.h, MAT.teto, ALT); t.receiveShadow = false; }
+
+    const texto = d.rot;
+    const r3 = placa(texto, 0.6); r3.position.set((a.x + a.w/2)*S, ALT + 0.7, (a.y + a.h/2)*S); rot3.add(r3);
+    const r1 = placa(texto, 0.3); r1.position.set(a.px*S, 2.42, yPorta*S + lc*0.22); rot1.add(r1);
+  }
+  for (const r of [[60, 400, 1480, 100], [620, 330, 360, 240]]) { const t = chao(grupoTeto, r[0], r[1], r[2], r[3], MAT.teto, ALT - 0.002); t.receiveShadow = false; }
+
+  /* bebedouros: um mais baixo e um mais alto, encostados na parede */
+  if (andar.pronto || andar.mapa) for (const b of BEBEDOUROS) {
+    const alts = andar.pronto ? [0.5, 0.72] : [0.75, 0.95], zc = (b[1] + b[2] * 8) * S;
+    alts.forEach((alt, i) => {
+      const x = (b[0] + (i ? 9 : -9)) * S;
+      caixa(g, x, 0, zc, 0.4, alt, 0.36, MAT.inox); caixa(g, x, alt, zc, 0.44, 0.05, 0.4, MAT.metal);
+      caixa(g, x, alt + 0.045, zc + b[2] * 0.03, 0.3, 0.012, 0.24, MAT.cinza, false);
+      cilindro(g, x + 0.12, alt + 0.05, zc - b[2] * 0.1, 0.015, 0.09, MAT.metal, 8); caixa(g, x - 0.12, alt + 0.05, zc - b[2] * 0.1, 0.05, 0.03, 0.05, MAT.led, false);
+    });
+    caixa(g, b[0]*S, 1.25, (b[1] + b[2] * 3.4) * S, 0.5, 0.3, 0.02, MAT.azul, false);
+    const rb = placa('Bebedouro', 0.2, '#2e86ab'); rb.position.set(b[0]*S, 1.75, (b[1] + b[2] * 6) * S); rot1.add(rb);
+    const rb3 = placa('Bebedouro', 0.4, '#2e86ab'); rb3.position.set(b[0]*S, ALT + 0.5, (b[1] + b[2] * 8) * S); rot3.add(rb3);
+  }
+
+  /* elevador: cabine fechada, com portas de correr na face sul (voltada para a recepção) */
+  const cxE = 800*S, zF = 476*S, zB = 424*S, czE = 450*S;
+  chao(g, 775, 427, 50, 46, MAT.borracha, 0.012);
+  parede(g, 772, 424, 828, 424, 0, ALT, MAT.inox); parede(g, 772, 424, 772, 476, 0, ALT, MAT.inox); parede(g, 828, 424, 828, 476, 0, ALT, MAT.inox);
+  parede(g, 772, 476, 786, 476, 0, ALT, MAT.inox); parede(g, 814, 476, 828, 476, 0, ALT, MAT.inox);
+  caixa(g, cxE, 2.1, zF, 28*S, ALT - 2.1, ESP*S, MAT.inox);
+  for (const x of [789.3, 810.7]) caixa(g, x*S, 0, zF, 0.04, 2.1, (ESP + 2)*S, MAT.escuro);
+  caixa(g, cxE, 2.1, zF, 23*S, 0.05, (ESP + 2)*S, MAT.escuro);
+  portas.e = caixa(g, 794.4*S, 0, zF, 11.6*S, 2.1, 0.05, MAT.portaElev); portas.d = caixa(g, 805.6*S, 0, zF, 11.6*S, 2.1, 0.05, MAT.portaElev);
+  /* interior: espelho, corrimão e painel de botões */
+  caixa(g, cxE, 0.85, zB + 0.135, 40*S, 1.35, 0.02, MAT.espelho, false);
+  viga(g, new THREE.Vector3(777*S, 0.72, zB + 0.22), new THREE.Vector3(823*S, 0.72, zB + 0.22), 0.04, 0.04, MAT.metal);
+  caixa(g, 828*S - 0.14, 0.75, 458*S, 0.03, 0.62, 0.26, MAT.escuro, false);
+  for (let i = 0; i < 6; i++) caixa(g, 828*S - 0.16, 0.82 + Math.floor(i/2)*0.16, 458*S + (i % 2 ? 0.06 : -0.06), 0.02, 0.07, 0.07, i === estado.andar ? MAT.led : MAT.luz, false);
+  /* exterior: botão de chamada e indicador do andar sobre a porta */
+  caixa(g, 820*S, 0.8, zF + 0.13, 0.12, 0.24, 0.02, MAT.escuro, false); caixa(g, 820*S, 0.9, zF + 0.142, 0.05, 0.05, 0.012, MAT.led, false);
+  const ind = placa('\u25B2\u25BC  ' + andar.num, 0.22, '#101a1e'); ind.position.set(cxE, 2.4, zF + 0.2); g.add(ind);
+  /* teto da cabine com luminária (só na 1ª pessoa) e luz interna */
+  caixa(grupoTeto, cxE, ALT - 0.07, czE, 30*S, 0.05, 26*S, MAT.luz, false);
+  const luzCab = new THREE.PointLight(0xfff2d8, 0.45, 5, 2); luzCab.position.set(cxE, 2.2, czE); g.add(luzCab);
+  const re = placa('Elevador', 0.6, '#b86f00'); re.position.set(cxE, ALT + 0.7, 450*S); rot3.add(re);
+
+  /* lâmpada de estado sobre a porta do elevador */
+  lampada = caixa(g, cxE, 2.26, zF + 0.135, 0.5, 0.06, 0.02, jogo.resolvido[estado.andar] ? MAT.led : MAT.alerta, false);
+
+  /* totem do desafio, ao lado da porta do elevador, com a tabela em holograma */
+  const tx = TOTEM.x*S, tz = TOTEM.y*S;
+  cilindro(g, tx, 0, tz, 0.3, 0.08, MAT.escuro, 28); caixa(g, tx, 0.08, tz, 0.34, 0.92, 0.2, MAT.escuro);
+  const visor = caixa(g, tx, 0.72, tz + 0.105, 0.26, 0.2, 0.012, MAT.tela, false);
+  cilindro(g, tx, 1.0, tz, 0.16, 0.05, MAT.inox, 24); cilindro(g, tx, 1.05, tz, 0.11, 0.02, MAT.tela, 24).castShadow = false;
+  const feixe = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.1, 0.42, 24, 1, true), MAT.holoLuz); feixe.position.set(tx, 1.28, tz); g.add(feixe);
+  holo = new THREE.Sprite(new THREE.SpriteMaterial({map:telaHolo(estado.andar), transparent:true, depthWrite:false, opacity:0.92}));
+  holo.scale.set(2.06, 1.2, 1); holo.position.set(tx, 2.05, tz); g.add(holo);
+  const luzT = new THREE.PointLight(0x66e6ff, 0.35, 5, 2); luzT.position.set(tx, 1.5, tz + 0.3); g.add(luzT);
+
+  /* prêmios em pontos espalhados pelos ambientes */
+  premiosAtivos = [];
+  for (const pr of PREMIOS) {
+    if (jogo.coletados[estado.andar].has(pr.id)) continue;
+    const m = new THREE.Mesh(new THREE.OctahedronGeometry(pr.valor > 10 ? 0.3 : 0.2), MAT.ouro); m.position.set(pr.x*S, 1.0, pr.y*S); m.castShadow = true; g.add(m);
+    premiosAtivos.push({def:pr, malha:m});
+  }
+  atualizarPlacar();
+
+  exterior.position.y = -estado.andar * PE_DIREITO;
+  aplicarPerfil(); aplicarVisao();
+  document.getElementById('titulo-andar').textContent = `${andar.rotulo} · ${andar.titulo}`;
+  document.getElementById('sub-andar').textContent = andar.sub;
+}
+
+/* ---------- Exterior: gramado, calçada e árvores ---------- */
+const exterior = new THREE.Group(); cena.add(exterior);
+(() => {
+  const gm = matTextura('grama', 4, 400, 400, 0xd8efc8);
+  const g = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), gm); g.rotation.x = -Math.PI/2; g.position.set(32, -0.06, 18); g.receiveShadow = true; exterior.add(g);
+  const calc = new THREE.Mesh(new THREE.PlaneGeometry(4, 14), matTextura('pedra', 1.6, 4, 14)); calc.rotation.x = -Math.PI/2; calc.position.set(32, -0.04, 34 + 7); calc.receiveShadow = true; exterior.add(calc);
+  const pts = [[-8,-6],[6,-9],[20,-8],[44,-9],[58,-7],[72,-5],[-9,10],[-10,28],[74,12],[75,30],[-6,44],[12,46],[24,43],[42,44],[56,46],[70,43],[-22,18],[88,20],[30,-22],[34,60]];
+  pts.forEach((p, i) => { const e = 0.8 + (i % 4) * 0.2; cilindro(exterior, p[0], -0.06, p[1], 0.28*e, 2.4*e, MAT.tronco, 10); esfera(exterior, p[0], 3.3*e, p[1], 1.9*e, MAT.folha); esfera(exterior, p[0] + 0.9*e, 2.7*e, p[1] + 0.5*e, 1.3*e, MAT.folha); });
+})();
+
+/* ---------- Avatar (olhando para -Z) ---------- */
+const avatar = new THREE.Group(); cena.add(avatar);
+const partes = {};
+const AV = {pele:mat(0xe9b990, {roughness:0.6}), camisa:mat(0xff9f2e), calca:mat(0x2b4a6f), canela:mat(0x2b4a6f), antebraco:mat(0xff9f2e),
+            sapato:mat(0x2a2a2a), cabelo:mat(0x3a2a1c, {roughness:1}), mochila:mat(0x2e86ab), bone:mat(0xe4572e), detalhe:mat(0xffffff)};
+(() => {
+  const malha = (geo, m, pai, x, y, z) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = true; pai.add(o); return o; };
+  /* membro em duas partes (superior e inferior), para permitir bermuda e manga curta */
+  const membro = (x, y, w, h, d, mSup, mInf, frac, pe) => {
+    const piv = new THREE.Group(); piv.position.set(x, y, 0); avatar.add(piv);
+    malha(new THREE.BoxGeometry(w, h*frac, d), mSup, piv, 0, -h*frac/2, 0);
+    malha(new THREE.BoxGeometry(w*0.88, h*(1-frac), d*0.88), mInf, piv, 0, -h*frac - h*(1-frac)/2, 0);
+    if (pe) malha(new THREE.BoxGeometry(w + 0.02, 0.09, d + 0.1), AV.sapato, piv, 0, -h + 0.045, -0.04);
+    return piv;
+  };
+  partes.pernaE = membro(-0.11, 0.82, 0.17, 0.82, 0.19, AV.calca, AV.canela, 0.45, true);
+  partes.pernaD = membro(0.11, 0.82, 0.17, 0.82, 0.19, AV.calca, AV.canela, 0.45, true);
+  caixa(avatar, 0, 0.8, 0, 0.46, 0.62, 0.26, AV.camisa);
+  partes.emblema = malha(new THREE.BoxGeometry(0.12, 0.12, 0.02), AV.detalhe, avatar, 0.11, 1.24, -0.135);
+  partes.bracoE = membro(-0.3, 1.4, 0.13, 0.6, 0.14, AV.camisa, AV.antebraco, 0.42);
+  partes.bracoD = membro(0.3, 1.4, 0.13, 0.6, 0.14, AV.camisa, AV.antebraco, 0.42);
+  [partes.bracoE, partes.bracoD].forEach(b => malha(new THREE.SphereGeometry(0.07, 10, 8), AV.pele, b, 0, -0.62, 0));
+  partes.cabeca = new THREE.Group(); partes.cabeca.position.y = 1.42; avatar.add(partes.cabeca);
+  cilindro(partes.cabeca, 0, 0, 0, 0.07, 0.08, AV.pele, 12);
+  esfera(partes.cabeca, 0, 0.21, 0, 0.17, AV.pele);
+  const cab = esfera(partes.cabeca, 0, 0.25, 0.025, 0.175, AV.cabelo); cab.scale.set(1, 0.9, 1);
+  partes.cabeloLongo = malha(new THREE.BoxGeometry(0.31, 0.36, 0.1), AV.cabelo, partes.cabeca, 0, 0.1, 0.14);
+  /* boné: copa e aba voltada para a frente */
+  partes.bone = new THREE.Group(); partes.cabeca.add(partes.bone);
+  malha(new THREE.SphereGeometry(0.19, 20, 10, 0, Math.PI*2, 0, Math.PI/2), AV.bone, partes.bone, 0, 0.25, 0.01);
+  malha(new THREE.BoxGeometry(0.24, 0.025, 0.16), AV.bone, partes.bone, 0, 0.262, -0.24);
+  /* mochila com bolso e alças */
+  partes.mochila = new THREE.Group(); avatar.add(partes.mochila);
+  malha(new THREE.BoxGeometry(0.34, 0.42, 0.15), AV.mochila, partes.mochila, 0, 1.12, 0.205);
+  malha(new THREE.BoxGeometry(0.22, 0.16, 0.04), AV.detalhe, partes.mochila, 0, 1.03, 0.295);
+  for (const x of [-0.14, 0.14]) malha(new THREE.BoxGeometry(0.05, 0.4, 0.29), AV.mochila, partes.mochila, x, 1.2, 0.0);
+})();
+
+/* espelho de verdade na parede do fundo do elevador (reflete a cena e o próprio avatar) */
+let espelho = null;
+if (THREE.Reflector) {
+  espelho = new THREE.Reflector(new THREE.PlaneGeometry(40*S, 1.8), {textureWidth:768, textureHeight:768, color:0xb8c4c8, clipBias:0.003});
+  espelho.position.set(800*S, 0.25 + 0.9, 424*S + 0.152); cena.add(espelho);
+  const refletir = espelho.onBeforeRender;
+  espelho.onBeforeRender = function (r, sc, cam) { const v = avatar.visible; avatar.visible = true; refletir.call(this, r, sc, cam); avatar.visible = v; };
+}
+
+/* Avatar compatível com o andar: altura total (m) e proporção da cabeça */
+const PERFIS = [
+  {rot:'Criança de 5 anos',      alt:1.10, cabeca:1.4,  camisa:0xffd23f, calca:0x1f4e9c, bermuda:true,  mangaCurta:true,  bone:0xe4572e, mochila:0xe4572e, sapato:0xf4f4f4},
+  {rot:'Criança de 9 anos',      alt:1.35, cabeca:1.25, camisa:0xf2f2f2, calca:0x1f3a6b, bermuda:true,  mangaCurta:true,  mochila:0x2e86ab, sapato:0x2a2a2a},
+  {rot:'Adolescente de 13 anos', alt:1.56, cabeca:1.12, camisa:0xf2f2f2, calca:0x1f3a6b, mangaCurta:true, mochila:0x57a773, sapato:0x2a2a2a},
+  {rot:'Adolescente de 16 anos', alt:1.70, cabeca:1.04, camisa:0x3d7a5a, calca:0x2b4a6f, mangaCurta:true, mochila:0x444444, sapato:0xf4f4f4},
+  {rot:'Adulto',                 alt:1.76, cabeca:1,    camisa:0xff9f2e, calca:0x2b4a6f, mochila:0x2e86ab, sapato:0x2a2a2a},
+  {rot:'Adulto',                 alt:1.76, cabeca:1,    camisa:0x6b4fa0, calca:0x333333, mochila:0x8a6238, sapato:0x2a2a2a}
+];
+function aplicarPerfil() {
+  const pf = PERFIS[estado.andar];
+  avatar.scale.setScalar(pf.alt / (1.42 + 0.4 * pf.cabeca));
+  partes.cabeca.scale.setScalar(pf.cabeca);
+  estado.olho = pf.alt * 0.92;
+  const av = AVATARES[jogador.avatar] || AVATARES[0];
+  AV.pele.color.setHex(av.pele); AV.cabelo.color.setHex(av.cabelo); partes.cabeloLongo.visible = av.longo;
+  AV.camisa.color.setHex(pf.camisa); AV.calca.color.setHex(pf.calca); AV.mochila.color.setHex(av.cor); AV.sapato.color.setHex(pf.sapato);
+  AV.canela.color.copy(pf.bermuda ? AV.pele.color : AV.calca.color);
+  AV.antebraco.color.copy(pf.mangaCurta ? AV.pele.color : AV.camisa.color);
+  partes.bone.visible = !!pf.bone; AV.bone.color.setHex(av.cor);
+}
+
+/* ================= Estado, câmera e movimento ================= */
+const estado = {andar:0, pos:{x:800, y:720}, giro:0, rota:null, aoChegar:null, avisouPorta:false, desafioAberto:false, rankingAberto:false, entrada:true, painel:false, viajando:false, noElev:false, sair:false, saindo:false, festa:0, pedirPainel:false, primeira:false,
+                camGiro:0, camElev:0.9, camDist:4.5, olharV:0, fase:0, andando:0, olho:1};
+const teclas = new Set(), VEL = 125, GIRO = 2.3;
+const difAng = (a, b) => ((b - a + Math.PI) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI) - Math.PI;
+
+/* rotas: pequena malha de pontos ao redor da cabine do elevador */
+const NOS = {W:{x:700,y:450}, E:{x:900,y:450}, NW:{x:700,y:380}, NE:{x:900,y:380}, SW:{x:700,y:520}, SE:{x:900,y:520}, N:{x:800,y:380}, S:{x:800,y:520}, EL:{x:800,y:450}};
+const VIZ = {W:['NW','SW'], E:['NE','SE'], NW:['W','N'], NE:['E','N'], SW:['W','S'], SE:['E','S'], N:['NW','NE'], S:['SW','SE','EL'], EL:['S']};
+function ligar(p) {
+  const a = ambienteEm(p);
+  if (a) {
+    if (a.id === 'piscina') return {no:'N', pts:[{x:800, y:p.y}], amb:a};
+    if (a.id === 'recepcao') return {no:'S', pts:[{x:800, y:p.y}], amb:a};
+    return {no:a.px < 800 ? 'W' : 'E', pts:[{x:a.px, y:p.y}, {x:a.px, y:EIXO}], amb:a};
+  }
+  if (dentro(p, CAB)) return {no:'EL', pts:[{x:800, y:p.y}]};
+  if (dentro(p, PORTA)) return {no:'S', pts:[{x:800, y:p.y}]};
+  if (p.x > 636 && p.x < 964 && p.y >= 490) return {no:'S', pts:[{x:p.x, y:520}]};
+  if (p.x > 636 && p.x < 964 && p.y <= 410) return {no:'N', pts:[{x:p.x, y:380}]};
+  if (p.x < 758) return {no:'W', pts:[{x:p.x, y:EIXO}]};
+  if (p.x > 842) return {no:'E', pts:[{x:p.x, y:EIXO}]};
+  if (p.y < 450) return {no:'N', pts:[{x:p.x, y:380}]};
+  return {no:'S', pts:[{x:p.x, y:520}]};
+}
+function caminhoNos(de, para) {
+  if (de === para) return [];
+  const ant = {[de]:null}, fila = [de];
+  while (fila.length) { const n = fila.shift(); if (n === para) break; for (const v of VIZ[n]) if (!(v in ant)) { ant[v] = n; fila.push(v); } }
+  const r = []; for (let n = para; n; n = ant[n]) r.unshift(NOS[n]);
+  return r;
+}
+/* a porta do elevador só dá passagem com o desafio do andar resolvido; a única exceção é sair da cabine ao chegar */
+function portaPermitida() { return jogo.resolvido[estado.andar] || estado.saindo; }
+function tracarRota(de, para) {
+  const A = ligar(de), B = ligar(para);
+  if (A.amb && A.amb === B.amb) return [para];
+  return [...A.pts, ...caminhoNos(A.no, B.no), ...B.pts.slice().reverse(), para];
+}
+
+function passo(dt) {
+  const p = estado.pos;
+  let moveu = false, porTeclas = false;
+  if (!estado.painel && !estado.viajando && !(estado.festa > 0)) {
+    const vira = (teclas.has('ArrowRight') || teclas.has('d') ? 1 : 0) - (teclas.has('ArrowLeft') || teclas.has('a') ? 1 : 0);
+    const anda = (teclas.has('ArrowUp') || teclas.has('w') ? 1 : 0) - (teclas.has('ArrowDown') || teclas.has('s') ? 1 : 0);
+    if (vira || anda) {
+      porTeclas = true; estado.rota = null; estado.aoChegar = null;
+      estado.giro += vira * GIRO * dt;
+      if (anda) {
+        const d = VEL * dt * (anda > 0 ? 1 : -0.6), fx = Math.sin(estado.giro), fy = -Math.cos(estado.giro);
+        const nx = {x:p.x + fx*d, y:p.y}; if (podePisar(nx)) { p.x = nx.x; moveu = true; }
+        const ny = {x:p.x, y:p.y + fy*d}; if (podePisar(ny)) { p.y = ny.y; moveu = true; }
+      }
+    } else if (estado.rota) {
+      let resto = VEL * 1.15 * dt;
+      while (resto > 0 && estado.rota.length) {
+        const alvo = estado.rota[0], dx = alvo.x - p.x, dy = alvo.y - p.y, dist = Math.hypot(dx, dy);
+        if (dist > 1) { const quer = Math.atan2(dx, -dy), df = difAng(estado.giro, quer); estado.giro += Math.max(-6*dt, Math.min(6*dt, df)); if (Math.abs(df) > 1.2) break; }
+        const av = Math.min(dist, resto), prox = dist > 0 ? {x:p.x + dx / dist * av, y:p.y + dy / dist * av} : alvo;
+        if ((abertura < 0.6 || !portaPermitida()) && dentro(prox, PORTA) && !dentro(p, PORTA)) break; /* espera a porta abrir */
+        p.x = prox.x; p.y = prox.y; resto -= av; if (dist <= av + 1e-6) estado.rota.shift();
+        moveu = true;
+      }
+      if (!estado.rota.length) { estado.rota = null; const f = estado.aoChegar; estado.aoChegar = null; if (f) f(); }
+    }
+    const agora = dentro(p, CAB);
+    if (agora && !estado.noElev) { estado.sair = false; estado.pedirPainel = true; }
+    if (!agora) { estado.sair = false; estado.pedirPainel = false; }
+    estado.noElev = agora;
+  }
+
+  /* portas do elevador: abrem quando alguém se aproxima por fora, fecham quando a pessoa entra */
+  {
+    const naCab = dentro(p, CAB), naPorta = dentro(p, PORTA);
+    const perto = !naCab && p.y > 478 && Math.hypot(p.x - 800, p.y - 495) < 85;
+    if (!naCab && !naPorta) estado.saindo = false; /* já saiu da cabine: daqui em diante só o desafio resolvido abre a porta */
+    const livre = jogo.resolvido[estado.andar], passa = livre || estado.saindo;
+    const quer = estado.viajando ? 0 : naCab ? (estado.sair && passa ? 1 : 0) : ((perto && livre) || (naPorta && passa) ? 1 : 0);
+    if (perto && !livre && !naPorta && !estado.avisouPorta) { estado.avisouPorta = true; aviso('Elevador bloqueado. Resolva o desafio do totem para abrir a porta.'); }
+    if (!perto) estado.avisouPorta = false;
+    abertura += Math.max(-dt / 0.6, Math.min(dt / 0.6, quer - abertura));
+    if (portas.e) { portas.e.position.x = (794.4 - 11 * abertura) * S; portas.d.position.x = (805.6 + 11 * abertura) * S; }
+    if (naCab && estado.pedirPainel && abertura < 0.02 && !estado.painel && !estado.viajando) { estado.pedirPainel = false; abrirPainel(); }
+  }
+
+  /* avatar */
+  estado.andando += ((moveu ? 1 : 0) - estado.andando) * Math.min(1, dt * 10);
+  estado.fase += dt * 9 * estado.andando;
+  const bal = Math.sin(estado.fase) * 0.6 * estado.andando;
+  partes.pernaE.rotation.x = bal; partes.pernaD.rotation.x = -bal; partes.bracoE.rotation.x = -bal * 0.8; partes.bracoD.rotation.x = bal * 0.8;
+  avatar.position.set(p.x*S, 0, p.y*S); avatar.rotation.y = -estado.giro;
+  partes.bracoE.rotation.z = partes.bracoD.rotation.z = 0;
+  if (estado.festa > 0) { /* comemoração: pulos, braços para cima e confete */
+    estado.festa -= dt;
+    const tf = performance.now() / 1000, pulo = Math.abs(Math.sin(tf * 5.5));
+    avatar.position.y = pulo * 0.55;
+    partes.bracoE.rotation.x = partes.bracoD.rotation.x = Math.PI - 0.25 + Math.sin(tf * 11) * 0.3;
+    partes.bracoE.rotation.z = -0.4; partes.bracoD.rotation.z = 0.4;
+    partes.pernaE.rotation.x = pulo * 0.5; partes.pernaD.rotation.x = -pulo * 0.35;
+    for (const c of confete.children) {
+      c.position.y -= c.userData.v * dt; c.position.x += Math.sin(tf * 2 + c.userData.f) * dt * 0.4; c.rotation.x += dt * c.userData.g; c.rotation.z += dt * c.userData.g * 0.7;
+      if (c.position.y < 0.02) c.position.y = 3.6 + Math.random() * 1.2;
+    }
+    if (estado.festa <= 0) fimFesta();
+  }
+
+  /* câmera */
+  const fx = Math.sin(estado.giro), fz = -Math.cos(estado.giro);
+  if (estado.primeira) {
+    const cv = Math.cos(estado.olharV);
+    camera.position.set(p.x*S, estado.olho + Math.abs(Math.sin(estado.fase)) * 0.025 * estado.andando, p.y*S);
+    camera.lookAt(p.x*S + fx*cv, camera.position.y + Math.sin(estado.olharV), p.y*S + fz*cv);
+  } else {
+    estado.camGiro += estado.festa > 0 ? dt * 0.9 : difAng(estado.camGiro, estado.giro) * Math.min(1, dt * 3.5);
+    const cx = Math.sin(estado.camGiro), cz = -Math.cos(estado.camGiro), h = Math.cos(estado.camElev) * estado.camDist;
+    const alvoY = estado.olho * 0.75;
+    camera.position.set(p.x*S - cx*h, alvoY + Math.sin(estado.camElev) * estado.camDist, p.y*S - cz*h);
+    camera.lookAt(p.x*S, alvoY, p.y*S);
+  }
+  /* prêmios: giram, flutuam e são capturados ao encostar */
+  const tAgora = performance.now() / 1000;
+  for (let i = premiosAtivos.length - 1; i >= 0; i--) {
+    const pr = premiosAtivos[i];
+    pr.malha.rotation.y += dt * 1.8; pr.malha.position.y = 1.0 + Math.sin(tAgora * 2 + i) * 0.08;
+    if (!estado.viajando && Math.hypot(p.x - pr.def.x, p.y - pr.def.y) < 24) {
+      grupoAndar.remove(pr.malha); pr.malha.geometry.dispose(); premiosAtivos.splice(i, 1);
+      jogo.coletados[estado.andar].add(pr.def.id); jogo.pontos += pr.def.valor;
+      aviso(`+${pr.def.valor} pontos`); atualizarPlacar();
+    }
+  }
+  if (holo) { holo.position.y = 2.05 + Math.sin(tAgora * 1.6) * 0.03; holo.material.opacity = 0.86 + Math.sin(tAgora * 7) * 0.05; }
+  document.getElementById('acao').hidden = !(pertoTotem() && !estado.painel && !estado.viajando && !(estado.festa > 0));
+  if (espelho) espelho.visible = Math.hypot(p.x - 800, p.y - 450) < 170;
+  if (texAgua) { texAgua.offset.x += dt * 0.012; texAgua.offset.y += dt * 0.007; }
+  atualizarFicha();
+}
+
+/* comemoração ao concluir o último andar */
+const confete = new THREE.Group(); cena.add(confete);
+let visaoAntes = false;
+function iniciarFesta() {
+  if (estado.festa > 0) return;
+  estado.rota = null; teclas.clear();
+  visaoAntes = estado.primeira; estado.primeira = false; aplicarVisao();
+  estado.camGiro = estado.giro + Math.PI; estado.camDist = 6.5; estado.camElev = 0.95; /* começa de frente e do alto, por cima das paredes */
+  document.body.classList.add('festa');
+  const geo = new THREE.BoxGeometry(0.09, 0.012, 0.06), cx = estado.pos.x * S, cz = estado.pos.y * S;
+  for (let i = 0; i < 140; i++) {
+    const m = new THREE.Mesh(geo, i % 6 === 5 ? MAT.ouro : CORES5[i % 5]); const a = Math.random() * 6.283, r = Math.random() * 2.6;
+    m.position.set(cx + Math.cos(a) * r, 0.4 + Math.random() * 4.2, cz + Math.sin(a) * r); m.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
+    m.userData = {v:0.9 + Math.random() * 1.3, f:Math.random() * 6, g:2 + Math.random() * 5}; confete.add(m);
+  }
+  estado.festa = 8;
+  aviso(`Parabéns, ${jogador.nome || 'jogador'}! Você chegou ao topo da SQL Tower com ${jogo.pontos} pontos.`);
+}
+function fimFesta() {
+  estado.festa = 0; document.body.classList.remove('festa');
+  if (confete.children.length) confete.children[0].geometry.dispose();
+  while (confete.children.length) confete.remove(confete.children[0]);
+  estado.primeira = visaoAntes; estado.camGiro = estado.giro; estado.camDist = 4.5; estado.camElev = 0.9; aplicarVisao();
+  abrirRanking();
+}
+function aplicarVisao() {
+  avatar.visible = !estado.primeira; grupoTeto.visible = estado.primeira; rot3.visible = !estado.primeira; rot1.visible = estado.primeira;
+  camera.fov = estado.primeira ? 72 : 55; camera.updateProjectionMatrix();
+  document.getElementById('visao').textContent = estado.primeira ? 'Mudar para 3ª pessoa (V)' : 'Mudar para 1ª pessoa (V)';
+}
+function trocarVisao() { estado.primeira = !estado.primeira; estado.camGiro = estado.giro; estado.olharV = 0; aplicarVisao(); }
+
+function ajustarTamanho() {
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+let ultimo = performance.now();
+function quadro(t) { const dt = Math.min(0.05, (t - ultimo) / 1000); ultimo = t; passo(dt); renderer.render(cena, camera); requestAnimationFrame(quadro); }
+
+/* ================= Mini torre ================= */
+const mini = document.getElementById('mini');
+const MX = -270, MW = 250, MH = 58, MTOPO = 60;
+const miniY = i => MTOPO + (ANDARES.length - 1 - i) * MH;
+function desenharMini() {
+  let s = `<path d="M${MX-4} ${MTOPO}h${MW+8}l-18 -22h-${MW-28}z" fill="#24424d" stroke="#2f6170" stroke-width="2"/>`;
+  s += `<line x1="-145" y1="38" x2="-145" y2="20" stroke="#a9c6c9" stroke-width="3"/><path d="M-145 20h20l-6 6 6 6h-20z" fill="#ffb347"/>`;
+  ANDARES.forEach((an, i) => {
+    const y = miniY(i);
+    s += `<g class="andar-mini" data-andar="${i}" tabindex="0" role="button" aria-label="Ir para ${an.rotulo}: ${an.titulo}"><title>${an.rotulo} · ${an.titulo}</title>` +
+         `<rect class="corpo" x="${MX}" y="${y}" width="${MW}" height="${MH}"/>` +
+         `<text x="${MX+10}" y="${y+37}" style="font-family:var(--display);font-size:24px">${an.num}</text>` +
+         `<text x="${MX+34}" y="${y+35}">${an.curto}</text>`;
+    for (let k = 0; k < 3; k++) s += `<rect class="janela" x="${-118 + k*32}" y="${y+16}" width="20" height="26" rx="3"/>`;
+    s += `</g>`;
+  });
+  s += `<rect x="-160" y="${MTOPO}" width="30" height="${ANDARES.length*MH}" fill="#0f2a33" stroke="#2f6170" stroke-width="2" pointer-events="none"/>`;
+  s += `<rect id="cabine" x="-156" y="${miniY(0)+8}" width="22" height="${MH-16}" rx="4" fill="#eef6f4" stroke="#24424d" stroke-width="2" pointer-events="none"/>`;
+  s += `<line x1="-280" y1="${miniY(0)+MH+3}" x2="-10" y2="${miniY(0)+MH+3}" stroke="#57a773" stroke-width="6" stroke-linecap="round"/>`;
+  mini.innerHTML = s;
+}
+function atualizarMini() {
+  mini.querySelectorAll('.andar-mini').forEach(g => { g.classList.toggle('atual', +g.dataset.andar === estado.andar); g.classList.toggle('bloq', +g.dataset.andar > maxLib()); });
+  document.getElementById('cabine').style.transform = `translateY(${-estado.andar * MH}px)`;
+}
+
+/* ================= Ficha do local ================= */
+let localAtual = '';
+function atualizarFicha() {
+  const andar = ANDARES[estado.andar], p = estado.pos, a = ambienteEm(p);
+  let nome, ala, faixa;
+  if (a) { const d = defAmb(a, estado.andar); nome = d.nome; ala = d.ala; faixa = d.faixa; }
+  else if (noElevador(p)) { nome = 'Elevador'; ala = 'Comum'; faixa = andar.publico; }
+  else if (p.x > 620 && p.x < 980) { nome = 'Hall central'; ala = 'Comum'; faixa = andar.publico; }
+  else if (andar.pronto) { const c = p.x < 800; nome = c ? 'Corredor da Creche' : 'Corredor da Pré-escola'; ala = c ? 'Creche' : 'Pré-escola'; faixa = FAIXA[ala]; }
+  else { const o = p.x < 800; nome = o ? 'Corredor oeste' : 'Corredor leste'; ala = andar.mapa ? (o ? 'Oeste' : 'Leste') : 'A definir'; faixa = andar.publico; }
+  const chave = estado.andar + nome;
+  if (chave === localAtual) return;
+  localAtual = chave;
+  document.getElementById('f-nome').textContent = nome;
+  document.getElementById('f-andar').textContent = andar.rotulo;
+  document.getElementById('f-ala').textContent = ala;
+  document.getElementById('f-faixa').textContent = faixa;
+  document.getElementById('f-avatar').textContent = PERFIS[estado.andar].rot;
+}
+
+/* ================= Placar, avisos e desafio do totem ================= */
+function atualizarPlacar() {
+  document.getElementById('p-pontos').textContent = jogo.pontos;
+  document.getElementById('p-jogador').textContent = jogador.nome ? `${jogador.nome} · ${jogador.turma}` : '';
+  enviarPontuacao();
+  document.getElementById('p-premios').textContent = `${jogo.coletados[estado.andar].size} de ${PREMIOS.length}`;
+  document.getElementById('p-desafio').textContent = jogo.resolvido.every(Boolean) ? 'Torre concluída' : jogo.resolvido[estado.andar] ? 'Resolvido' : 'Pendente';
+}
+let tAviso = 0;
+function aviso(msg) { const el = document.getElementById('aviso'); el.textContent = msg; el.classList.add('ativo'); clearTimeout(tAviso); tAviso = setTimeout(() => el.classList.remove('ativo'), 2600); }
+const pertoTotem = () => Math.hypot(estado.pos.x - TOTEM.x, estado.pos.y - TOTEM.y) < 70;
+const esc = v => String(v === null ? 'NULL' : v).replace(/[&<>]/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;'}[c]));
+function htmlTabela(titulo, cols, rows) {
+  return `<div class="tab-holo"><h3>${esc(titulo)}</h3><table><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>` +
+         rows.map(r => `<tr>${r.map(v => `<td>${esc(typeof v === 'number' && !Number.isInteger(v) ? Math.round(v * 100) / 100 : v)}</td>`).join('')}</tr>`).join('') + `</tbody></table></div>`;
+}
+const dFundo = document.getElementById('desafio-fundo'), dSql = document.getElementById('d-sql'), dRet = document.getElementById('d-retorno');
+function pontosDesafio(i) { return Math.max(50, 100 - 10 * jogo.erros[i]); }
+function abrirDesafio() {
+  if (estado.painel || estado.viajando || estado.festa > 0) return;
+  validarDesafios();
+  const i = estado.andar, d = DESAFIOS[i];
+  estado.painel = true; estado.desafioAberto = true; estado.rota = null; teclas.clear();
+  document.getElementById('d-nivel').textContent = `NÍVEL ${i + 1} DE ${DESAFIOS.length} · ${d.conceito.toUpperCase()}`;
+  document.getElementById('d-titulo').textContent = `Desafio do ${ANDARES[i].rotulo}`;
+  document.getElementById('d-enunciado').textContent = d.enunciado;
+  document.getElementById('d-tabelas').innerHTML = d.tabelas.map(n => htmlTabela('tabela ' + n, DADOS[n].cols, DADOS[n].rows)).join('');
+  document.getElementById('d-resultado').innerHTML = ''; document.getElementById('d-dica').textContent = jogo.erros[i] >= 2 && !jogo.resolvido[i] && d.dica ? 'Dica: ' + d.dica : '';
+  dRet.className = jogo.resolvido[i] ? 'ok' : ''; dRet.textContent = jogo.resolvido[i] ? 'Desafio já resolvido. Você pode praticar outras consultas aqui.' : '';
+  document.getElementById('d-pontos').textContent = jogo.resolvido[i] ? '' : `Vale ${pontosDesafio(i)} pontos (10 a menos por tentativa errada, mínimo 50)`;
+  dSql.value = rascunhos[i] || '';
+  dFundo.classList.add('aberto'); dSql.focus();
+}
+const rascunhos = {};
+function fecharDesafio() { rascunhos[estado.andar] = dSql.value; estado.painel = false; estado.desafioAberto = false; dFundo.classList.remove('aberto'); dSql.blur(); }
+function executarDesafio() {
+  const i = estado.andar, r = avaliar(i, dSql.value), ja = jogo.resolvido[i];
+  rascunhos[i] = dSql.value;
+  document.getElementById('d-resultado').innerHTML = r.res && r.res.columns.length ? htmlTabela('resultado da sua consulta', r.res.columns, r.res.values.slice(0, 50)) : '';
+  if (r.ok) {
+    if (!ja) {
+      const pts = pontosDesafio(i); jogo.pontos += pts; jogo.resolvido[i] = true;
+      atualizarHolo(); atualizarMini(); atualizarPlacar();
+      const fim = jogo.resolvido.every(Boolean);
+      dRet.className = 'ok'; dRet.textContent = fim ? `Correto! +${pts} pontos. Você concluiu a SQL Tower!` : `Correto! +${pts} pontos. A porta do elevador foi liberada.`;
+      document.getElementById('d-pontos').textContent = ''; document.getElementById('d-dica').textContent = '';
+      setTimeout(() => { const aberto = estado.desafioAberto && estado.andar === i; if (aberto) fecharDesafio(); if (fim) { if (!estado.painel && !estado.viajando) iniciarFesta(); } else if (aberto) aviso('Elevador liberado: próximo andar disponível.'); }, fim ? 1500 : 2200);
+    } else { dRet.className = 'ok'; dRet.textContent = 'Correto! Esta consulta também resolve o desafio.'; }
+  } else {
+    dRet.className = 'erro'; dRet.textContent = r.msg;
+    if (!ja && !r.vazio && db) { jogo.erros[i]++; document.getElementById('d-pontos').textContent = `Vale ${pontosDesafio(i)} pontos (10 a menos por tentativa errada, mínimo 50)`; if (jogo.erros[i] >= 2 && DESAFIOS[i].dica) document.getElementById('d-dica').textContent = 'Dica: ' + DESAFIOS[i].dica; }
+  }
+}
+document.getElementById('d-executar').addEventListener('click', executarDesafio);
+document.getElementById('d-fechar').addEventListener('click', fecharDesafio);
+document.getElementById('acao').addEventListener('click', abrirDesafio);
+dSql.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); executarDesafio(); } });
+dFundo.addEventListener('click', e => { if (e.target === dFundo) fecharDesafio(); });
+
+/* ================= Entrada: nome, turma e avatar ================= */
+const eFundo = document.getElementById('entrada-fundo'), eNome = document.getElementById('e-nome'), eTurma = document.getElementById('e-turma'), eAv = document.getElementById('e-avatares');
+const hex = n => '#' + n.toString(16).padStart(6, '0');
+function marcarAvatar(i) { jogador.avatar = i; eAv.querySelectorAll('button').forEach((b, k) => { b.setAttribute('aria-checked', k === i ? 'true' : 'false'); b.tabIndex = k === i ? 0 : -1; }); }
+AVATARES.forEach((a, i) => {
+  const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'radio'); b.setAttribute('aria-label', 'Avatar ' + (i + 1));
+  b.innerHTML = `<svg viewBox="0 0 60 78" aria-hidden="true">` + (a.longo ? `<rect x="13" y="14" width="34" height="34" rx="12" fill="${hex(a.cabelo)}"/>` : '') +
+    `<rect x="14" y="46" width="32" height="30" rx="9" fill="#ffd23f"/><rect x="24" y="52" width="12" height="9" rx="2" fill="${hex(a.cor)}"/>` +
+    `<circle cx="30" cy="28" r="15" fill="${hex(a.pele)}"/><path d="M15 26a15 15 0 0 1 30 0z" fill="${hex(a.cabelo)}"/>` +
+    `<path d="M13 22a17 14 0 0 1 34 0z" fill="${hex(a.cor)}"/><rect x="11" y="20" width="24" height="5" rx="2.5" fill="${hex(a.cor)}"/>` +
+    `<circle cx="24" cy="31" r="1.8" fill="#222"/><circle cx="36" cy="31" r="1.8" fill="#222"/></svg>`;
+  b.addEventListener('click', () => marcarAvatar(i));
+  b.addEventListener('keydown', e => { const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (d) { e.preventDefault(); const n = (i + d + AVATARES.length) % AVATARES.length; marcarAvatar(n); eAv.children[n].focus(); } });
+  eAv.appendChild(b);
+});
+let salvo = null;
+try { salvo = JSON.parse(localStorage.getItem('sqltower-jogador') || 'null'); } catch (err) { salvo = null; }
+if (salvo) { eNome.value = salvo.nome || ''; eTurma.value = salvo.turma || ''; }
+marcarAvatar(salvo && AVATARES[salvo.avatar] ? salvo.avatar : 0);
+function novoId() { try { if (crypto.randomUUID) return crypto.randomUUID(); } catch (err) {} return 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, () => Math.floor(Math.random() * 16).toString(16)); }
+document.getElementById('entrada').addEventListener('submit', e => {
+  e.preventDefault();
+  const nome = eNome.value.trim().replace(/\s+/g, ' '), turma = eTurma.value.trim().replace(/\s+/g, ' ');
+  if (!nome || !turma) { document.getElementById('e-erro').textContent = 'Informe seu nome e o nome da turma para entrar.'; (nome ? eTurma : eNome).focus(); return; }
+  jogador.nome = nome; jogador.turma = turma;
+  /* mesmo nome e turma neste navegador continuam o mesmo registro no ranking */
+  jogador.id = salvo && salvo.id && salvo.nome === nome && salvo.turma === turma ? salvo.id : novoId();
+  try { localStorage.setItem('sqltower-jogador', JSON.stringify(jogador)); } catch (err) {}
+  const bt = document.getElementById('e-entrar'); bt.disabled = true; bt.textContent = 'Carregando os desafios…';
+  carregarDesafios(turma).then(() => {
+    aplicarPerfil(); atualizarHolo(); atualizarPlacar();
+    eFundo.classList.remove('aberto'); estado.entrada = false; estado.painel = false;
+    aviso(`Boa sorte, ${nome}! Procure o totem ao lado do elevador.`);
+  });
+});
+
+/* ================= Ranking online ================= */
+const rFundo = document.getElementById('ranking-fundo'), rLista = document.getElementById('r-lista'), rEstado = document.getElementById('r-estado');
+let rSoTurma = true;
+function carregarRanking() {
+  document.getElementById('r-turma').setAttribute('aria-pressed', rSoTurma); document.getElementById('r-geral').setAttribute('aria-pressed', !rSoTurma);
+  if (!ONLINE.url) { rLista.innerHTML = ''; rEstado.textContent = 'A pontuação online não está configurada nesta cópia do jogo.'; return; }
+  rEstado.textContent = 'Carregando…';
+  rpc('sqltower_ranking', {p_turma:rSoTurma ? jogador.turma : null}).then(linhas => {
+    linhas = linhas || [];
+    rEstado.textContent = linhas.length ? `${linhas.length} jogador(es)` : 'Ainda não há pontuações registradas.';
+    rLista.innerHTML = linhas.length ? `<div class="tab-holo"><table><thead><tr><th>#</th><th>nome</th><th>turma</th><th>pontos</th><th>andares</th><th>premios</th></tr></thead><tbody>` +
+      linhas.map((l, k) => `<tr class="${l.nome === jogador.nome && l.turma === jogador.turma ? 'eu' : ''}"><td>${k + 1}</td><td>${esc(l.nome)}</td><td>${esc(l.turma)}</td><td>${esc(l.pontos)}</td><td>${esc(l.andares)} de ${ANDARES.length}</td><td>${esc(l.premios)}</td></tr>`).join('') + `</tbody></table></div>` : '';
+  }).catch(() => { rLista.innerHTML = ''; rEstado.textContent = 'Não foi possível carregar o ranking. Verifique a conexão com a internet.'; });
+}
+function abrirRanking() { if (estado.painel || estado.viajando || estado.festa > 0) return; estado.painel = true; estado.rankingAberto = true; teclas.clear(); rFundo.classList.add('aberto'); carregarRanking(); document.getElementById('r-fechar').focus(); }
+function fecharRanking() { estado.painel = false; estado.rankingAberto = false; rFundo.classList.remove('aberto'); }
+document.getElementById('abrir-ranking').addEventListener('click', e => { e.currentTarget.blur(); abrirRanking(); });
+document.getElementById('r-fechar').addEventListener('click', fecharRanking);
+document.getElementById('r-turma').addEventListener('click', () => { rSoTurma = true; carregarRanking(); });
+document.getElementById('r-geral').addEventListener('click', () => { rSoTurma = false; carregarRanking(); });
+rFundo.addEventListener('click', e => { if (e.target === rFundo) fecharRanking(); });
+
+/* ================= Elevador ================= */
+const fundo = document.getElementById('painel-fundo'), botoes = document.getElementById('botoes'), viagem = document.getElementById('viagem');
+function abrirPainel() {
+  if (!jogo.resolvido[estado.andar]) { aviso('Resolva o desafio do totem deste andar para usar o elevador.'); return; }
+  estado.painel = true; teclas.clear(); botoes.innerHTML = '';
+  for (let i = ANDARES.length - 1; i >= 0; i--) {
+    const an = ANDARES[i], b = document.createElement('button');
+    const bloq = i > maxLib(); b.type = 'button'; b.disabled = i === estado.andar || bloq;
+    b.innerHTML = `<span class="num">${an.num}</span><span>${an.titulo}<small>${i === estado.andar ? 'Você está aqui' : bloq ? an.rotulo + ' · bloqueado: resolva o desafio do andar anterior' : an.rotulo}</small></span>`;
+    if (i === estado.andar) b.classList.add('aqui');
+    b.addEventListener('click', () => viajar(i));
+    botoes.appendChild(b);
+  }
+  fundo.classList.add('aberto');
+  const primeiro = botoes.querySelector('button:not(:disabled)'); if (primeiro) primeiro.focus();
+}
+function fecharPainel() { estado.painel = false; estado.sair = true; estado.pedirPainel = false; fundo.classList.remove('aberto'); }
+function viajar(destino) {
+  if (destino === estado.andar || estado.viajando) return;
+  if (!jogo.resolvido[estado.andar]) { aviso('Resolva o desafio do totem deste andar para usar o elevador.'); return; }
+  if (destino > maxLib()) { aviso('Andar bloqueado. Resolva o desafio do totem do andar anterior.'); return; }
+  fecharPainel();
+  estado.viajando = true; estado.sair = false; estado.rota = null; teclas.clear();
+  const an = ANDARES[destino];
+  viagem.textContent = `${destino > estado.andar ? 'Subindo' : 'Descendo'} para o ${an.rotulo}…`;
+  viagem.classList.add('ativo');
+  setTimeout(() => { estado.andar = destino; estado.pos = {x:800, y:EIXO}; estado.noElev = true; estado.saindo = true; estado.pedirPainel = false; estado.giro = estado.camGiro = Math.PI; abertura = 0; localAtual = ''; construirAndar(); atualizarMini(); }, 420);
+  setTimeout(() => { viagem.classList.remove('ativo'); estado.viajando = false; estado.sair = true; }, 1050);
+}
+
+/* ================= Entradas ================= */
+const TECLAS_MOV = ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','a','d','w','s'];
+window.addEventListener('keydown', e => {
+  if (estado.entrada) return;
+  if (e.key === 'Escape' && estado.painel) { if (estado.desafioAberto) fecharDesafio(); else if (estado.rankingAberto) fecharRanking(); else fecharPainel(); return; }
+  if (estado.painel || estado.viajando || estado.festa > 0) return;
+  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  const noBotao = e.target instanceof Element && e.target.closest('button, .andar-mini');
+  if (TECLAS_MOV.includes(k)) { teclas.add(k); e.preventDefault(); }
+  else if (k === 'e' && pertoTotem()) { abrirDesafio(); e.preventDefault(); }
+  else if (k === 'v') trocarVisao();
+  else if (k === 'f') alternarTelaCheia();
+  else if (k === 'h') alternarPaineis();
+  else if (k === 'r') abrirRanking();
+  else if (k === 'Enter' && !noBotao && noElevador(estado.pos)) { abrirPainel(); e.preventDefault(); }
+});
+window.addEventListener('keyup', e => { teclas.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key); });
+window.addEventListener('blur', () => teclas.clear());
+window.addEventListener('resize', ajustarTamanho);
+
+/* arrastar gira a visão; clique sem arrastar leva o avatar até o ponto */
+let arrasto = null;
+const raio = new THREE.Raycaster(), planoChao = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+canvas.addEventListener('pointerdown', e => { arrasto = {x:e.clientX, y:e.clientY, x0:e.clientX, y0:e.clientY, moveu:false}; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', e => {
+  if (!arrasto || estado.painel || estado.viajando) return;
+  const dx = e.clientX - arrasto.x, dy = e.clientY - arrasto.y; arrasto.x = e.clientX; arrasto.y = e.clientY;
+  if (Math.hypot(e.clientX - arrasto.x0, e.clientY - arrasto.y0) > 6) arrasto.moveu = true;
+  if (!arrasto.moveu) return;
+  estado.rota = null; estado.aoChegar = null;
+  estado.giro += dx * 0.006; if (!estado.primeira) estado.camGiro += dx * 0.006;
+  if (estado.primeira) estado.olharV = Math.max(-0.7, Math.min(0.7, estado.olharV - dy * 0.004));
+  else estado.camElev = Math.max(0.3, Math.min(1.45, estado.camElev + dy * 0.005));
+});
+canvas.addEventListener('pointerup', e => {
+  const a = arrasto; arrasto = null;
+  if (!a || a.moveu || estado.painel || estado.viajando || estado.festa > 0) return;
+  const r = canvas.getBoundingClientRect();
+  raio.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1), camera);
+  const pt = new THREE.Vector3(); if (!raio.ray.intersectPlane(planoChao, pt)) return;
+  const alvo = {x:pt.x / S, y:pt.z / S};
+  if (Math.hypot(alvo.x - TOTEM.x, alvo.y - TOTEM.y) < 30) {
+    if (pertoTotem()) { abrirDesafio(); return; }
+    estado.rota = tracarRota(estado.pos, FRENTE_TOTEM); estado.aoChegar = abrirDesafio; return;
+  }
+  if (dentro(alvo, ELEV)) {
+    if (dentro(estado.pos, CAB)) { abrirPainel(); return; }
+    estado.aoChegar = null; estado.rota = tracarRota(estado.pos, {x:800, y:EIXO}); return;
+  }
+  const amb = ambienteEm(alvo);
+  if (amb) { alvo.x = Math.min(amb.x+amb.w-22, Math.max(amb.x+22, alvo.x)); alvo.y = Math.min(amb.y+amb.h-22, Math.max(amb.y+22, alvo.y)); }
+  else if (!podePisar(alvo)) {
+    if (alvo.x > 76 && alvo.x < 1524 && alvo.y > 400 && alvo.y < 500 && (alvo.x < 636 || alvo.x > 964)) alvo.y = Math.min(484, Math.max(416, alvo.y));
+    else return;
+  }
+  estado.aoChegar = null; estado.rota = tracarRota(estado.pos, alvo);
+});
+canvas.addEventListener('pointercancel', () => { arrasto = null; });
+canvas.addEventListener('wheel', e => { e.preventDefault(); if (!estado.primeira) estado.camDist = Math.max(3.5, Math.min(26, estado.camDist * (e.deltaY > 0 ? 1.1 : 0.9))); }, {passive:false});
+
+mini.addEventListener('click', e => { const g = e.target.closest('.andar-mini'); if (g && !estado.painel) viajar(+g.dataset.andar); });
+mini.addEventListener('keydown', e => { const g = e.target.closest('.andar-mini'); if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); viajar(+g.dataset.andar); } });
+document.getElementById('visao').addEventListener('click', e => { trocarVisao(); e.currentTarget.blur(); });
+function alternarPaineis() { const oc = document.body.classList.toggle('sem-paineis'); document.getElementById('alternar-paineis').textContent = oc ? 'Mostrar painéis (H)' : 'Ocultar painéis (H)'; }
+document.getElementById('alternar-paineis').addEventListener('click', e => { alternarPaineis(); e.currentTarget.blur(); });
+function emTelaCheia() { return document.fullscreenElement || document.webkitFullscreenElement; }
+function alternarTelaCheia() {
+  try {
+    const el = document.documentElement;
+    const p = emTelaCheia() ? (document.exitFullscreen || document.webkitExitFullscreen).call(document) : (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+    if (p && p.catch) p.catch(() => aviso('O navegador não permitiu a tela cheia nesta página.'));
+  } catch (err) { aviso('O navegador não permitiu a tela cheia nesta página.'); }
+}
+function rotuloTelaCheia() { document.querySelectorAll('.cheia').forEach(b => { b.textContent = emTelaCheia() ? 'Sair da tela cheia (F)' : 'Tela cheia (F)'; }); ajustarTamanho(); }
+document.addEventListener('fullscreenchange', rotuloTelaCheia); document.addEventListener('webkitfullscreenchange', rotuloTelaCheia);
+document.querySelectorAll('.cheia').forEach(b => b.addEventListener('click', e => { alternarTelaCheia(); e.currentTarget.blur(); }));
+document.getElementById('fechar').addEventListener('click', fecharPainel);
+fundo.addEventListener('click', e => { if (e.target === fundo) fecharPainel(); });
+
+/* ================= Início ================= */
+estado.painel = true; /* o jogo começa na tela de entrada */
+desenharMini(); atualizarMini(); construirAndar(); ajustarTamanho();
+(eNome.value ? document.getElementById('e-entrar') : eNome).focus();
+window.__sqltower = {estado, jogo, jogador, ONLINE, trocarVisao, viajar, tracarRota, avaliar, abrirDesafio, DESAFIOS, ab:() => abertura};
+requestAnimationFrame(quadro);
+})();
+</script>
+</body>
+</html>
