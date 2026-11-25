@@ -1420,5 +1420,23 @@ kbd { font: 12px var(--mono); border: 1px solid var(--line); border-bottom-width
   detectServer();
 })();
 </script>
+<script>
+/* Ctrl+A (ou Cmd+A): seleciona todo o conteúdo do arquivo aberto na tela */
+(function () {
+  document.addEventListener('keydown', function (ev) {
+    if (!(ev.ctrlKey || ev.metaKey) || ev.altKey || ev.shiftKey || String(ev.key).toLowerCase() !== 'a') return;
+    var t = ev.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;   // no campo de filtro, seleciona o texto digitado
+    var stage = document.getElementById('stage');
+    if (!stage || stage.querySelector('iframe')) return;
+    var alvo = stage.querySelector('.code .src') || (stage.querySelector('.md, table, pre') ? stage : null);
+    if (!alvo) return;
+    ev.preventDefault();
+    var r = document.createRange(); r.selectNodeContents(alvo);
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  }, true);
+})();
+</script>
+
 </body>
 </html>
