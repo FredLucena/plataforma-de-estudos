@@ -9,8 +9,8 @@
 if(t!=='dark'&&t!=='light'){t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'}
 document.documentElement.setAttribute('data-theme',t)})();
 </script>
-<title>Fred Lucena | DER Fácil, Master Quiz, Batalha do Saber, Mistérios da Mansão, Explorador, O Arquivo Central, SQL Tower e Horário de Prova</title>
-<meta name="description" content="Ferramentas para a sala de aula criadas por Fred Lucena: DER Fácil, Master Quiz, Batalha do Saber, Mistérios da Mansão, Explorador, O Arquivo Central e Horário de Prova.">
+<title>Fred Lucena | DER Fácil, Master Quiz, Batalha do Saber, Mistérios da Mansão, Repositório, O Arquivo Central, SQL Tower e Horário de Prova</title>
+<meta name="description" content="Ferramentas para a sala de aula criadas por Fred Lucena: DER Fácil, Master Quiz, Batalha do Saber, Mistérios da Mansão, Repositório, O Arquivo Central e Horário de Prova.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
@@ -111,7 +111,7 @@ body:has(dialog[open]){overflow:hidden}
 .band.quiz{background:var(--violet)}
 .band.battle{background:var(--battle)}
 .band.mist{background:var(--mystery)}
-.band.exp{background:var(--graph)}
+.band.repo{background:var(--graph)}
 .band.central{background:var(--central)}
 .band.cave{background:var(--cave)}
 .band.tower{background:var(--tower)}
@@ -556,7 +556,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     <p>Ferramentas para o dia a dia de quem ensina e estuda.</p>
     <ul class="chips" aria-label="Ferramentas em Utilitários">
       <li><a href="#der-facil">DER Fácil</a></li>
-      <li><a href="#explorador">Explorador</a></li>
+      <li><a href="#repositorio">Repositório</a></li>
       <li><a href="#relogio">Horário de Prova</a></li>
     </ul>
   </div>
@@ -602,21 +602,21 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   </div>
 </section>
 
-<section class="band exp flip" id="explorador" aria-labelledby="h-exp">
+<section class="band repo flip" id="repositorio" aria-labelledby="h-repo">
   <div class="wrap inner">
     <div class="copy">
-      <h2 id="h-exp">Explorador</h2>
-      <p class="tag">Os arquivos compartilhados, direto no navegador.</p>
-      <p class="d">Escolha a pasta, abra os arquivos e baixe os que quiser. Nenhum arquivo é enviado para a internet.</p>
+      <h2 id="h-repo">Repositório</h2>
+      <p class="tag">Arquivos das aulas, para baixar.</p>
+      <p class="d">Os arquivos usados nas aulas, reunidos em um só lugar para você abrir e baixar.</p>
       <ul>
-        <li>Escolha a pasta pelo botão ou arrastando para a página</li>
-        <li>O navegador lembra a última pasta escolhida</li>
-        <li>Selecione vários arquivos e baixe de uma vez</li>
+        <li>Bases de dados em planilhas, para as aulas de Power BI</li>
+        <li>Scripts SQL de exemplo, como Alunos, Agenda e Pedido</li>
+        <li>Imagens de apoio para os exercícios</li>
       </ul>
-      <a class="btn" href="https://www.fredlucena.com.br/explorador">Abrir o Explorador</a>
+      <a class="btn" href="https://www.fredlucena.com.br/repositorio">Abrir o Repositório</a>
     </div>
     <div class="art">
-      <svg viewBox="0 0 440 280" role="img" aria-label="Janela com uma lista de pastas e arquivos e uma área de visualização">
+      <svg viewBox="0 0 440 280" role="img" aria-label="Janela com uma lista das pastas PowerBI, SQL e imagem e de dois arquivos, e uma área de visualização">
         <rect x="8" y="8" width="424" height="264" rx="12" fill="#2E323A" stroke="#fff" stroke-opacity=".16" stroke-width="2"/>
         <circle cx="30" cy="30" r="6" fill="#E5484D"/>
         <circle cx="50" cy="30" r="6" fill="#FFB224"/>
@@ -633,11 +633,11 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
           <rect x="29" y="185" width="20" height="26" rx="3"/>
         </g>
         <g fill="#fff" font-size="16">
-          <text x="62" y="82">aulas</text>
-          <text x="62" y="114">provas</text>
-          <text x="62" y="146">materiais</text>
-          <text x="62" y="171">plano-de-ensino.pdf</text>
-          <text x="62" y="203">notas.xlsx</text>
+          <text x="62" y="82">PowerBI</text>
+          <text x="62" y="114">SQL</text>
+          <text x="62" y="146">imagem</text>
+          <text x="62" y="171">Alunos.sql</text>
+          <text x="62" y="203">Vendas.xlsx</text>
         </g>
         <rect x="254" y="68" width="166" height="190" rx="8" fill="#fff" fill-opacity=".07"/>
         <g stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round">
