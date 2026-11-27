@@ -97,6 +97,8 @@ dialog.player::backdrop{background:rgba(0,0,0,.75)}
 .player-close{flex:none;border:2px solid #fff;background:transparent;color:#fff;font:inherit;font-weight:700;padding:6px 14px;border-radius:99px;cursor:pointer}
 .player-close:hover{background:#fff;color:var(--btn-text)}
 dialog.player video{display:block;width:100%;aspect-ratio:16/9;background:#000}
+dialog.player audio{display:block;width:100%;padding:8px 18px 4px;box-sizing:border-box}
+.ep-thumb svg{display:block;width:100%;height:100%}
 .player-alt{margin:0;padding:12px 18px;font-size:.95rem}
 .player-alt a{color:#fff;text-decoration:underline;text-underline-offset:3px}
 body:has(dialog[open]){overflow:hidden}
@@ -181,7 +183,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
       </div>
       <ul class="menu" id="ferramentas" aria-label="Escolha uma categoria">
         <li><a class="m-video" href="#video-aulas"><i aria-hidden="true"></i>Vídeo aulas<small>2 vídeo aulas</small></a></li>
-        <li><a class="m-pod" href="#podcasts"><i aria-hidden="true"></i>Podcasts<small>Em breve</small></a></li>
+        <li><a class="m-pod" href="#podcasts"><i aria-hidden="true"></i>Podcasts<small>1 episódio</small></a></li>
         <li><a class="m-games" href="#jogos"><i aria-hidden="true"></i>Jogos<small>6 jogos</small></a></li>
         <li><a class="m-util" href="#utilitarios"><i aria-hidden="true"></i>Utilitários<small>3 utilitários</small></a></li>
       </ul>
@@ -225,11 +227,27 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   </div>
 </section>
 
-<section class="cat empty" id="podcasts" aria-labelledby="h-podcasts">
+<section class="cat" id="podcasts" aria-labelledby="h-podcasts">
   <div class="wrap">
     <h2 id="h-podcasts">Podcasts</h2>
     <p>Episódios para ouvir e estudar em qualquer lugar.</p>
-    <div class="soon">Ainda não há podcasts aqui. Quando os primeiros episódios forem publicados, eles aparecem nesta seção.</div>
+    <ul class="episodes">
+      <li>
+        <button type="button" class="ep" id="ep-ia-sql" aria-haspopup="dialog">
+          <span class="ep-thumb">
+            <svg viewBox="0 0 440 248" width="640" height="360" role="img" aria-label="Capa do podcast Por que a IA depende do SQL" preserveAspectRatio="xMidYMid slice">
+              <rect width="440" height="248" fill="#0F3B57"/>
+              <g fill="#5CE0C0" opacity=".85" transform="translate(0,42)"><rect x="40" y="80" width="8" height="20" rx="4"/><rect x="60" y="68" width="8" height="44" rx="4"/><rect x="80" y="55" width="8" height="70" rx="4"/><rect x="100" y="72" width="8" height="36" rx="4"/><rect x="120" y="48" width="8" height="84" rx="4"/><rect x="140" y="62" width="8" height="56" rx="4"/><rect x="160" y="76" width="8" height="28" rx="4"/><rect x="180" y="58" width="8" height="64" rx="4"/><rect x="200" y="44" width="8" height="92" rx="4"/><rect x="220" y="66" width="8" height="48" rx="4"/><rect x="240" y="52" width="8" height="76" rx="4"/><rect x="260" y="74" width="8" height="32" rx="4"/><rect x="280" y="60" width="8" height="60" rx="4"/><rect x="300" y="46" width="8" height="88" rx="4"/><rect x="320" y="70" width="8" height="40" rx="4"/><rect x="340" y="56" width="8" height="68" rx="4"/><rect x="360" y="78" width="8" height="24" rx="4"/><rect x="380" y="64" width="8" height="52" rx="4"/><rect x="400" y="50" width="8" height="80" rx="4"/><rect x="420" y="72" width="8" height="36" rx="4"/></g>
+              <text x="220" y="52" text-anchor="middle" font-family="Unbounded,sans-serif" font-weight="700" font-size="30" fill="#FFD23F">IA + SQL</text>
+              <text x="220" y="222" text-anchor="middle" font-family="Figtree,sans-serif" font-weight="600" font-size="16" fill="#fff">Por que a IA depende do SQL</text>
+            </svg>
+            <span class="ep-play" aria-hidden="true"></span>
+          </span>
+          <span class="ep-title">Por que a IA depende do SQL</span>
+          <span class="ep-meta">Podcast de 18 minutos. Toque para ouvir.</span>
+        </button>
+      </li>
+    </ul>
   </div>
 </section>
 
@@ -714,31 +732,37 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     <form method="dialog"><button class="player-close" autofocus>Fechar</button></form>
   </div>
   <video controls playsinline preload="none"></video>
+  <audio controls preload="none" hidden></audio>
   <p class="player-alt"><a id="dlg-pod-alt" href="https://fredlucena.com.br/videoaulas/De%20dados%20a%20SBBDs.mp4" target="_blank" rel="noopener">Se o vídeo não tocar, abra-o em outra aba</a></p>
 </dialog>
 <script>
 (function(){
   var dlg=document.getElementById('dlg-pod'),
       vid=dlg.querySelector('video'),
+      aud=dlg.querySelector('audio'),
       tit=document.getElementById('dlg-pod-t'),
       alt=document.getElementById('dlg-pod-alt'),
-      base="https://fredlucena.com.br/videoaulas/",
       eps={
-        'ep-dados-sgbds':{t:'De Dados a SGBDs',f:'De%20dados%20a%20SBBDs.mp4'},
-        'ep-projeto-bd':{t:'Projeto de Banco de Dados',f:'Projeto%20de%20Banco%20de%20Dados%20(1).mp4'}
+        'ep-dados-sgbds':{t:'De Dados a SGBDs',u:'https://fredlucena.com.br/videoaulas/De%20dados%20a%20SBBDs.mp4',k:'Vídeo aula'},
+        'ep-projeto-bd':{t:'Projeto de Banco de Dados',u:'https://fredlucena.com.br/videoaulas/Projeto%20de%20Banco%20de%20Dados%20(1).mp4',k:'Vídeo aula'},
+        'ep-ia-sql':{t:'Por que a IA depende do SQL',u:'https://fredlucena.com.br/podcasts/Por%20que%20a%20IA%20depende%20do%20SQL.m4a',k:'Podcast',audio:true}
       };
   Object.keys(eps).forEach(function(id){
-    var btn=document.getElementById(id), e=eps[id], url=base+e.f;
+    var btn=document.getElementById(id), e=eps[id];
     btn.addEventListener('click',function(){
-      if(vid.getAttribute('src')!==url){ vid.pause(); vid.src=url; }
+      var m=e.audio?aud:vid, o=e.audio?vid:aud;
+      o.pause(); o.hidden=true;
+      m.hidden=false;
+      if(m.getAttribute('src')!==e.u){ m.pause(); m.src=e.u; }
       tit.textContent=e.t;
-      vid.setAttribute('aria-label','Vídeo aula '+e.t);
-      alt.href=url;
+      m.setAttribute('aria-label',e.k+' '+e.t);
+      alt.href=e.u;
+      alt.textContent=e.audio?'Se o áudio não tocar, abra-o em outra aba':'Se o vídeo não tocar, abra-o em outra aba';
       dlg.showModal();
-      var r=vid.play(); if(r&&r.catch) r.catch(function(){});
+      var r=m.play(); if(r&&r.catch) r.catch(function(){});
     });
   });
-  dlg.addEventListener('close',function(){ vid.pause(); });
+  dlg.addEventListener('close',function(){ vid.pause(); aud.pause(); });
   dlg.addEventListener('click',function(e){ if(e.target===dlg) dlg.close(); });
 })();
 </script>
